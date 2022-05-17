@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/project/ad542440-81ed-42a2-98ea-5b73235190ae -->
-    <groupId>com.example.application</groupId>
-    <artifactId>myapp</artifactId>
-    <name>My App</name>
+    <groupId>com.ipamc.application</groupId>
+    <artifactId>election</artifactId>
+    <name>Election</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -92,11 +92,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>exampledata</artifactId>
             <version>4.1.4</version>
@@ -144,6 +139,21 @@
             <version>5.0.3</version>
             <scope>test</scope>
         </dependency>
+        <!--  MySQL DB Connexion -->
+        <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>   
+         <dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
     </dependencies>
 
     <build>

@@ -6,7 +6,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @PageTitle("Login")
-@Route(value = "login")
+@Route(value = "connect")
 public class LoginView extends LoginOverlay {
     public LoginView() {
         setAction("login");

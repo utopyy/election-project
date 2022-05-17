@@ -155,7 +155,7 @@ public class MainLayout extends AppLayout {
         Footer layout = new Footer();
         layout.addClassNames("footer");
 
-        Optional<User> maybeUser = authenticatedUser.get();
+        /**Optional<User> maybeUser = authenticatedUser.get();
         if (maybeUser.isPresent()) {
             User user = maybeUser.get();
 
@@ -172,10 +172,10 @@ public class MainLayout extends AppLayout {
             name.addClassNames("font-medium", "text-s", "text-secondary");
 
             layout.add(avatar, name);
-        } else {
+        } else {**/
             Anchor loginLink = new Anchor("login", "Sign in");
             layout.add(loginLink);
-        }
+       // }
 
         return layout;
     }

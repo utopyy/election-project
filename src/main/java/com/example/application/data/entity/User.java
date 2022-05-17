@@ -11,18 +11,14 @@ import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
-@Entity
-@Table(name = "application_user")
-public class User extends AbstractEntity {
+
+public class User {
 
     private String username;
     private String name;
-    @JsonIgnore
     private String hashedPassword;
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Role> roles;
-    @Lob
+    private Role role;
+
     private String profilePictureUrl;
 
     public String getUsername() {
@@ -43,11 +39,11 @@ public class User extends AbstractEntity {
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
-    public Set<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
     public String getProfilePictureUrl() {
         return profilePictureUrl;

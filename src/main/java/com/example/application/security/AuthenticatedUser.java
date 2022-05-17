@@ -1,7 +1,6 @@
 package com.example.application.security;
 
 import com.example.application.data.entity.User;
-import com.example.application.data.service.UserRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import java.util.Optional;
@@ -16,12 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticatedUser {
 
-    private final UserRepository userRepository;
+    //private final UserRepository userRepository;
 
-    @Autowired
+  /*  @Autowired
     public AuthenticatedUser(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
+    }**/
 
     private Optional<Authentication> getAuthentication() {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -30,7 +29,8 @@ public class AuthenticatedUser {
     }
 
     public Optional<User> get() {
-        return getAuthentication().map(authentication -> userRepository.findByUsername(authentication.getName()));
+        //return getAuthentication().map(authentication -> userRepository.findByLogin(authentication.getName()));
+    	return null;
     }
 
     public void logout() {
