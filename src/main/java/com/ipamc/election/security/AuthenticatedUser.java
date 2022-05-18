@@ -1,6 +1,6 @@
-package com.example.application.security;
+package com.ipamc.election.security;
 
-import com.example.application.data.entity.User;
+import com.ipamc.election.data.entity.User;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import java.util.Optional;

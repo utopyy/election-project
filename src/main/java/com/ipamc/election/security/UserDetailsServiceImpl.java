@@ -1,6 +1,4 @@
-package com.example.application.security;
-
-import com.example.application.data.entity.User;
+package com.ipamc.election.security;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import com.ipamc.election.data.entity.User;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("No user present with username: " + username);
         } else {
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getHashedPassword(),
+            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getMotDePasse(),
                     getAuthorities(user));
         }
     }

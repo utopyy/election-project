@@ -1,4 +1,4 @@
-package com.example.application.data;
+package com.ipamc.election.data;
 
 public enum Role {
     USER, ADMIN, SUPER_ADMIN;

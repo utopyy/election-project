@@ -1,6 +1,6 @@
-package com.example.application.security;
+package com.ipamc.election.security;
 
-import com.example.application.views.LoginView;
+import com.ipamc.election.views.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurityConfigurerAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

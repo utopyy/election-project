@@ -1,4 +1,4 @@
-package com.example.application.views;
+package com.ipamc.election.views;
 
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
@@ -6,14 +6,16 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import javax.annotation.security.RolesAllowed;
+import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-@PageTitle("Votes")
-@Route(value = "admin/votes", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
-public class VotesView extends VerticalLayout {
+@PageTitle("S'inscrire")
+@Route(value = "register", layout = MainLayout.class)
+@RouteAlias(value = "", layout = MainLayout.class)
+@AnonymousAllowed
+public class InscriptionView extends VerticalLayout {
 
-    public VotesView() {
+    public InscriptionView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

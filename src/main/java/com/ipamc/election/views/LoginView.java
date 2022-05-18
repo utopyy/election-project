@@ -1,4 +1,4 @@
-package com.example.application.views;
+package com.ipamc.election.views;
 
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;

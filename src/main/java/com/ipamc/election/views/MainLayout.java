@@ -1,7 +1,7 @@
-package com.example.application.views;
+package com.ipamc.election.views;
 
-import com.example.application.data.entity.User;
-import com.example.application.security.AuthenticatedUser;
+import com.ipamc.election.data.entity.User;
+import com.ipamc.election.security.AuthenticatedUser;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
