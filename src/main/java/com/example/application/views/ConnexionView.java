@@ -1,20 +1,19 @@
-package com.example.application.views.listedesutilisateurs;
+package com.example.application.views;
 
-import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import javax.annotation.security.RolesAllowed;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-@PageTitle("Liste des utilisateurs")
-@Route(value = "admin/users", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
-public class ListedesutilisateursView extends VerticalLayout {
+@PageTitle("Connexion")
+@Route(value = "login", layout = MainLayout.class)
+@AnonymousAllowed
+public class ConnexionView extends VerticalLayout {
 
-    public ListedesutilisateursView() {
+    public ConnexionView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

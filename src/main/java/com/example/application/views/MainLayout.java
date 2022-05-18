@@ -2,13 +2,6 @@ package com.example.application.views;
 
 import com.example.application.data.entity.User;
 import com.example.application.security.AuthenticatedUser;
-import com.example.application.views.anciensvotes.AnciensvotesView;
-import com.example.application.views.connexion.ConnexionView;
-import com.example.application.views.gestiondusalon.GestiondusalonView;
-import com.example.application.views.listedesutilisateurs.ListedesutilisateursView;
-import com.example.application.views.salondevotes.SalondevotesView;
-import com.example.application.views.sinscrire.SinscrireView;
-import com.example.application.views.votes.VotesView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -134,19 +127,19 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("S'inscrire", "la la-user-cog", SinscrireView.class), //
+                new MenuItemInfo("S'inscrire", "la la-user-cog", InscriptionView.class), //
 
                 new MenuItemInfo("Connexion", "la la-user", ConnexionView.class), //
 
-                new MenuItemInfo("Salon de votes", "la la-vote-yea", SalondevotesView.class), //
+                new MenuItemInfo("Salon de votes", "la la-vote-yea", SalonVotesView.class), //
 
                 new MenuItemInfo("Votes", "la la-vote-yea", VotesView.class), //
 
-                new MenuItemInfo("Gestion du salon", "la la-tools", GestiondusalonView.class), //
+                new MenuItemInfo("Gestion du salon", "la la-tools", GestionSalonView.class), //
 
-                new MenuItemInfo("Liste des utilisateurs", "la la-users-cog", ListedesutilisateursView.class), //
+                new MenuItemInfo("Liste des utilisateurs", "la la-users-cog", ListeUtilisateursView.class), //
 
-                new MenuItemInfo("Anciens votes", "la la-archive", AnciensvotesView.class), //
+                new MenuItemInfo("Anciens votes", "la la-archive", AnciensVotesView.class), //
 
         };
     }

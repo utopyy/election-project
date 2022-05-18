@@ -1,6 +1,5 @@
-package com.example.application.views.sinscrire;
+package com.example.application.views;
 
-import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -14,9 +13,9 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @Route(value = "register", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 @AnonymousAllowed
-public class SinscrireView extends VerticalLayout {
+public class InscriptionView extends VerticalLayout {
 
-    public SinscrireView() {
+    public InscriptionView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

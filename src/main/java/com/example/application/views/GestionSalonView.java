@@ -1,6 +1,5 @@
-package com.example.application.views.votes;
+package com.example.application.views;
 
-import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -9,12 +8,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@PageTitle("Votes")
-@Route(value = "admin/votes", layout = MainLayout.class)
+@PageTitle("Gestion du salon")
+@Route(value = "admin/salons", layout = MainLayout.class)
 @RolesAllowed("ADMIN")
-public class VotesView extends VerticalLayout {
+public class GestionSalonView extends VerticalLayout {
 
-    public VotesView() {
+    public GestionSalonView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");
