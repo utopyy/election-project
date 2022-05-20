@@ -8,9 +8,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
+@Route(value = "oldvotes", layout = MainLayout.class)
 @PageTitle("Anciens votes")
-@Route(value = "admin/archives", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
+
+
 public class AnciensVotesView extends VerticalLayout {
 
     public AnciensVotesView() {

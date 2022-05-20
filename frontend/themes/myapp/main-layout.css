@@ -37,21 +37,21 @@
 
 .menu-item-link {
   display: flex;
-  margin-left: var(--lumo-space-s);
-  margin-right: var(--lumo-space-s);
-  padding: var(--lumo-space-s);
+  margin-left: var(--lumo-space-m);
+  margin-right: var(--lumo-space-m);
+  padding: var(--lumo-space-m);
   position: relative;
   color: var(--lumo-secondary-text-color);
 }
 
 .menu-item-text {
   font-weight: 500;
-  font-size: var(--lumo-font-size-s);
+  font-size: var(--lumo-font-size-m);
 }
 
 .menu-item-icon {
-  margin-inline-end: var(--lumo-space-s);
-  font-size: var(--lumo-font-size-l);
+  margin-inline-end: var(--lumo-space-m);
+  font-size: var(--lumo-font-size-m);
 }
 
 .view-title {

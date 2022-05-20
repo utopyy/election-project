@@ -1,32 +1,66 @@
 package com.ipamc.election.data.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ipamc.election.data.Role;
 
+import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.ElementCollection;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Lob;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 
 
-public class User extends AbstractEntity {
+@Entity
+@Table(name="Utilisateurs")
+public class User {
+	
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;	
     private String username;
     private String motDePasse;
-    private Role role;
+    @Email
     private String email;
     private String pseudo;
     private Boolean estCertifie;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(	name = "Users_roles", 
+			joinColumns = @JoinColumn(name = "idUtilisateur"), 
+			inverseJoinColumns = @JoinColumn(name = "idRole"))
+    private Set<Role> roles = new HashSet<>();
+    
+	public User() {
+		
+	}
 
-    //private String profilePictureUrl;
-
-
+	
+	public User(String username, String email, String password) {
+		this.username = username;
+		this.email = email;
+		this.motDePasse = password;
+	}
+	
+	
 	public String getUsername() {
 		return username;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public void setUsername(String username) {
@@ -41,13 +75,6 @@ public class User extends AbstractEntity {
 		this.motDePasse = motDePasse;
 	}
 
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
 
 	public String getEmail() {
 		return email;
@@ -73,13 +100,13 @@ public class User extends AbstractEntity {
 		this.estCertifie = estCertifie;
 	}
 
-	/**public String getProfilePictureUrl() {
-		return profilePictureUrl;
+
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
-	public void setProfilePictureUrl(String profilePictureUrl) {
-		this.profilePictureUrl = profilePictureUrl;
-	}*/
 
-    
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
 }

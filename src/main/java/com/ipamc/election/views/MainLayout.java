@@ -1,15 +1,12 @@
 package com.ipamc.election.views;
 
-import com.ipamc.election.data.entity.User;
-import com.ipamc.election.security.AuthenticatedUser;
+
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -20,8 +17,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.auth.AccessAnnotationChecker;
-import java.util.Optional;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -70,13 +65,7 @@ public class MainLayout extends AppLayout {
 
     private H1 viewTitle;
 
-    private AuthenticatedUser authenticatedUser;
-    private AccessAnnotationChecker accessChecker;
-
-    public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
-        this.authenticatedUser = authenticatedUser;
-        this.accessChecker = accessChecker;
-
+    public MainLayout() {
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
@@ -117,9 +106,7 @@ public class MainLayout extends AppLayout {
         nav.add(list);
 
         for (MenuItemInfo menuItem : createMenuItems()) {
-            if (accessChecker.hasAccess(menuItem.getView())) {
-                list.add(menuItem);
-            }
+            list.add(menuItem);
 
         }
         return nav;
@@ -127,48 +114,19 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("S'inscrire", "la la-user-cog", InscriptionView.class), //
-
-                new MenuItemInfo("Connexion", "la la-user", ConnexionView.class), //
-
-                new MenuItemInfo("Salon de votes", "la la-vote-yea", SalonVotesView.class), //
-
-                new MenuItemInfo("Votes", "la la-vote-yea", VotesView.class), //
-
-                new MenuItemInfo("Gestion du salon", "la la-tools", GestionSalonView.class), //
-
-                new MenuItemInfo("Liste des utilisateurs", "la la-users-cog", ListeUtilisateursView.class), //
-
-                new MenuItemInfo("Anciens votes", "la la-archive", AnciensVotesView.class), //
-
+                new MenuItemInfo("Inscription", "la la-globe", InscriptionView.class), //
+                new MenuItemInfo("Connexion", "la la-file", LoginView.class), //
+                new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
+                new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
+                new MenuItemInfo("Votes", "la la-file", VotesView.class),
+                new MenuItemInfo("Liste des utilisateurs", "la la-file", ListeUtilisateursView.class),
+                new MenuItemInfo("Historique", "la la-file", AnciensVotesView.class)
         };
     }
 
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames("footer");
-
-        /**Optional<User> maybeUser = authenticatedUser.get();
-        if (maybeUser.isPresent()) {
-            User user = maybeUser.get();
-
-            Avatar avatar = new Avatar(user.getName(), user.getProfilePictureUrl());
-            avatar.addClassNames("me-xs");
-
-            ContextMenu userMenu = new ContextMenu(avatar);
-            userMenu.setOpenOnClick(true);
-            userMenu.addItem("Logout", e -> {
-                authenticatedUser.logout();
-            });
-
-            Span name = new Span(user.getName());
-            name.addClassNames("font-medium", "text-s", "text-secondary");
-
-            layout.add(avatar, name);
-        } else {**/
-            Anchor loginLink = new Anchor("login", "Sign in");
-            layout.add(loginLink);
-       // }
 
         return layout;
     }

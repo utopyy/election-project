@@ -8,9 +8,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
+@Route(value = "gestionsalon", layout = MainLayout.class)
 @PageTitle("Gestion du salon")
-@Route(value = "admin/salons", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
+
+
 public class GestionSalonView extends VerticalLayout {
 
     public GestionSalonView() {

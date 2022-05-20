@@ -4,13 +4,15 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
+@Route(value = "userlist" , layout = MainLayout.class)
 @PageTitle("Liste des utilisateurs")
-@Route(value = "admin/users", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
+
 public class ListeUtilisateursView extends VerticalLayout {
 
     public ListeUtilisateursView() {
