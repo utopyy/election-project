@@ -1,13 +1,7 @@
 package com.ipamc.election.views.components;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
 import com.ipamc.election.data.entity.User;
-import com.ipamc.election.repository.UserService;
+import com.ipamc.election.services.UserService;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;

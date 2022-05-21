@@ -1,4 +1,4 @@
-package com.ipamc.election.repository;
+package com.ipamc.election.services;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.data.entity.User;
-import com.ipamc.election.security.payload.response.MessageResponse;
+import com.ipamc.election.repository.RoleRepository;
+import com.ipamc.election.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -54,12 +55,12 @@ public class UserService {
     	if (userRepository.existsByUsername(user.getUsername())) {
     		return ResponseEntity
 				.badRequest()
-				.body(new MessageResponse("Error: Username is already taken!"));
+				.body("Le nom d'utilisateur n'est pas disponible!");
     	}
     	if (userRepository.existsByEmail(user.getEmail())) {
 		return ResponseEntity
 				.badRequest()
-				.body(new MessageResponse("Error: Email is already in use!"));
+				.body("Un compte utilise déjà ce mail!");
     	}
 		// Create new user's account
 		user.setMotDePasse(encoder.encode(user.getMotDePasse()));
@@ -68,6 +69,6 @@ public class UserService {
 		user.setEstCertifie(false);
 		user.setRoles(roles);
 		userRepository.save(user);
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+		return ResponseEntity.ok("Utilisateur enregistré");
     }
 }

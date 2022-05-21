@@ -25,10 +25,7 @@ import com.ipamc.election.repository.RoleRepository;
 import com.ipamc.election.repository.UserRepository;
 import com.ipamc.election.security.UserDetailsImpl;
 import com.ipamc.election.security.jwt.JwtUtils;
-import com.ipamc.election.security.payload.request.LoginRequest;
-import com.ipamc.election.security.payload.request.SignupRequest;
-import com.ipamc.election.security.payload.response.JwtResponse;
-import com.ipamc.election.security.payload.response.MessageResponse;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -44,7 +41,7 @@ public class AuthController {
 	PasswordEncoder encoder;
 	@Autowired
 	JwtUtils jwtUtils;
-	@PostMapping("/signin")
+	/*@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -60,35 +57,5 @@ public class AuthController {
 												 userDetails.getUsername(), 
 												 userDetails.getEmail(), 
 												 roles));
-	}
-	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new MessageResponse("Error: Username is already taken!"));
-		}
-		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new MessageResponse("Error: Email is already in use!"));
-		}
-		// Create new user's account
-		User user = new User(signUpRequest.getUsername(), 
-							 signUpRequest.getEmail(),
-							 encoder.encode(signUpRequest.getPassword()));
-		Set<String> strRoles = signUpRequest.getRole();
-		Set<Role> roles = new HashSet<>();
-		try{
-			Role userRole = roleRepository.getById((long) 1); //POINTE VERS ROLE_USER
-			roles.add(userRole);
-			user.setEstCertifie(false);
-			user.setRoles(roles);
-			userRepository.save(user);
-		}catch(RuntimeException e) {
-			
-		}
-			
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-	}
+	}**/
 }
