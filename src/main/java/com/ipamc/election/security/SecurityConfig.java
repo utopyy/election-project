@@ -111,6 +111,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         "/styles/**",
 
         // (development mode) H2 debugging console
-        "/h2-console/**");
+        "/h2-console/**",
+        
+        "/sw-runtime-resources-precache.js");
   }
 }

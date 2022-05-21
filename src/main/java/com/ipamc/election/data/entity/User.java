@@ -4,6 +4,7 @@ package com.ipamc.election.data.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -33,7 +34,8 @@ public class User {
     private String email;
     private String pseudo;
     private Boolean estCertifie;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY,
+    	      cascade = CascadeType.MERGE)
     @JoinTable(	name = "Users_roles", 
 			joinColumns = @JoinColumn(name = "idUtilisateur"), 
 			inverseJoinColumns = @JoinColumn(name = "idRole"))

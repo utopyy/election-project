@@ -10,5 +10,6 @@ import com.ipamc.election.data.entity.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 	
-		Optional<Role> findByName(EnumRole name);
+		Role findByName(EnumRole name);
+		Role findById(int id);
 }

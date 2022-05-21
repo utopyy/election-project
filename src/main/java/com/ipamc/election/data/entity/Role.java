@@ -1,5 +1,8 @@
 package com.ipamc.election.data.entity;
 
+import java.util.Set;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -7,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import com.ipamc.election.data.EnumRole;
@@ -17,10 +21,15 @@ import com.ipamc.election.data.EnumRole;
 public class Role {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private int id;
+	
 	@Enumerated(EnumType.STRING)
-	@Column(length = 20)
+	@Column(length = 20, name = "name")
 	private EnumRole name;
+	
+	@ManyToMany(mappedBy = "roles")
+	Set<User> users;
+	
 	public Role() {
 	}
 	public Role(EnumRole name) {
@@ -38,4 +47,5 @@ public class Role {
 	public void setName(EnumRole name) {
 		this.name = name;
 	}
+
 }

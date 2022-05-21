@@ -7,6 +7,8 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
+
 import javax.annotation.security.RolesAllowed;
 
 import org.springframework.security.access.annotation.Secured;
@@ -15,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Route(value = "jury", layout = MainLayout.class)
 @PageTitle("Votes")
+@RouteAlias(value = "", layout = MainLayout.class)
 
 
 public class VotesView extends VerticalLayout {
