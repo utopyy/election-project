@@ -15,6 +15,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 
+import com.sun.istack.NotNull;
+
 @Entity
 @Table(name="Utilisateurs")
 public class User {
@@ -22,8 +24,11 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;	
+	@NotNull
     private String username;
+	@NotNull
     private String motDePasse;
+    @NotNull
     @Email
     private String email;
     private String pseudo;

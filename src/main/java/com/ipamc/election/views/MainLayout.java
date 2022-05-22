@@ -101,8 +101,6 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Inscription", "la la-globe", InscriptionView.class), //
-                new MenuItemInfo("Connexion", "la la-file", LoginView.class), //
                 new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
                 new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
                 new MenuItemInfo("Votes", "la la-file", VotesView.class),
