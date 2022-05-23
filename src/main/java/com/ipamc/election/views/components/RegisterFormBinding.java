@@ -110,7 +110,7 @@ public class RegisterFormBinding {
     */
    private void showSuccess(User userBean) {
        Notification notification =
-               Notification.show("Enregistré, bienvenue " + userBean.getUsername());
+               Notification.show("Bienvenue " + userBean.getUsername()+"\nVérifie tes mails pour activer ton compte!");
        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
        // Here you'd typically redirect the user to another view

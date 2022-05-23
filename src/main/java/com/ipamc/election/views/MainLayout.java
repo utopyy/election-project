@@ -1,12 +1,16 @@
 package com.ipamc.election.views;
 
 import com.ipamc.election.data.EnumRole;
+import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -17,10 +21,20 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.auth.AccessAnnotationChecker;
+import java.util.Optional;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
+/**
+ * The main view is a top-level placeholder for other views.
+ */
 public class MainLayout extends AppLayout {
 
-	public static class MenuItemInfo extends ListItem {
+    /**
+     * A simple navigation item component, based on ListItem element.
+     */
+    public static class MenuItemInfo extends ListItem {
 
         private final Class<? extends Component> view;
 
@@ -41,6 +55,10 @@ public class MainLayout extends AppLayout {
             return view;
         }
 
+        /**
+         * Simple wrapper to create icons using LineAwesome iconset. See
+         * https://icons8.com/line-awesome
+         */
         @NpmPackage(value = "line-awesome", version = "1.3.0")
         public static class LineAwesomeIcon extends Span {
             public LineAwesomeIcon(String lineawesomeClassnames) {
@@ -54,10 +72,13 @@ public class MainLayout extends AppLayout {
     }
 
     private H1 viewTitle;
+
+    private AccessAnnotationChecker accessChecker;
     private SecurityUtils tools;
     
-    public MainLayout(SecurityUtils tools) {
+    public MainLayout(SecurityUtils tools, AccessAnnotationChecker accessChecker) {
     	this.tools = tools;
+    	this.accessChecker = accessChecker;
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
@@ -92,44 +113,38 @@ public class MainLayout extends AppLayout {
         nav.addClassNames("menu-item-container");
         nav.getElement().setAttribute("aria-labelledby", "views");
 
+        // Wrap the links in a list; improves accessibility
         UnorderedList list = new UnorderedList();
         list.addClassNames("navigation-list");
         nav.add(list);
 
         for (MenuItemInfo menuItem : createMenuItems()) {
-            list.add(menuItem);
-
+                list.add(menuItem);
         }
         return nav;
     }
 
-    private MenuItemInfo[] createMenuItems() {
-    	if(tools.getAuthenticatedUser() != null) {
-	    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
-	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
-	    		return new MenuItemInfo[]{
-	        			new MenuItemInfo("Votes", "la la-file", VotesView.class),
-	        			new MenuItemInfo("Profil", "la la-file", ProfilView.class)
-	    		};
-	        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
-	        	return new MenuItemInfo[]{        
-	        			new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
-		                new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
-		                new MenuItemInfo("Liste des utilisateurs", "la la-file", ListeUtilisateursView.class),
-		                new MenuItemInfo("Historique", "la la-file", AnciensVotesView.class),
-		                new MenuItemInfo("Profil", "la la-file", ProfilView.class)
-	        	};
-	        }
-    	}
-	    return new MenuItemInfo[]{        
-	    		new MenuItemInfo("S'inscrire", "la la-file", InscriptionView.class),
-	    		new MenuItemInfo("Connexion", "la la-file", LoginView.class)
-	    	};
-    	}
-
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames("footer");
+
+        UserDetails user = tools.getAuthenticatedUser();
+        if (user != null) {
+
+            Avatar avatar = new Avatar(user.getUsername()/*, user.getProfilePictureUrl()**/);
+            avatar.addClassNames("me-xs");
+
+            ContextMenu userMenu = new ContextMenu(avatar);
+            userMenu.setOpenOnClick(true);
+            userMenu.addItem("Logout", e -> {
+                tools.logout();
+            });
+
+            Span name = new Span(user.getUsername());
+            name.addClassNames("font-medium", "text-s", "text-secondary");
+
+            layout.add(avatar, name);
+        }
 
         return layout;
     }
@@ -144,4 +159,33 @@ public class MainLayout extends AppLayout {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
     }
+
+
+
+    private MenuItemInfo[] createMenuItems() {
+    	if(tools.getAuthenticatedUser() != null) {
+	    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
+	    	System.out.print("ROLE: "+role+"\n\n\n\n");
+	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
+	    		return new MenuItemInfo[]{
+	        			new MenuItemInfo("Votes", "la la-file", VotesView.class),
+	        			new MenuItemInfo("Profil", "la la-file", ProfilView.class)
+	    		};
+	        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
+	        	return new MenuItemInfo[]{        
+	        			new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
+		                new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
+		                new MenuItemInfo("Liste des utilisateurs", "la la-file", ListeUtilisateursView.class),
+		                new MenuItemInfo("Historique", "la la-file", AnciensVotesView.class),
+		                new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
+	        	};
+	        }
+    	}
+	    return new MenuItemInfo[]{        
+	    		new MenuItemInfo("S'inscrire", "la la-file", InscriptionView.class),
+	    		new MenuItemInfo("Connexion", "la la-file", LoginView.class)
+	    	};
+    	}
+
+ 
 }
