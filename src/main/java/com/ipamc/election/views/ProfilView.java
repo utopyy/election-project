@@ -3,17 +3,18 @@ package com.ipamc.election.views;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import javax.annotation.security.RolesAllowed;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-@Route(value = "gestionsalon", layout = MainLayout.class)
-@PageTitle("Gestion du salon")
+@Route(value = "profil" , layout = MainLayout.class)
+@PageTitle("Profil")
 
-public class GestionSalonView extends VerticalLayout {
+public class ProfilView extends VerticalLayout {
 
-    public GestionSalonView() {
+    public ProfilView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

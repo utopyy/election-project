@@ -10,6 +10,7 @@ import javax.annotation.security.RolesAllowed;
 
 @Route(value = "salon" , layout = MainLayout.class)
 @PageTitle("Salon de votes")
+
 public class SalonVotesView extends VerticalLayout {
 
     public SalonVotesView() {

@@ -1,5 +1,7 @@
 package com.ipamc.election.views;
 
+import com.ipamc.election.data.EnumRole;
+import com.ipamc.election.security.SecurityUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -52,8 +54,10 @@ public class MainLayout extends AppLayout {
     }
 
     private H1 viewTitle;
-
-    public MainLayout() {
+    private SecurityUtils tools;
+    
+    public MainLayout(SecurityUtils tools) {
+    	this.tools = tools;
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
@@ -100,14 +104,28 @@ public class MainLayout extends AppLayout {
     }
 
     private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-                new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
-                new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
-                new MenuItemInfo("Votes", "la la-file", VotesView.class),
-                new MenuItemInfo("Liste des utilisateurs", "la la-file", ListeUtilisateursView.class),
-                new MenuItemInfo("Historique", "la la-file", AnciensVotesView.class)
-        };
-    }
+    	if(tools.getAuthenticatedUser() != null) {
+	    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
+	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
+	    		return new MenuItemInfo[]{
+	        			new MenuItemInfo("Votes", "la la-file", VotesView.class),
+	        			new MenuItemInfo("Profil", "la la-file", ProfilView.class)
+	    		};
+	        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
+	        	return new MenuItemInfo[]{        
+	        			new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
+		                new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
+		                new MenuItemInfo("Liste des utilisateurs", "la la-file", ListeUtilisateursView.class),
+		                new MenuItemInfo("Historique", "la la-file", AnciensVotesView.class),
+		                new MenuItemInfo("Profil", "la la-file", ProfilView.class)
+	        	};
+	        }
+    	}
+	    return new MenuItemInfo[]{        
+	    		new MenuItemInfo("S'inscrire", "la la-file", InscriptionView.class),
+	    		new MenuItemInfo("Connexion", "la la-file", LoginView.class)
+	    	};
+    	}
 
     private Footer createFooter() {
         Footer layout = new Footer();
