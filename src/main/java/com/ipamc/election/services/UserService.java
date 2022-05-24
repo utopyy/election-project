@@ -59,27 +59,6 @@ public class UserService implements IUserService {
         return (int) userRepository.count();
     }
     
-   /* public ResponseEntity<?> createUser(User user) {
-   	if (userRepository.existsByUsername(user.getUsername())) {
-    		return ResponseEntity
-				.badRequest()
-				.body("Le nom d'utilisateur n'est pas disponible!");
-    	}
-    	if (userRepository.existsByEmail(user.getEmail())) {
-		return ResponseEntity
-				.badRequest()
-				.body("Un compte utilise déjà ce mail!");
-    	}
-		// Create new user's account
-		user.setMotDePasse(encoder.encode(user.getMotDePasse()));
-		Set<Role> roles = new HashSet<>();
-		roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
-		user.setEstCertifie(false);
-		user.setRoles(roles);
-		userRepository.save(user);
-		return ResponseEntity.ok("Utilisateur enregistré");**/
-    
-    
     @Override
     public User registerNewUserAccount(SignupRequest signupRequest) throws UserAlreadyExistException {
         if(usernameExist(signupRequest.getUsername())) {
@@ -96,8 +75,22 @@ public class UserService implements IUserService {
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
         user.setRoles(roles); 
+        System.out.println("http://localhost:8090/activate?code="+ user.getActivationCode());
         return userRepository.save(user);
     }
+    
+    public void activate(String activationCode) throws Exception {
+    	User user = userRepository.getByActivationCode(activationCode);
+    	if(user != null) {
+    		user.setActive(true);
+    		userRepository.save(user);
+    	} else {
+    		throw new Exception();
+    	}
+    	
+    }
+    
+
     
     public boolean emailExist(String email) {
         return userRepository.existsByEmail(email);

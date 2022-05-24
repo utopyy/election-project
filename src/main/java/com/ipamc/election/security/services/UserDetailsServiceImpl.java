@@ -34,10 +34,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         boolean accountNonLocked = true;
         List<String> roles = new ArrayList<>();
         roles.add(user.getRoles().iterator().next().getName().toString());
-        
-        return new org.springframework.security.core.userdetails.User(
+        if(user.isActive()) {
+        	return new org.springframework.security.core.userdetails.User(
           user.getUsername(), user.getPassword(), enabled, accountNonExpired,
           credentialsNonExpired, accountNonLocked, getAuthorities(roles));
+        }else {
+        	throw new UsernameNotFoundException("Le compte n'est pas activé: " + username);
+        }
     }
     
     private static List<GrantedAuthority> getAuthorities (List<String> roles) {
