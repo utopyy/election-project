@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +33,13 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
 	@Autowired
     private RoleRepository roleRepository;
+	private final MailSender mailSender;
     
     @Autowired
 	PasswordEncoder encoder;
 
-    public UserService() {
+    public UserService(MailSender mailSender) {
+    	this.mailSender = mailSender;
         
     }
 
@@ -75,7 +79,14 @@ public class UserService implements IUserService {
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
         user.setRoles(roles); 
-        System.out.println("http://localhost:8090/activate?code="+ user.getActivationCode());
+        String txt = "Bonjour "+user.getUsername()+"!\nVoici le lien pour activer votre compte sur Election: ";
+        String code = "http://localhost:8090/activate?code="+ user.getActivationCode();
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setFrom("noreply@example.com");
+        message.setSubject("Account confirmation");
+        message.setText(txt+code);
+        mailSender.send(message);
         return userRepository.save(user);
     }
     

@@ -26,8 +26,6 @@ public class ActivateView extends VerticalLayout implements BeforeEnterObserver 
     public ActivateView(UserService tools) {
     	this.tools = tools;
         setSpacing(false);
-
-        add(new H2("Activation du compte"));
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -40,11 +38,13 @@ public class ActivateView extends VerticalLayout implements BeforeEnterObserver 
 	    	Map<String, List<String>> params = event.getLocation().getQueryParameters().getParameters();
 	    	String code = params.get("code").get(0);
 			tools.activate(code);
-			add(new H3("Féliciations!"));
-			add(new Text("Ton compte est activé"));
+	        add(new H2("Félicitations"));
+			add(new H3("Ton compte est activé !"));
 			add(new RouterLink("Login", LoginView.class));
 		} catch (Exception e) {
-			add(new Text("Lien invalide."));
+			add(new H2("Problème..."));
+			add(new H3("Lien invalide."));
+			add(new RouterLink("Retourner à l'accueil", LoginView.class));
 		}
     }
 
