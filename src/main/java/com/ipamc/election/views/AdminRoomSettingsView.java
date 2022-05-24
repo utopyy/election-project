@@ -11,9 +11,9 @@ import javax.annotation.security.RolesAllowed;
 @Route(value = "gestionsalon", layout = MainLayout.class)
 @PageTitle("Gestion du salon")
 
-public class GestionSalonView extends VerticalLayout {
+public class AdminRoomSettingsView extends VerticalLayout {
 
-    public GestionSalonView() {
+    public AdminRoomSettingsView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

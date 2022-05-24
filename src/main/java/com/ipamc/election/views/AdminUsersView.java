@@ -4,16 +4,18 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "salon" , layout = MainLayout.class)
-@PageTitle("Salon de votes")
+@Route(value = "userlist" , layout = MainLayout.class)
+@PageTitle("Liste des utilisateurs")
 
-public class SalonVotesView extends VerticalLayout {
+public class AdminUsersView extends VerticalLayout {
 
-    public SalonVotesView() {
+    public AdminUsersView() {
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");

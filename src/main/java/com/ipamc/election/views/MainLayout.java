@@ -164,21 +164,21 @@ public class MainLayout extends AppLayout {
 	    	String role = "ROLE_USER";//tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
 	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
 	    		return new MenuItemInfo[]{
-	        			new MenuItemInfo("Votes", "la la-file", VotesView.class),
+	        			new MenuItemInfo("Votes", "la la-file", UserVotesView.class),
 	        			new MenuItemInfo("Profil", "la la-file", ProfilView.class)
 	    		};
 	        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
 	        	return new MenuItemInfo[]{        
-	        			new MenuItemInfo("Salon de votes", "la la-file", SalonVotesView.class),
-		                new MenuItemInfo("Gestion du salon", "la la-file", GestionSalonView.class),
-		                new MenuItemInfo("Liste des utilisateurs", "la la-file", ListeUtilisateursView.class),
-		                new MenuItemInfo("Historique", "la la-file", AnciensVotesView.class),
+	        			new MenuItemInfo("Salon de votes", "la la-file", AdminVotesView.class),
+		                new MenuItemInfo("Gestion du salon", "la la-file", AdminRoomSettingsView.class),
+		                new MenuItemInfo("Liste des utilisateurs", "la la-file", AdminUsersView.class),
+		                new MenuItemInfo("Historique", "la la-file", AdminLogsView.class),
 		                new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
 	        	};
 	        }
     	}
 	    return new MenuItemInfo[]{        
-	    		new MenuItemInfo("S'inscrire", "la la-file", InscriptionView.class),
+	    		new MenuItemInfo("S'inscrire", "la la-file", RegistrationView.class),
 	    		new MenuItemInfo("Connexion", "la la-file", LoginView.class)
 	    	};
     	}

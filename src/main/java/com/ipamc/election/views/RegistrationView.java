@@ -13,13 +13,13 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Inscription")
 @Route(value = "registration", layout = MainLayout.class)
 
-public class InscriptionView extends VerticalLayout implements BeforeEnterObserver {
+public class RegistrationView extends VerticalLayout implements BeforeEnterObserver {
 	
 	private UserService userService;
 	private UserRepository userRepository;
 
 	
-	public InscriptionView(UserService userService, UserRepository userRepository, RegisterForm form) {
+	public RegistrationView(UserService userService, UserRepository userRepository, RegisterForm form) {
 		RegisterForm registerForm = new RegisterForm();
 		this.userRepository = userRepository;
 		this.userService = userService;
