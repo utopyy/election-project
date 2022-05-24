@@ -1,4 +1,5 @@
 package com.ipamc.election.security.jwt;
+
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.ipamc.election.security.UserDetailsImpl;
+import com.ipamc.election.security.services.UserDetailsImpl;
 
 import io.jsonwebtoken.*;
 @Component

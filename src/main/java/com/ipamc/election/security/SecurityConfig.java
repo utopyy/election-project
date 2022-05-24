@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.ipamc.election.security.jwt.AuthEntryPointJwt;
 import com.ipamc.election.security.jwt.AuthTokenFilter;
 import com.ipamc.election.security.services.UserDetailsServiceImpl;
 
@@ -27,8 +26,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
 	UserDetailsServiceImpl userDetailsService;
-	@Autowired
-	private AuthEntryPointJwt unauthorizedHandler;
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
 		return new AuthTokenFilter();
@@ -60,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Restrict access to our application.
         .and().authorizeRequests()
         
-        .antMatchers("/register").permitAll()
+        .antMatchers("/registration").permitAll()
 
         // Allow all Vaadin internal requests.
         .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()

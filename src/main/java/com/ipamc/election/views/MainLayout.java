@@ -2,7 +2,6 @@ package com.ipamc.election.views;
 
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.User;
-import com.ipamc.election.security.SecurityUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -74,10 +73,8 @@ public class MainLayout extends AppLayout {
     private H1 viewTitle;
 
     private AccessAnnotationChecker accessChecker;
-    private SecurityUtils tools;
     
-    public MainLayout(SecurityUtils tools, AccessAnnotationChecker accessChecker) {
-    	this.tools = tools;
+    public MainLayout(AccessAnnotationChecker accessChecker) {
     	this.accessChecker = accessChecker;
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
@@ -128,7 +125,7 @@ public class MainLayout extends AppLayout {
         Footer layout = new Footer();
         layout.addClassNames("footer");
 
-        UserDetails user = tools.getAuthenticatedUser();
+        UserDetails user = null;//tools.getAuthenticatedUser();
         if (user != null) {
 
             Avatar avatar = new Avatar(user.getUsername()/*, user.getProfilePictureUrl()**/);
@@ -137,7 +134,7 @@ public class MainLayout extends AppLayout {
             ContextMenu userMenu = new ContextMenu(avatar);
             userMenu.setOpenOnClick(true);
             userMenu.addItem("Logout", e -> {
-                tools.logout();
+                //tools.logout();
             });
 
             Span name = new Span(user.getUsername());
@@ -163,9 +160,8 @@ public class MainLayout extends AppLayout {
 
 
     private MenuItemInfo[] createMenuItems() {
-    	if(tools.getAuthenticatedUser() != null) {
-	    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
-	    	System.out.print("ROLE: "+role+"\n\n\n\n");
+    	if(true/*tools.getAuthenticatedUser() != null*/) {
+	    	String role = "ROLE_USER";//tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
 	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
 	    		return new MenuItemInfo[]{
 	        			new MenuItemInfo("Votes", "la la-file", VotesView.class),

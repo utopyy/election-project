@@ -1,10 +1,15 @@
 package com.ipamc.election.views.components;
 
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.error.UserAlreadyExistException;
+import com.ipamc.election.payload.request.SignupRequest;
+import com.ipamc.election.repository.UserRepository;
 import com.ipamc.election.services.UserService;
+import com.ipamc.election.validators.EmailValidator;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
@@ -15,12 +20,13 @@ public class RegisterFormBinding {
    private RegisterForm registrationForm;
    private UserService userService;
 
+
    /**
     * Flag for disabling first run for password validation
     */
    private boolean enablePasswordValidation;
 
-   public RegisterFormBinding(RegisterForm registrationForm, UserService userService) {
+   public RegisterFormBinding(RegisterForm registrationForm, UserService userService, UserRepository userRepo) {
        this.registrationForm = registrationForm;
        this.userService = userService;
    }
@@ -35,7 +41,27 @@ public class RegisterFormBinding {
 
        // A custom validator for password fields
        binder.forField(registrationForm.getPasswordField())
-               .withValidator(this::passwordValidator).bind("motDePasse");
+               .withValidator(this::passwordValidator).bind("password");
+       
+       // A custom validator for email
+       binder.forField(registrationForm.getEmailField()).withValidator(e -> {
+    	   registrationForm.getEmailField().removeClassName("error");
+    	   EmailValidator ev = new EmailValidator();
+    	   return ev.isValid(e.toString(), null);
+       }, "L'adresse mail n'est pas valide.", ErrorLevel.ERROR).withValidator(e -> {
+    	   registrationForm.getEmailField().removeClassName("error");
+    	   return !userService.emailExist(e.toString());
+       }, "Cette adresse mail est déjà prise.", ErrorLevel.ERROR)
+       .bind(User::getEmail, User::setEmail);
+       
+       // A custom validator for username
+       binder.forField(registrationForm.getUsernameField()).withValidator(e -> {
+    	   registrationForm.getUsernameField().removeClassName("error");
+    	   return !userService.usernameExist(e.toString());
+       }, "Ce nom de compte est déjà pris.", ErrorLevel.ERROR)
+       .bind(User::getUsername, User::setUsername);
+
+       
 
        // The second password field is not connected to the Binder, but we
        // want the binder to re-check the password validator when the field
@@ -56,15 +82,23 @@ public class RegisterFormBinding {
            try {
                // Create empty bean to store the details into
                User userBean = new User();
+               SignupRequest signupRequest = new SignupRequest();
 
                // Run validators and write the values to the bean
                binder.writeBean(userBean);
+               signupRequest.setEmail(userBean.getEmail());
+               signupRequest.setPassword(userBean.getPassword());
+               signupRequest.setUsername(userBean.getUsername());
 
                // Typically, you would here call backend to store the bean
-               userService.createUser(userBean);
-
-               // Show success message if everything went well
-               showSuccess(userBean);
+               try {
+            	   userService.registerNewUserAccount(signupRequest);
+            	   showSuccess(userBean);
+               }catch(UserAlreadyExistException uaeEx) {
+            	   Notification notification =
+                           Notification.show(uaeEx.getMessage());
+                   notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+               };
            } catch (ValidationException exception) {
                // validation errors are already visible for each field,
                // and bean-level errors are shown in the status label.
@@ -80,6 +114,7 @@ public class RegisterFormBinding {
     * <p>
     * 2) Values in both fields match each other
     */
+   
    private ValidationResult passwordValidator(String pass1, ValueContext ctx) {
        /*
         * Just a simple length check. A real version should check for password
@@ -87,7 +122,7 @@ public class RegisterFormBinding {
         */
 
        if (pass1 == null || pass1.length() < 8) {
-           return ValidationResult.error("Le mot de passe doit faire minimum 8 caractères");
+           return ValidationResult.error("Le mot de passe doit faire minimum 8 caractères.");
        }
 
        if (!enablePasswordValidation) {
@@ -102,8 +137,9 @@ public class RegisterFormBinding {
            return ValidationResult.ok();
        }
 
-       return ValidationResult.error("Les mots de passe sont diférents");
+       return ValidationResult.error("Les mots de passe ne correspondent pas.");
    }
+   
 
    /**
     * We call this method when form submission has succeeded

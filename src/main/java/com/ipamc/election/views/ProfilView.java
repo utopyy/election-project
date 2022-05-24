@@ -1,5 +1,7 @@
 package com.ipamc.election.views;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
