@@ -8,7 +8,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "oldvotes", layout = MainLayout.class)
+@Route(value = "oldvotes", layout = MainLayout.class, registerAtStartup = false)
 @PageTitle("Anciens votes")
 
 

@@ -2,6 +2,7 @@ package com.ipamc.election.views;
 
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.security.SecurityUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import java.util.Optional;
@@ -73,8 +75,10 @@ public class MainLayout extends AppLayout {
     private H1 viewTitle;
 
     private AccessAnnotationChecker accessChecker;
+    private SecurityUtils tools;
     
-    public MainLayout(AccessAnnotationChecker accessChecker) {
+    public MainLayout(AccessAnnotationChecker accessChecker, SecurityUtils tools) {
+    	this.tools = tools;
     	this.accessChecker = accessChecker;
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
@@ -160,12 +164,12 @@ public class MainLayout extends AppLayout {
 
 
     private MenuItemInfo[] createMenuItems() {
-    	if(true/*tools.getAuthenticatedUser() != null*/) {
-	    	String role = "ROLE_USER";//tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
+    	if(tools.getAuthenticatedUser() != null) {
+	    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
 	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
 	    		return new MenuItemInfo[]{
 	        			new MenuItemInfo("Votes", "la la-file", UserVotesView.class),
-	        			new MenuItemInfo("Profil", "la la-file", ProfilView.class)
+	        			new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
 	    		};
 	        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
 	        	return new MenuItemInfo[]{        

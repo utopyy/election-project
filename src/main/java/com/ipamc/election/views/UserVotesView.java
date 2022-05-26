@@ -13,9 +13,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 
-@Route(value = "jury", layout = MainLayout.class)
+@Route(value = "jury", layout = MainLayout.class,  registerAtStartup = false)
 @PageTitle("Votes")
-@RouteAlias(value = "", layout = MainLayout.class)
 
 
 public class UserVotesView extends VerticalLayout {

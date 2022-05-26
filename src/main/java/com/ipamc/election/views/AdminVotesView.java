@@ -6,10 +6,13 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
+
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "salon" , layout = MainLayout.class)
+@Route(value = "salon" , layout = MainLayout.class, registerAtStartup = false)
 @PageTitle("Salon de votes")
+
 
 public class AdminVotesView extends VerticalLayout {
 

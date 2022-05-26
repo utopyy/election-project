@@ -1,6 +1,8 @@
 package com.ipamc.election.views;
 
+import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.repository.UserRepository;
+import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.RegisterForm;
 import com.ipamc.election.views.components.RegisterFormBinding;
@@ -17,10 +19,12 @@ public class RegistrationView extends VerticalLayout implements BeforeEnterObser
 	
 	private UserService userService;
 	private UserRepository userRepository;
+	private SecurityUtils tools;
 
 	
-	public RegistrationView(UserService userService, UserRepository userRepository, RegisterForm form) {
+	public RegistrationView(UserService userService, UserRepository userRepository, SecurityUtils tools, RegisterForm form) {
 		RegisterForm registerForm = new RegisterForm();
+		this.tools = tools;
 		this.userRepository = userRepository;
 		this.userService = userService;
 	    setHorizontalComponentAlignment(Alignment.CENTER, registerForm);
@@ -29,17 +33,18 @@ public class RegistrationView extends VerticalLayout implements BeforeEnterObser
 	    registrationFormBinder.addBindingAndValidation();
 	}
 	
-	 @Override
-		public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-		   /** if(tools.getAuthenticatedUser()!=null) {
-		    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
-		    	if(role.equals(EnumRole.ROLE_USER.toString())) {
-		    		beforeEnterEvent.forwardTo(VotesView.class);
-		    	}else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
-		    		beforeEnterEvent.forwardTo(SalonVotesView.class);
-		    	}
-			}*/
-	    }
+    @Override
+	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+    	String role = "";
+    	if(tools.getAuthenticatedUser()!=null) {	
+	    	role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
+	    	if(role.equals(EnumRole.ROLE_USER.toString())) {	
+		    	beforeEnterEvent.forwardTo(UserVotesView.class);
+		    }else{
+		    	beforeEnterEvent.forwardTo(AdminVotesView.class);
+		    }
+    	}
+    }
 }
 	 
 

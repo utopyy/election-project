@@ -10,7 +10,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "userlist" , layout = MainLayout.class)
+@Route(value = "userlist" , layout = MainLayout.class, registerAtStartup = false)
 @PageTitle("Liste des utilisateurs")
 
 public class AdminUsersView extends VerticalLayout {
