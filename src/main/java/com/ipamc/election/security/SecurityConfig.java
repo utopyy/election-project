@@ -59,6 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         
         .antMatchers("/registration").permitAll()
         .antMatchers("/activate*").permitAll()
+        .antMatchers("/registration_confirm*").permitAll()
+        .antMatchers("/login_confirm*").permitAll()
 
 
         // Allow all Vaadin internal requests.
@@ -74,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and().formLogin()
         .loginPage(LOGIN_URL).permitAll()
         .loginProcessingUrl(LOGIN_PROCESSING_URL)
+       
         .failureUrl(LOGIN_FAILURE_URL)
 
         // Configure logout

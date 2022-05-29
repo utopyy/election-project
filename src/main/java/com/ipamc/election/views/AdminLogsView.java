@@ -1,9 +1,13 @@
 package com.ipamc.election.views;
 
+import com.ipamc.election.security.SecurityUtils;
+import com.ipamc.election.services.UserService;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
@@ -12,9 +16,14 @@ import javax.annotation.security.RolesAllowed;
 @PageTitle("Anciens votes")
 
 
-public class AdminLogsView extends VerticalLayout {
+public class AdminLogsView extends VerticalLayout implements BeforeEnterObserver {
 
-    public AdminLogsView() {
+	private UserService userService;
+	private SecurityUtils tools;
+	
+    public AdminLogsView(UserService userService, SecurityUtils tools) {
+    	this.userService = userService;
+    	this.tools = tools;
         setSpacing(false);
 
         Image img = new Image("images/empty-plant.png", "placeholder plant");
@@ -29,5 +38,13 @@ public class AdminLogsView extends VerticalLayout {
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         getStyle().set("text-align", "center");
     }
+    
+	@Override
+	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+   		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
+   			beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());		
+   		}
+
+	}
 
 }

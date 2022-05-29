@@ -25,7 +25,9 @@ import com.ipamc.election.views.AdminVotesView;
 import com.ipamc.election.views.MainLayout;
 import com.ipamc.election.views.ProfilView;
 import com.ipamc.election.views.UserVotesView;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.server.VaadinSession;
 
 @Service
 @Transactional
@@ -46,14 +48,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         boolean accountNonLocked = true;
         List<String> roles = new ArrayList<>();
         roles.add(user.getRoles().iterator().next().getName().toString());
-        if(user.isActive()) {
- 
+        
         	return new org.springframework.security.core.userdetails.User(
           user.getUsername(), user.getPassword(), enabled, accountNonExpired,
           credentialsNonExpired, accountNonLocked, getAuthorities(roles));
-        }else {
-        	throw new UsernameNotFoundException("Le compte n'est pas activé: " + username);
-        }
     }
     
     private static List<GrantedAuthority> getAuthorities (List<String> roles) {

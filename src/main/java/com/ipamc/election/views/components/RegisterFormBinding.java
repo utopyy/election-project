@@ -6,20 +6,22 @@ import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.UserRepository;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.validators.EmailValidator;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.router.RouteParameters;
 
 
 public class RegisterFormBinding {
 
    private RegisterForm registrationForm;
-   private UserService userService;
-
+   private UserService userService; 
 
    /**
     * Flag for disabling first run for password validation
@@ -70,7 +72,6 @@ public class RegisterFormBinding {
            // The user has modified the second field, now we can validate and show errors.
            // See passwordValidator() for how this flag is used.
            enablePasswordValidation = true;
-
            binder.validate();
        });
 
@@ -92,8 +93,8 @@ public class RegisterFormBinding {
 
                // Typically, you would here call backend to store the bean
                try {
-            	   userService.registerNewUserAccount(signupRequest);
-            	   showSuccess(userBean);
+            	   userService.registerNewUserAccount(signupRequest); 
+            	   UI.getCurrent().navigate("registration_confirm/"+userBean.getUsername());
                }catch(UserAlreadyExistException uaeEx) {
             	   Notification notification =
                            Notification.show(uaeEx.getMessage());
@@ -147,6 +148,8 @@ public class RegisterFormBinding {
    private void showSuccess(User userBean) {
        Notification notification =
                Notification.show("Bienvenue " + userBean.getUsername()+"\nVérifie tes mails pour activer ton compte!");
+       notification.setDuration(0);
+       notification.setPosition(Position.MIDDLE);
        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
        // Here you'd typically redirect the user to another view

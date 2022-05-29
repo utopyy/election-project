@@ -45,7 +45,7 @@ public final class SecurityUtils {
             .anyMatch(r -> r.getIdentifier().equals(parameterValue));
     }
 
-    static boolean isUserLoggedIn() { 
+    public static boolean isUserLoggedIn() { 
 
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -64,18 +64,6 @@ public final class SecurityUtils {
         return null;
     }
     
-    public void configRouter(String role) {
-    	List<AuthorizedRoute> routes = new ArrayList<>();
-    	if(role.equals(EnumRole.ROLE_USER.name())) {
-    		RouteConfiguration.forSessionScope().setAnnotatedRoute(UserVotesView.class);
-    	}else {
-    		RouteConfiguration.forSessionScope().setAnnotatedRoute(AdminVotesView.class);
-    		RouteConfiguration.forSessionScope().setAnnotatedRoute(AdminUsersView.class);
-    		RouteConfiguration.forSessionScope().setAnnotatedRoute(AdminLogsView.class);
-    		RouteConfiguration.forSessionScope().setAnnotatedRoute(AdminRoomSettingsView.class);
-    	}
-    	  	
-    }
     
     public void logout() {
 	    UI.getCurrent().getPage().setLocation("/login");

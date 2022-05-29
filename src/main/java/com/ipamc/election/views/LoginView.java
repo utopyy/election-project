@@ -31,6 +31,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     public LoginView(SecurityUtils tools){
     	this.tools = tools;
         login.setAction("login"); 
+
         getElement().appendChild(login.getElement());
     }
     

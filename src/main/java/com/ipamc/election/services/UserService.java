@@ -1,8 +1,10 @@
 
 package com.ipamc.election.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,10 +16,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ipamc.election.data.EnumRole;
+import com.ipamc.election.data.entity.AuthorizedRoute;
 import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.error.UserAlreadyExistException;
@@ -39,12 +43,17 @@ public class UserService implements IUserService {
 	PasswordEncoder encoder;
 
     public UserService(MailSender mailSender) {
+
     	this.mailSender = mailSender;
         
     }
 
     public Optional<User> get(Integer id) {
         return userRepository.findById(id);
+    }
+    
+    public User getByUsername(String username) {
+    	return userRepository.findByUsername(username);
     }
 
     public User update(User entity) {
@@ -100,8 +109,7 @@ public class UserService implements IUserService {
     	}
     	
     }
-    
-
+   
     
     public boolean emailExist(String email) {
         return userRepository.existsByEmail(email);

@@ -4,8 +4,12 @@ import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.repository.UserRepository;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.UserService;
+import com.ipamc.election.views.components.RegisterConfirmation;
 import com.ipamc.election.views.components.RegisterForm;
 import com.ipamc.election.views.components.RegisterFormBinding;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -31,6 +35,7 @@ public class RegistrationView extends VerticalLayout implements BeforeEnterObser
 	    add(registerForm);
 	    RegisterFormBinding registrationFormBinder = new RegisterFormBinding(registerForm, userService, userRepository);
 	    registrationFormBinder.addBindingAndValidation();
+
 	}
 	
     @Override

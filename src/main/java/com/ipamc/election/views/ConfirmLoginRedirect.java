@@ -5,6 +5,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.security.SecurityUtils;
+import com.ipamc.election.services.UserService;
+import com.ipamc.election.views.components.RegisterConfirmation;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -25,9 +28,11 @@ import com.vaadin.flow.router.RouteConfiguration;
 public class ConfirmLoginRedirect extends VerticalLayout implements BeforeEnterObserver {
 
 	private SecurityUtils tools;
+	private UserService userService;
 	
-	public ConfirmLoginRedirect(SecurityUtils tools) {
+	public ConfirmLoginRedirect(SecurityUtils tools, UserService userService) {
 		this.tools = tools;
+		this.userService = userService;
 		setSpacing(false);
         Image img = new Image("images/empty-plant.png", "placeholder plant");
         img.setWidth("200px");
@@ -45,15 +50,17 @@ public class ConfirmLoginRedirect extends VerticalLayout implements BeforeEnterO
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 	   	String role = "";	
-	   	if(tools.getAuthenticatedUser()!=null) {	
-	    	role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
-	    	if(!RouteConfiguration.forSessionScope().isRouteRegistered(UserVotesView.class) && !RouteConfiguration.forSessionScope().isRouteRegistered(AdminVotesView.class))
-	    	tools.configRouter(role);	
-	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
-		    	beforeEnterEvent.forwardTo(UserVotesView.class);
-		    }else{
-		    	beforeEnterEvent.forwardTo(AdminVotesView.class);
-		    }
+	   	if(tools.getAuthenticatedUser()!=null) {
+	   		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
+	   			beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());
+	   		}else {
+	   			role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();	
+		    	if(role.equals(EnumRole.ROLE_USER.toString())) {
+			    	beforeEnterEvent.forwardTo(UserVotesView.class);
+			    }else{
+			    	beforeEnterEvent.forwardTo(AdminVotesView.class);
+			    }
+	   		}
 	   	}
 	}
 }
