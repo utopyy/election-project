@@ -14,7 +14,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "userlist" , layout = MainLayout.class, registerAtStartup = false)
+@Route(value = "userlist" , layout = MainLayout.class)
 @PageTitle("Liste des utilisateurs")
 
 public class AdminUsersView extends VerticalLayout implements BeforeEnterObserver {

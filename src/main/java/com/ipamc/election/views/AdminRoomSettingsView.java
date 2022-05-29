@@ -12,7 +12,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "gestionsalon", layout = MainLayout.class, registerAtStartup = false)
+@Route(value = "gestionsalon", layout = MainLayout.class)
 @PageTitle("Gestion du salon")
 
 public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnterObserver {

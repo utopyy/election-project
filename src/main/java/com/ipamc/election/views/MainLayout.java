@@ -3,6 +3,7 @@ package com.ipamc.election.views;
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
+import com.ipamc.election.services.UserService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -76,8 +77,10 @@ public class MainLayout extends AppLayout {
 
     private AccessAnnotationChecker accessChecker;
     private SecurityUtils tools;
+    private UserService userService;
     
-    public MainLayout(AccessAnnotationChecker accessChecker, SecurityUtils tools) {
+    public MainLayout(AccessAnnotationChecker accessChecker, SecurityUtils tools, UserService userService) {
+    	this.userService = userService;
     	this.tools = tools;
     	this.accessChecker = accessChecker;
         setPrimarySection(Section.DRAWER);
@@ -100,7 +103,7 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawerContent() {
-        H2 appName = new H2("My App");
+        H2 appName = new H2("Election");
         appName.addClassNames("app-name");
 
         com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName,
@@ -129,7 +132,7 @@ public class MainLayout extends AppLayout {
         Footer layout = new Footer();
         layout.addClassNames("footer");
 
-        UserDetails user = null;//tools.getAuthenticatedUser();
+        UserDetails user = tools.getAuthenticatedUser();
         if (user != null) {
 
             Avatar avatar = new Avatar(user.getUsername()/*, user.getProfilePictureUrl()**/);
@@ -138,7 +141,7 @@ public class MainLayout extends AppLayout {
             ContextMenu userMenu = new ContextMenu(avatar);
             userMenu.setOpenOnClick(true);
             userMenu.addItem("Logout", e -> {
-                //tools.logout();
+                tools.logout();
             });
 
             Span name = new Span(user.getUsername());
@@ -166,20 +169,22 @@ public class MainLayout extends AppLayout {
     private MenuItemInfo[] createMenuItems() {
     	if(tools.getAuthenticatedUser() != null) {
 	    	String role = tools.getAuthenticatedUser().getAuthorities().iterator().next().getAuthority();
-	    	if(role.equals(EnumRole.ROLE_USER.toString())) {
-	    		return new MenuItemInfo[]{
-	        			new MenuItemInfo("Votes", "la la-file", UserVotesView.class),
-	        			new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
-	    		};
-	        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
-	        	return new MenuItemInfo[]{        
-	        			new MenuItemInfo("Salon de votes", "la la-file", AdminVotesView.class),
-		                new MenuItemInfo("Gestion du salon", "la la-file", AdminRoomSettingsView.class),
-		                new MenuItemInfo("Liste des utilisateurs", "la la-file", AdminUsersView.class),
-		                new MenuItemInfo("Historique", "la la-file", AdminLogsView.class),
-		                new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
-	        	};
-	        }
+	    	if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive()) {
+		    	if(role.equals(EnumRole.ROLE_USER.toString())) {
+		    		return new MenuItemInfo[]{
+		        			new MenuItemInfo("Votes", "la la-file", UserVotesView.class),
+		        			new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
+		    		};
+		        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
+		        	return new MenuItemInfo[]{        
+		        			new MenuItemInfo("Salon de votes", "la la-file", AdminVotesView.class),
+			                new MenuItemInfo("Gestion du salon", "la la-file", AdminRoomSettingsView.class),
+			                new MenuItemInfo("Liste des utilisateurs", "la la-file", AdminUsersView.class),
+			                new MenuItemInfo("Historique", "la la-file", AdminLogsView.class),
+			                new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
+		        	};
+		        }
+	    	}
     	}
 	    return new MenuItemInfo[]{        
 	    		new MenuItemInfo("S'inscrire", "la la-file", RegistrationView.class),

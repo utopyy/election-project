@@ -11,8 +11,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
+
+import com.ipamc.election.error.CustomAccessDeniedHandler;
 import com.ipamc.election.security.jwt.AuthTokenFilter;
 import com.ipamc.election.security.services.UserDetailsServiceImpl;
+import com.ipamc.election.views.AccessDenied403;
 
 
 @EnableWebSecurity
@@ -43,6 +47,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	@Bean
+	public AccessDeniedHandler accessDeniedHandler(){
+	    return new CustomAccessDeniedHandler();
+	}
   /**
    * Require login to access internal pages and configure login form.
    */
@@ -55,21 +63,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .requestCache().requestCache(new CustomRequestCache())
 
         // Restrict access to our application.
+
         .and().authorizeRequests()
         
         .antMatchers("/registration").permitAll()
         .antMatchers("/activate*").permitAll()
         .antMatchers("/registration_confirm*").permitAll()
+        .antMatchers("/jury").hasAuthority("ROLE_USER")
+        .antMatchers("/salon", "/gestionsalon","/userlist", "/oldvotes").hasAnyAuthority("ROLE_ADMIN","ROLE_SUPER_ADMIN")
+        .antMatchers("/profil").authenticated()
         .antMatchers("/login_confirm*").permitAll()
-
 
         // Allow all Vaadin internal requests.
         .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
 
         // Allow all requests by logged-in users.
         .anyRequest().authenticated()
+        
         // Allow register page when logoff
-
+        .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
         
         
 		// Configure the login page.
@@ -81,6 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Configure logout
         .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
+    	
     
   }
 

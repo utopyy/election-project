@@ -14,7 +14,7 @@ import com.vaadin.flow.router.RouteAlias;
 
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "salon" , layout = MainLayout.class, registerAtStartup = false)
+@Route(value = "salon" , layout = MainLayout.class)
 @PageTitle("Salon de votes")
 
 

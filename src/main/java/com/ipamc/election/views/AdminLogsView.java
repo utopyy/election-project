@@ -12,7 +12,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import javax.annotation.security.RolesAllowed;
 
-@Route(value = "oldvotes", layout = MainLayout.class, registerAtStartup = false)
+@Route(value = "oldvotes", layout = MainLayout.class)
 @PageTitle("Anciens votes")
 
 
@@ -43,6 +43,9 @@ public class AdminLogsView extends VerticalLayout implements BeforeEnterObserver
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
    		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
    			beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());		
+   		}
+   		if(tools.getAuthenticatedUser().getAuthorities().iterator().next().toString().equals("ROLE_USER")) {
+   			beforeEnterEvent.forwardTo("jury");
    		}
 
 	}

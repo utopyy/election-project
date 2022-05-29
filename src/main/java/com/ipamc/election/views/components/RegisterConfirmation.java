@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import com.ipamc.election.security.SecurityUtils;
@@ -15,9 +16,13 @@ import com.ipamc.election.views.MainLayout;
 import com.ipamc.election.views.UserVotesView;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -26,6 +31,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
@@ -37,20 +43,22 @@ public class RegisterConfirmation extends VerticalLayout implements HasUrlParame
 	private H2 h2 = new H2();
 	private UserService userService;
 	private SecurityUtils tools;
+	private Button b;
     
 	public RegisterConfirmation(UserService userService, SecurityUtils tools) {
     	this.userService = userService;
     	this.tools = tools;
     	
         setSpacing(false);
-
-        add(h2);
-        add(new Paragraph("Tu n'as pas reçu de mail? Clique ici pour recevoir un nouveau lien."));
-
-        setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
+        b = new Button("Renvoyer un nouveau mail");
+        b.setDisableOnClick(true);
+        b.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST);
+        add(h2, new Hr(), b);
+        
+        //setSizeFull();
+        //setJustifyContentMode(JustifyContentMode.CENTER);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        getStyle().set("text-align", "center");
+        //getStyle().set("text-align", "center");
     }
 
 	@Override
@@ -70,6 +78,12 @@ public class RegisterConfirmation extends VerticalLayout implements HasUrlParame
 		}else {
 			event.getUI().getCurrent().navigate(ConfirmLoginRedirect.class);
 		}
+		
+		//init button
+		b.addClickListener(e -> {
+	        userService.sendRegisterMail(userService.getByUsername(tools.getAuthenticatedUser().getUsername()));
+	        add(new Paragraph("Envoyé!"));
+		});
 	}
 
 	@Override

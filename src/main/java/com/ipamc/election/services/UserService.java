@@ -88,15 +88,19 @@ public class UserService implements IUserService {
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
         user.setRoles(roles); 
-        String txt = "Bonjour "+user.getUsername()+"!\nVoici le lien pour activer votre compte sur Election: ";
-        String code = "http://localhost:8090/activate?code="+ user.getActivationCode();
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(user.getEmail());
-        message.setFrom("noreply@example.com");
-        message.setSubject("Account confirmation");
-        message.setText(txt+code);
-        mailSender.send(message);
+        sendRegisterMail(user);
         return userRepository.save(user);
+    }
+    
+    public void sendRegisterMail(User user) {
+    	String txt = "Bonjour "+user.getUsername()+"!\nVoici le lien pour activer votre compte sur Election: ";
+	    String code = "http://localhost:8090/activate?code="+ user.getActivationCode();
+	    SimpleMailMessage message = new SimpleMailMessage();
+	    message.setTo(user.getEmail());
+	    message.setFrom("noreply@example.com");
+	    message.setSubject("Account confirmation");
+	    message.setText(txt+code);
+	    mailSender.send(message);
     }
     
     public void activate(String activationCode) throws Exception {
