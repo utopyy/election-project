@@ -17,7 +17,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = EmailValidator.class)
 @Documented
 public @interface ValidEmail {
-    String message() default "L'adresse mail est incorrecte.";
+    String message() default "L'adresse mail n'est pas valide.";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

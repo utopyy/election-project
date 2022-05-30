@@ -26,7 +26,7 @@ public class RegistrationView extends VerticalLayout implements BeforeEnterObser
 	private SecurityUtils tools;
 
 	
-	public RegistrationView(UserService userService, UserRepository userRepository, SecurityUtils tools, RegisterForm form) {
+	public RegistrationView(UserService userService, UserRepository userRepository, SecurityUtils tools) {
 		RegisterForm registerForm = new RegisterForm();
 		this.tools = tools;
 		this.userRepository = userRepository;

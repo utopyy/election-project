@@ -172,23 +172,23 @@ public class MainLayout extends AppLayout {
 	    	if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive()) {
 		    	if(role.equals(EnumRole.ROLE_USER.toString())) {
 		    		return new MenuItemInfo[]{
-		        			new MenuItemInfo("Votes", "la la-file", UserVotesView.class),
+		        			new MenuItemInfo("Votes", "la la-vote-yea", UserVotesView.class),
 		        			new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
 		    		};
 		        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
 		        	return new MenuItemInfo[]{        
-		        			new MenuItemInfo("Salon de votes", "la la-file", AdminVotesView.class),
-			                new MenuItemInfo("Gestion du salon", "la la-file", AdminRoomSettingsView.class),
-			                new MenuItemInfo("Liste des utilisateurs", "la la-file", AdminUsersView.class),
-			                new MenuItemInfo("Historique", "la la-file", AdminLogsView.class),
-			                new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
+		        			new MenuItemInfo("Salon de votes", "la la-vote-yea", AdminVotesView.class),
+			                new MenuItemInfo("Gestion du salon", "la la-tools", AdminRoomSettingsView.class),
+			                new MenuItemInfo("Liste des utilisateurs", "la la-columns", AdminUsersView.class),
+			                new MenuItemInfo("Historique", "la la-columns", AdminLogsView.class),
+			                new MenuItemInfo("Mon compte", "la la-user-circle", ProfilView.class)
 		        	};
 		        }
 	    	}
     	}
 	    return new MenuItemInfo[]{        
-	    		new MenuItemInfo("S'inscrire", "la la-file", RegistrationView.class),
-	    		new MenuItemInfo("Connexion", "la la-file", LoginView.class)
+	    		new MenuItemInfo("S'inscrire", "la la-user-cog", RegistrationView.class),
+	    		new MenuItemInfo("Connexion", "la la-user", LoginView.class)
 	    	};
     	}
 

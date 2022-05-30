@@ -55,6 +55,10 @@ public class UserService implements IUserService {
     public User getByUsername(String username) {
     	return userRepository.findByUsername(username);
     }
+    
+    public User getByEmail(String email) {
+    	return userRepository.findByEmail(email);
+    }
 
     public User update(User entity) {
         return userRepository.save(entity);
@@ -102,6 +106,24 @@ public class UserService implements IUserService {
 	    message.setText(txt+code);
 	    mailSender.send(message);
     }
+    
+    public void sendResetMail(String mail) {
+    	String txt = "Bonjour "+this.getByEmail(mail).getUsername()+"!\nNous t'envoyons ce mail afin que tu puisses réinitialiser ton mot de passe.\n"
+    			+ "Si tu n'es pas à l'origine de cette demande, tu n'as rien de plus à faire. Ton mot de passe reste le même.\n\n"
+    			+ "Pour réinitialiser ton mot de passe:\n"
+    			+ "1) Clique sur ce lien: \n"
+    			+ "2) Tu vas recevoir un nouveau mail avec ton nouveau mot de passe.\n"
+    			+ "3) Tu pourras modifier ton nouveau mot de passe une fois connecté au site (Dans tes paramètres personnels)\n"
+    			+ "\nEn cas de problème: vous pouvez contacter l'administrateur à l'adresse suivante : mlej7498@gmail.com";
+	    SimpleMailMessage message = new SimpleMailMessage();
+	    message.setTo(mail);
+	    message.setFrom("noreply@example.com");
+	    message.setSubject("Reset Password");
+	    message.setText(txt);
+	    mailSender.send(message);
+    }
+    
+    
     
     public void activate(String activationCode) throws Exception {
     	User user = userRepository.getByActivationCode(activationCode);
