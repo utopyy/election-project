@@ -43,7 +43,9 @@ public class User {
 			inverseJoinColumns = @JoinColumn(name = "idRole"))
     private Set<Role> roles = new HashSet<>();
     
+    
     private String activationCode;
+    private String resetPasswordToken;
     private Boolean active;
     
 	public User() {	
@@ -53,6 +55,20 @@ public class User {
 		this.activationCode = RandomStringUtils.randomAlphanumeric(32);
 	}
 	
+	
+	
+	public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
+	}
+
+
+
 	public User(String username, String email, String password) {
 		this.username = username;
 		this.email = email;

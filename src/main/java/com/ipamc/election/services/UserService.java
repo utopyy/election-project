@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,6 +29,9 @@ import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.RoleRepository;
 import com.ipamc.election.repository.UserRepository;
+import com.vaadin.flow.templatemodel.Encode;
+
+import net.bytebuddy.utility.RandomString;
 
 @Service
 @Transactional 
@@ -107,22 +111,29 @@ public class UserService implements IUserService {
 	    mailSender.send(message);
     }
     
-    public void sendResetMail(String mail) {
+    public void sendResetMail(String mail, String resetPasswordLink) {
     	String txt = "Bonjour "+this.getByEmail(mail).getUsername()+"!\nNous t'envoyons ce mail afin que tu puisses réinitialiser ton mot de passe.\n"
     			+ "Si tu n'es pas à l'origine de cette demande, tu n'as rien de plus à faire. Ton mot de passe reste le même.\n\n"
     			+ "Pour réinitialiser ton mot de passe:\n"
-    			+ "1) Clique sur ce lien: \n"
-    			+ "2) Tu vas recevoir un nouveau mail avec ton nouveau mot de passe.\n"
-    			+ "3) Tu pourras modifier ton nouveau mot de passe une fois connecté au site (Dans tes paramètres personnels)\n"
-    			+ "\nEn cas de problème: vous pouvez contacter l'administrateur à l'adresse suivante : mlej7498@gmail.com";
+    			+ "1) Clique sur ce lien: "+resetPasswordLink+"\n"
+    			+ "\nEn cas de problème: tu peux contacter l'administrateur à l'adresse suivante : mlej7498@gmail.com";
 	    SimpleMailMessage message = new SimpleMailMessage();
 	    message.setTo(mail);
-	    message.setFrom("noreply@example.com");
-	    message.setSubject("Reset Password");
+	    message.setFrom("Election@Support.gmail");
+	    message.setSubject("Voici le lien pour réinitialiser votre mot de passe");
 	    message.setText(txt);
 	    mailSender.send(message);
     }
     
+    
+    public String processResetPassword(String token, String password) {
+        User user = getByResetPasswordToken(token);
+        if (user != null) {
+        	updatePassword(user, password);
+            return "OK";
+        }
+        return "Erreur";
+    }
     
     
     public void activate(String activationCode) throws Exception {
@@ -135,6 +146,23 @@ public class UserService implements IUserService {
     	}
     	
     }
+    
+    public void updateResetPasswordToken(String token, String email)  {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setResetPasswordToken(token);
+            userRepository.save(user);
+        } 
+    }
+    
+    public User getByResetPasswordToken(String token) {
+    	if(token!=null) {
+    		return userRepository.findByResetPasswordToken(token);
+    	}
+    	return null;
+    }
+    
+    
    
     
     public boolean emailExist(String email) {
@@ -143,6 +171,14 @@ public class UserService implements IUserService {
     
     public boolean usernameExist(String username) {
     	return userRepository.existsByUsername(username);
+    }
+    
+    public void updatePassword(User user, String newPassword) {
+        String encodedPassword = encoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+         
+        user.setResetPasswordToken(null);
+        userRepository.save(user);
     }
     
     

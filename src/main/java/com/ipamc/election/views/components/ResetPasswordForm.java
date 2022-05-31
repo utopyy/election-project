@@ -18,6 +18,8 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 
+import net.bytebuddy.utility.RandomString;
+
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
@@ -75,7 +77,12 @@ public class ResetPasswordForm extends FormLayout {
 	    	   if(userService.emailExist(email.getValue())) {
 	    		   User user = userService.getByEmail(email.getValue());
 	    		   if(user.isActive()) {
-	    			   userService.sendResetMail(email.getValue());
+	    			   
+	    				   String token = RandomString.make(30);
+	    				   String resetPasswordLink = "http://localhost:8090/reset_password?token="+token;
+	    				   userService.updateResetPasswordToken(token, email.getValue());
+	    				   userService.sendResetMail(email.getValue(), resetPasswordLink);
+	    			   
 	    		   }
 	    		   
 	    	   }
