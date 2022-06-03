@@ -9,11 +9,14 @@ import com.ipamc.election.data.entity.User;
 public interface UserRepository extends JpaRepository<User,Integer> {
 	
 	User findByUsername(String username);
-	Boolean existsByUsername(String username);
-	Boolean existsByEmail(String email);
 	User findByEmail(String email);
 	User getByActivationCode(String activationCode);
 	User findByResetPasswordToken(String token);
+	User findByPseudo(String pseudo);
+	
+	Boolean existsByPseudo(String pseudo);
+	Boolean existsByUsername(String username);
+	Boolean existsByEmail(String email);
 	
 	
 }

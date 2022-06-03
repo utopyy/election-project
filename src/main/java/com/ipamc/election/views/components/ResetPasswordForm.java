@@ -17,6 +17,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ErrorLevel;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import net.bytebuddy.utility.RandomString;
 
@@ -54,7 +55,7 @@ public class ResetPasswordForm extends FormLayout {
 	       submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 	       submitButton.setEnabled(false);
 	       
-	       
+	       email.setValueChangeMode(ValueChangeMode.EAGER);
 	       email.addValueChangeListener(event -> {
 	    	   if(validator.isValid(event.getValue(),null)){
 	    		   submitButton.setEnabled(true);
@@ -62,7 +63,7 @@ public class ResetPasswordForm extends FormLayout {
 	    		   submitButton.setEnabled(false);
 	    	   }
 	       });
-
+	      
 	       Button login = new Button("Se connecter");
 	       login.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 	       login.setHeight("20px");

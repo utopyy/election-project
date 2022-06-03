@@ -24,10 +24,12 @@ import org.springframework.stereotype.Service;
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.AuthorizedRoute;
 import com.ipamc.election.data.entity.Role;
+import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.RoleRepository;
+import com.ipamc.election.repository.SessionRepository;
 import com.ipamc.election.repository.UserRepository;
 import com.vaadin.flow.templatemodel.Encode;
 
@@ -41,6 +43,7 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
 	@Autowired
     private RoleRepository roleRepository;
+
 	private final MailSender mailSender;
     
     @Autowired
@@ -162,9 +165,28 @@ public class UserService implements IUserService {
     	return null;
     }
     
+    public Boolean pseudoExists(String pseudo) {
+    	return userRepository.existsByPseudo(pseudo);
+    }
     
-   
-    
+    public Boolean updatePseudo(String username, String pseudo) {
+    	// Si le pseudo n'existe pas on peut update
+    	if(!userRepository.existsByPseudo(pseudo)) {
+    		User user = userRepository.findByUsername(username);
+    		user.setPseudo(pseudo);
+    		userRepository.save(user);
+    		return true;
+    	// Si le pseudo existe et appartient à l'utilisateur ciblé on retourne simplement true
+    	}else if(userRepository.existsByPseudo(pseudo) && userRepository.findByPseudo(pseudo).equals(userRepository.findByUsername(username))) {
+    		return true;
+    	}else {
+    		return false;
+    	}
+    }
+
+    public User getByPseudo(String pseudo) {
+    	return userRepository.findByPseudo(pseudo);
+    }
     public boolean emailExist(String email) {
         return userRepository.existsByEmail(email);
     }

@@ -42,6 +42,8 @@ public class User {
 			joinColumns = @JoinColumn(name = "idUtilisateur"), 
 			inverseJoinColumns = @JoinColumn(name = "idRole"))
     private Set<Role> roles = new HashSet<>();
+    @ManyToMany(mappedBy = "users")
+    private Set<Session> sessions = new HashSet<>();
     
     
     private String activationCode;
@@ -159,5 +161,25 @@ public class User {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
+
+
+
+	public Set<Session> getSessions() {
+		return sessions;
+	}
+
+
+
+	public void setSessions(Set<Session> sessions) {
+		this.sessions = sessions;
+	}
+
+
+
+	public Boolean getActive() {
+		return active;
+	}
+	
+	
 	
 }
