@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import com.ipamc.election.validators.PasswordMatches;
 import com.ipamc.election.validators.ValidEmail;
 import com.sun.istack.NotNull;
+
 
 @Entity
 @Table(name="Utilisateurs")
@@ -44,17 +46,21 @@ public class User {
     private Set<Role> roles = new HashSet<>();
     @ManyToMany(mappedBy = "users")
     private Set<Session> sessions = new HashSet<>();
+	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	private Set<Vote> votes = new HashSet<>();
     
     
     private String activationCode;
     private String resetPasswordToken;
     private Boolean active;
+    private Boolean hasJoinedSession;
     
 	public User() {	
 		this.pseudo = null;
 		this.certified = false;
 		this.active = false;
 		this.activationCode = RandomStringUtils.randomAlphanumeric(32);
+		this.hasJoinedSession = false;
 	}
 	
 	
@@ -179,6 +185,64 @@ public class User {
 	public Boolean getActive() {
 		return active;
 	}
+	
+
+	public Boolean getHasJoinedSession() {
+		return hasJoinedSession;
+	}
+
+
+	public void setHasJoinedSession(Boolean hasJoinedSession) {
+		this.hasJoinedSession = hasJoinedSession;
+	}
+	
+
+
+	public Set<Vote> getVotes() {
+		return votes;
+	}
+
+
+
+	public void setVotes(Set<Vote> votes) {
+		this.votes = votes;
+	}
+	
+	public void addVote(Vote vote) {
+		vote.setUser(this);
+		votes.add(vote);
+	}
+
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		return result;
+	}
+
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
+			return false;
+		return true;
+	}
+	
+	
 	
 	
 	

@@ -26,11 +26,13 @@ import com.ipamc.election.data.entity.AuthorizedRoute;
 import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.data.entity.Vote;
 import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.RoleRepository;
 import com.ipamc.election.repository.SessionRepository;
 import com.ipamc.election.repository.UserRepository;
+import com.ipamc.election.repository.VoteRepository;
 import com.vaadin.flow.templatemodel.Encode;
 
 import net.bytebuddy.utility.RandomString;
@@ -43,7 +45,9 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
 	@Autowired
     private RoleRepository roleRepository;
-
+	@Autowired
+    private VoteRepository voteRepository;
+	
 	private final MailSender mailSender;
     
     @Autowired
@@ -169,19 +173,10 @@ public class UserService implements IUserService {
     	return userRepository.existsByPseudo(pseudo);
     }
     
-    public Boolean updatePseudo(String username, String pseudo) {
-    	// Si le pseudo n'existe pas on peut update
-    	if(!userRepository.existsByPseudo(pseudo)) {
+    public void updatePseudo(String username, String pseudo) {
     		User user = userRepository.findByUsername(username);
     		user.setPseudo(pseudo);
     		userRepository.save(user);
-    		return true;
-    	// Si le pseudo existe et appartient à l'utilisateur ciblé on retourne simplement true
-    	}else if(userRepository.existsByPseudo(pseudo) && userRepository.findByPseudo(pseudo).equals(userRepository.findByUsername(username))) {
-    		return true;
-    	}else {
-    		return false;
-    	}
     }
 
     public User getByPseudo(String pseudo) {
@@ -195,13 +190,28 @@ public class UserService implements IUserService {
     	return userRepository.existsByUsername(username);
     }
     
+    
     public void updatePassword(User user, String newPassword) {
         String encodedPassword = encoder.encode(newPassword);
         user.setPassword(encodedPassword);
          
         user.setResetPasswordToken(null);
         userRepository.save(user);
+    } 
+    
+    public void joinsSession(User user) {
+    	user.setHasJoinedSession(true);
+    	userRepository.save(user);
     }
     
+    public void leavesSession(User user) {
+    	user.setHasJoinedSession(false);
+    	userRepository.save(user);
+    }
     
+    public void createVote(User user) {
+    	Vote vote = new Vote();
+    	user.addVote(vote);
+    	userRepository.save(user);
+    }
 }

@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.sun.istack.NotNull;
@@ -31,6 +32,9 @@ public class Session {
 	    		joinColumns = @JoinColumn(name = "id_session"),
 	    		inverseJoinColumns = @JoinColumn(name = "id_utilisateur"))
 	Set<User> users = new HashSet<>();
+	private Boolean isActive;
+	@OneToMany(mappedBy = "session", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<Question> questions = new HashSet<Question>(); 
 	
 	
 	public Session() {}
@@ -65,6 +69,28 @@ public class Session {
 	public void addUser(User user) {
 		users.add(user);
 	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+	
+	public Boolean userAllowed(User user) {
+		return users.contains(user);
+	}
+
+	public Set<Question> getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(Set<Question> questions) {
+		this.questions = questions;
+	}
+	
+	
 	
 	
 

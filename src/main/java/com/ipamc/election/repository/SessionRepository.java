@@ -8,4 +8,7 @@ import com.ipamc.election.data.entity.User;
 public interface SessionRepository extends JpaRepository<Session,Integer> {
 	
 	Session findByName(String session);
+	Session findByIsActive(Boolean isActive);
+	
+	Boolean existsByIsActive(Boolean isActive);
 }
