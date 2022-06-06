@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 
@@ -35,13 +36,18 @@ public class Question {
 	@JoinTable(	name = "Questions_propositions", joinColumns = @JoinColumn(name = "id_question"), 
 				inverseJoinColumns = @JoinColumn(name = "id_proposition"))
 	private Set<Proposition> propositions = new HashSet<>();
+	@OneToMany(mappedBy="question", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	private Set<Vote> votes = new HashSet<>();
+    
+	private Boolean multiChoice;
 	
 	public Question(String intitule) {
 		this.intitule = intitule;
+		multiChoice = false;
 	}
 	
 	public Question() {
-		
+		multiChoice = false;
 	}
 
 	public Long getId() {
@@ -83,4 +89,14 @@ public class Question {
 	public void setPropositions(Set<Proposition> propositions) {
 		this.propositions = propositions;
 	}
+
+	public Boolean getMultiChoice() {
+		return multiChoice;
+	}
+
+	public void setMultiChoice(Boolean multiChoice) {
+		this.multiChoice = multiChoice;
+	}
+	
+	
 }

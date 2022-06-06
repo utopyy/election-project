@@ -17,8 +17,7 @@ public class VoteService {
 	VoteRepository voteRepository;
 	
 	public VoteService() {
-		
+	
 	}
-
 }
 	

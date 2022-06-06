@@ -23,10 +23,14 @@ import org.springframework.stereotype.Service;
 
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.AuthorizedRoute;
+import com.ipamc.election.data.entity.Categorie;
+import com.ipamc.election.data.entity.Proposition;
+import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.data.entity.Vote;
+import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.RoleRepository;
@@ -209,9 +213,9 @@ public class UserService implements IUserService {
     	userRepository.save(user);
     }
     
-    public void createVote(User user) {
-    	Vote vote = new Vote();
-    	user.addVote(vote);
-    	userRepository.save(user);
+    public Vote createVote(User user, Question question, Set<Proposition> propositions) {
+    	Vote vote = new Vote(user, question, propositions);
+    	return voteRepository.save(vote);
+    	
     }
 }

@@ -19,6 +19,9 @@ public class Proposition {
 	private String libelle;
 	@ManyToMany(mappedBy = "propositions")
 	Set<Question> questions;
+	@ManyToMany(mappedBy = "propositions")
+	Set<Vote> votes;
+	
 	
 	public Proposition() {
 		
@@ -47,6 +50,16 @@ public class Proposition {
 	public void setLibelle(String libelle) {
 		this.libelle = libelle;
 	}
+
+	public Set<Vote> getVotes() {
+		return votes;
+	}
+
+	public void setVotes(Set<Vote> votes) {
+		this.votes = votes;
+	}
+	
+	
 	
 	
 	

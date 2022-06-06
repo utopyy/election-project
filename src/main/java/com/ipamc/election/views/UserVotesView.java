@@ -1,16 +1,27 @@
 package com.ipamc.election.views;
 
 import java.awt.desktop.UserSessionEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.Vote;
+import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.security.SecurityUtils;
+import com.ipamc.election.services.CategorieService;
+import com.ipamc.election.services.PropositionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
+import com.ipamc.election.services.VoteCategorieService;
 import com.ipamc.election.services.VoteService;
+import com.ipamc.election.views.components.CategoriesJury;
+import com.ipamc.election.views.components.PropositionsJury;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,7 +31,11 @@ import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.listbox.ListBox;
+import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -39,11 +54,20 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private SecurityUtils tools;
 	private SessionService sessionService;
 	private VoteService voteService;
-	
+	private Session session;
+	private CategoriesJury cats;
+	private PropositionsJury props;
 	private TextField pickPseudo;
+	private Question quest;
+	private PropositionService propService;
+	private CategorieService catService;
+	private VoteCategorieService voteCatService;
 	
-    public UserVotesView(UserService userService, SecurityUtils tools, SessionService sessionService, VoteService voteService) {
+    public UserVotesView(UserService userService, SecurityUtils tools, SessionService sessionService, VoteService voteService, CategorieService catService, PropositionService propService, VoteCategorieService voteCatService) {
     	this.userService = userService;
+    	this.propService = propService;
+    	this.catService = catService;
+    	this.voteCatService = voteCatService;
     	this.tools = tools;
     	this.sessionService = sessionService;
     	this.voteService = voteService;
@@ -51,35 +75,42 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
     	H4 info = new H4();
     	if(sessionService.checkSessionAccess(userService.getByUsername(tools.getAuthenticatedUser().getUsername()))) {
     		if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getHasJoinedSession()) {
-    			Session session = sessionService.getActiveSession();
-    			for(Question quest : session.getQuestions()) {
-    				add(new H3("Question: "+quest.getIntitule()));
+    			session = sessionService.getActiveSession();
+    			quest = session.getQuestions().iterator().next(); // A REMPLACER PAR GET ACTIVE QUESTION
+    			cats = new CategoriesJury(quest);
+    			props = new PropositionsJury(quest);
+    			add(cats, props);
+
+    			Button submit = new Button("Envoyer vote");
+    			submit.addClickListener(event -> {
+    				Set<Proposition> propositions = new HashSet<>();
+        			if(quest.getMultiChoice()) { 
+        				List<String> propsList = props.getMultiResult();
+        				for(String rep : propsList) {
+        					propositions.add(propService.findByLibelle(rep));
+        				}
+        			}else {
+        				propositions.add(propService.findByLibelle(props.getSimpleResult()));
+        			}
+        			Vote vote = userService.createVote(userService.getByUsername(tools.getAuthenticatedUser().getUsername()), quest, propositions); 
     				for(Categorie cat : quest.getCategories()) {
-    					if(cat.getLibelle().equals("Note")) {
-    						add(new TextField("Mettez une note /"+cat.getValeur()));
-    					}else if(cat.getLibelle().equals("Commentaire")) {
-    						add(new TextField("Ajoutez un commentaire"));
+    					String value = "";
+    					if(cat.getLibelle().equals("Commentaire")) {
+    						value = cats.getCom().getValue();		
+    					}else{
+    						value = cats.getNote().getValue().toString();
     					}
-    				}
-    				if(quest.getPropositions().size()>0) {
-	    				CheckboxGroup<Checkbox> checkboxGroup = new CheckboxGroup<>();
-	    				checkboxGroup.setLabel("Propositions");
-	    				checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
-	    				
-	    				for(Proposition prop : quest.getPropositions()) {
-	        				checkboxGroup.add(new Checkbox(prop.getLibelle()));
-	        			}
-	    				add(checkboxGroup);
-    				}
-    			}
+    					voteCatService.saveVoteCategorie(new VoteCategorie(vote,cat,value));
+    				} 
+    			});
+    			
     			Button leave = new Button("Quitter le salon");
     			leave.addClickListener(event -> {
-    				userService.createVote(userService.getByUsername(tools.getAuthenticatedUser().getUsername()));
     				userService.leavesSession(userService.getByUsername(tools.getAuthenticatedUser().getUsername()));
     				UI.getCurrent().getPage().reload();
     			});
     			
-    			add(sessionName, info, leave);
+    			add(sessionName, info, submit, leave);
     		}else {
 	    		sessionName.setText(sessionService.getActiveSession().getName());
 		  	    info.setText("Indiquez un pseudo pour rejoindre le salon");
