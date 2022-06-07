@@ -40,10 +40,12 @@ public class Question {
 	private Set<Vote> votes = new HashSet<>();
     
 	private Boolean multiChoice;
+	private Boolean isActive;
 	
 	public Question(String intitule) {
 		this.intitule = intitule;
 		multiChoice = false;
+		isActive = false;
 	}
 	
 	public Question() {
@@ -97,6 +99,20 @@ public class Question {
 	public void setMultiChoice(Boolean multiChoice) {
 		this.multiChoice = multiChoice;
 	}
-	
-	
+
+	public Set<Vote> getVotes() {
+		return votes;
+	}
+
+	public void setVotes(Set<Vote> votes) {
+		this.votes = votes;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
 }

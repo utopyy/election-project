@@ -77,39 +77,17 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
     		if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getHasJoinedSession()) {
     			session = sessionService.getActiveSession();
     			quest = session.getQuestions().iterator().next(); // A REMPLACER PAR GET ACTIVE QUESTION
-    			cats = new CategoriesJury(quest);
     			props = new PropositionsJury(quest);
+    			cats = new CategoriesJury(quest, props, propService, userService, tools, catService, voteCatService);
     			add(cats, props);
 
-    			Button submit = new Button("Envoyer vote");
-    			submit.addClickListener(event -> {
-    				Set<Proposition> propositions = new HashSet<>();
-        			if(quest.getMultiChoice()) { 
-        				List<String> propsList = props.getMultiResult();
-        				for(String rep : propsList) {
-        					propositions.add(propService.findByLibelle(rep));
-        				}
-        			}else {
-        				propositions.add(propService.findByLibelle(props.getSimpleResult()));
-        			}
-        			Vote vote = userService.createVote(userService.getByUsername(tools.getAuthenticatedUser().getUsername()), quest, propositions); 
-    				for(Categorie cat : quest.getCategories()) {
-    					String value = "";
-    					if(cat.getLibelle().equals("Commentaire")) {
-    						value = cats.getCom().getValue();		
-    					}else{
-    						value = cats.getNote().getValue().toString();
-    					}
-    					voteCatService.saveVoteCategorie(new VoteCategorie(vote,cat,value));
-    				} 
-    			});
-    			
+
     			Button leave = new Button("Quitter le salon");
     			leave.addClickListener(event -> {
     				userService.leavesSession(userService.getByUsername(tools.getAuthenticatedUser().getUsername()));
     				UI.getCurrent().getPage().reload();
     			});
-    			
+    			Button submit = cats.getSubmit();
     			add(sessionName, info, submit, leave);
     		}else {
 	    		sessionName.setText(sessionService.getActiveSession().getName());
