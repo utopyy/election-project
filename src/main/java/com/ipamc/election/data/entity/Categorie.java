@@ -38,10 +38,16 @@ public class Categorie {
 	@OneToMany(mappedBy = "categorie")
 	private Set<VoteCategorie> votesCategories = new HashSet<>();
 	
+	
 	public Categorie() {
 		isRequired = false;
 	}
-
+	
+	public Categorie(String libelle, int valeur, Boolean isRequired) {
+		this.libelle = libelle;
+		this.valeur = valeur;
+		this.isRequired = isRequired;
+	}
 	public Long getId() {
 		return id;
 	}

@@ -46,6 +46,7 @@ public class Session {
 		super();
 		this.name = name;
 		this.users = users;
+		isActive = false;
 	}
 	public Long getId() {
 		return id;
@@ -90,6 +91,14 @@ public class Session {
 		this.questions = questions;
 	}
 	
+	
+	public void addQuestions(Set<Question> questions) {
+		for(Question quest : questions) {
+			quest.setSession(this);
+			this.questions.add(quest);
+		}
+	}
+
 	
 	
 	

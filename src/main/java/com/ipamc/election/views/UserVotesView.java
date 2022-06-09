@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ipamc.election.data.BroadcastMessageType;
+import com.ipamc.election.data.entity.BroadcastMessage;
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
@@ -22,6 +25,8 @@ import com.ipamc.election.services.VoteCategorieService;
 import com.ipamc.election.services.VoteService;
 import com.ipamc.election.views.components.CategoriesJury;
 import com.ipamc.election.views.components.PropositionsJury;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -31,9 +36,11 @@ import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -43,12 +50,13 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.Command;
+import com.vaadin.flow.shared.Registration;
 
 @Route(value = "jury", layout = MainLayout.class)
 @PageTitle("Salon de votes")
 
-
-public class UserVotesView extends VerticalLayout implements BeforeEnterObserver {
+public class UserVotesView extends VerticalLayout implements BeforeEnterObserver  {
 
 	private UserService userService;
 	private SecurityUtils tools;
@@ -62,6 +70,24 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private PropositionService propService;
 	private CategorieService catService;
 	private VoteCategorieService voteCatService;
+	Registration broadcasterRegistration;
+	
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        UI ui = attachEvent.getUI();
+        broadcasterRegistration = Broadcaster.register(newMessage -> {
+        	if(newMessage.equals("ENABLE_VOTE")) {
+        		ui.access(() -> cats.enableVotes());
+        		ui.access(() -> sessionService.enableVoteQuestion((long)1));
+        	}
+        });
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        broadcasterRegistration.remove();
+        broadcasterRegistration = null;
+    }
 	
     public UserVotesView(UserService userService, SecurityUtils tools, SessionService sessionService, VoteService voteService, CategorieService catService, PropositionService propService, VoteCategorieService voteCatService) {
     	this.userService = userService;
@@ -152,6 +178,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	    getStyle().set("text-align", "center");
 
     }
+   
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
@@ -161,3 +188,4 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 
 	}
 }
+

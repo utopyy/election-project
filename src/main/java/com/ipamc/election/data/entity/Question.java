@@ -41,11 +41,22 @@ public class Question {
     
 	private Boolean multiChoice;
 	private Boolean isActive;
+	private Boolean voteEnabled;
 	
 	public Question(String intitule) {
 		this.intitule = intitule;
 		multiChoice = false;
 		isActive = false;
+		voteEnabled = false;
+	}
+	
+	public Question(String intitule, Set<Categorie> categories, Set<Proposition> propositions, Boolean multiChoice) {
+		this.intitule = intitule;
+		this.categories = categories;
+		this.propositions = propositions;
+		this.multiChoice = multiChoice;
+		isActive = false;
+		voteEnabled = false;	
 	}
 	
 	public Question() {
@@ -115,4 +126,14 @@ public class Question {
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
+
+	public Boolean getVoteEnabled() {
+		return voteEnabled;
+	}
+
+	public void setVoteEnabled(Boolean voteEnabled) {
+		this.voteEnabled = voteEnabled;
+	}
+	
+	
 }

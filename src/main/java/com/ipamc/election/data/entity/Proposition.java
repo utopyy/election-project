@@ -26,6 +26,10 @@ public class Proposition {
 	public Proposition() {
 		
 	}
+	
+	public Proposition(String libelle) {
+		this.libelle = libelle;
+	}
 
 	public Long getId() {
 		return id;

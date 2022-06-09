@@ -20,6 +20,7 @@ import com.ipamc.election.services.UserService;
 import com.ipamc.election.services.VoteCategorieService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -28,6 +29,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.server.Command;
 
 public class CategoriesJury extends VerticalLayout {
 	
@@ -43,6 +45,11 @@ public class CategoriesJury extends VerticalLayout {
 		com = new TextField("Commentaire");
 		note = new IntegerField();
 		submit = new Button("Envoyer vote");
+		if(quest.getVoteEnabled()) {
+			submit.setEnabled(true);
+		}else {
+			submit.setEnabled(false);
+		}
 		for(Categorie cat : quest.getCategories()) {
 			if(cat.getLibelle().equals("Note")) {
 				if(cat.getIsRequired()) {
@@ -129,6 +136,10 @@ public class CategoriesJury extends VerticalLayout {
 		      .withCancelButton(ButtonOption.caption("NON")).open();
 		});
 	}
+	
+    public void enableVotes() {
+    	        submit.setEnabled(true);
+    }
 
 	public IntegerField getNote() {
 		return note;
