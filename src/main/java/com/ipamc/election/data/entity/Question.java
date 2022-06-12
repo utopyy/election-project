@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,8 +18,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 
+import org.springframework.transaction.annotation.Transactional;
+
+
 @Entity
 @Table(name="Questions")
+
 public class Question {
 	
 	@Id
@@ -28,32 +33,34 @@ public class Question {
 	@ManyToOne
 	@JoinColumn(name = "idSession", referencedColumnName = "id")
 	private Session session;
-	@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	@JoinTable(	name = "Questions_categories", joinColumns = @JoinColumn(name = "id_question"), 
 				inverseJoinColumns = @JoinColumn(name = "id_categorie"))
 	private Set<Categorie> categories = new HashSet<>();
-	@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER)  
+	@ManyToMany(cascade=CascadeType.MERGE, fetch = FetchType.EAGER)  
 	@JoinTable(	name = "Questions_propositions", joinColumns = @JoinColumn(name = "id_question"), 
 				inverseJoinColumns = @JoinColumn(name = "id_proposition"))
 	private Set<Proposition> propositions = new HashSet<>();
 	@OneToMany(mappedBy="question", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	private Set<Vote> votes = new HashSet<>();
+	
     
 	private Boolean multiChoice;
 	private Boolean isActive;
 	private Boolean voteEnabled;
 	
-	public Question(String intitule) {
+	
+	public Question(String intitule, Boolean multiChoice) {
 		this.intitule = intitule;
 		multiChoice = false;
 		isActive = false;
 		voteEnabled = false;
 	}
 	
-	public Question(String intitule, Set<Categorie> categories, Set<Proposition> propositions, Boolean multiChoice) {
+	public Question(String intitule, Set<Proposition> propositions, Set<Categorie> categories, Boolean multiChoice) {
 		this.intitule = intitule;
-		this.categories = categories;
 		this.propositions = propositions;
+		this.categories = categories;
 		this.multiChoice = multiChoice;
 		isActive = false;
 		voteEnabled = false;	
@@ -91,6 +98,7 @@ public class Question {
 		return categories;
 	}
 
+	
 	public void setCategories(Set<Categorie> categories) {
 		this.categories = categories;
 	}
@@ -135,5 +143,13 @@ public class Question {
 		this.voteEnabled = voteEnabled;
 	}
 	
+	public void addCategorie(Categorie cat) {
+		cat.addQuestion(this);
+		categories.add(cat);
+	}
 	
+	public void addProposition(Proposition prop) {
+		prop.addQuestion(this);
+		propositions.add(prop);
+	}
 }

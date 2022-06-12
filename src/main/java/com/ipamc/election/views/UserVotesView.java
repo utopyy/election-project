@@ -78,7 +78,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
         broadcasterRegistration = Broadcaster.register(newMessage -> {
         	if(newMessage.equals("ENABLE_VOTE")) {
         		ui.access(() -> cats.enableVotes());
-        		ui.access(() -> sessionService.enableVoteQuestion((long)1));
+        		ui.access(() -> sessionService.enableVoteQuestion());
         	}
         });
     }

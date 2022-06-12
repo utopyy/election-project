@@ -25,4 +25,12 @@ public class CategorieService {
     public Categorie findById(Long id) {
     	return categorieRepository.findById(id);
     }
+    
+    public Boolean catExists(String libelle, Integer valeur, Boolean isRequired) {
+    	return categorieRepository.existsByLibelleAndValeurAndIsRequired(libelle, valeur, isRequired);
+    }
+    
+    public Categorie getCat(String libelle, Integer valeur, Boolean isRequired) {
+    	return categorieRepository.findByLibelleAndValeurAndIsRequired(libelle, valeur, isRequired);
+    }
 }

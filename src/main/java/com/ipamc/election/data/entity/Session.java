@@ -92,15 +92,9 @@ public class Session {
 	}
 	
 	
-	public void addQuestions(Set<Question> questions) {
-		for(Question quest : questions) {
-			quest.setSession(this);
-			this.questions.add(quest);
-		}
+	public void addQuestion(Question question) {
+			question.setSession(this);
+			this.questions.add(question);
 	}
-
-	
-	
-	
 
 }

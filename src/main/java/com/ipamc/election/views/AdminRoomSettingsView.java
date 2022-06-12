@@ -4,8 +4,11 @@ import com.helger.commons.dimension.IHasDimensionDouble;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
+import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
+import com.ipamc.election.services.CategorieService;
+import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.vaadin.flow.component.Component;
@@ -32,6 +35,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
+import javax.persistence.EntityManager;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Route(value = "gestionsalon", layout = MainLayout.class)
 @PageTitle("Gestion du salon")
@@ -41,10 +49,16 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 	private UserService userService;
 	private SecurityUtils tools;
 	private SessionService sessionService;
+	private CategorieService categorieService;
+	private QuestionService questService;
+	@Autowired private EntityManager entityManager;
 	
-    public AdminRoomSettingsView(UserService userService, SecurityUtils tools, SessionService sessionService) {
+    public AdminRoomSettingsView(UserService userService, SecurityUtils tools, SessionService sessionService, CategorieService categorieService,
+    		QuestionService questService) {
     	this.userService = userService;
     	this.sessionService = sessionService;
+    	this.categorieService = categorieService;
+    	this.questService = questService;
     	this.tools = tools;
         setSpacing(false);
 
@@ -53,31 +67,46 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
         TextField intituleQuestion = new TextField("Question");
         Checkbox commentaire = new Checkbox("Commentaire");
         Checkbox comIsRequired = new Checkbox("Obligatoire");
+        comIsRequired.setEnabled(false);
+        commentaire.addValueChangeListener(event ->{
+        	if(event.getValue()) {
+        		comIsRequired.setEnabled(true);
+        	}else {
+        		comIsRequired.setEnabled(false);
+        	}
+        });
         Checkbox note = new Checkbox("Note");
         IntegerField noteValue = new IntegerField("Note sur");
+        Checkbox noteIsRequired = new Checkbox("Obligatoire");
         noteValue.setVisible(false);
+        noteIsRequired.setEnabled(false);
         note.addValueChangeListener(event ->{
         	if(event.getValue()) {
         		noteValue.setVisible(true);
+        		noteIsRequired.setEnabled(true);
         	}else {
         		noteValue.setVisible(false);
+        		noteIsRequired.setEnabled(false);
         	}
         });
-        Checkbox noteIsRequired = new Checkbox("Obligatoire");
-        Checkbox qcm = new Checkbox("QCM");
+        Checkbox propositions = new Checkbox("Propositions");
         TextField proposition1 = new TextField("Proposition");
         TextField proposition2 = new TextField("Proposition");
+        Checkbox qcm = new Checkbox("QCM");
+        qcm.setVisible(false);
 		proposition1.setVisible(false);
 		proposition2.setVisible(false);
-        qcm.addValueChangeListener(event ->{
+        propositions.addValueChangeListener(event ->{
         	if(event.getValue()) {
         		proposition1.setVisible(true);
         		proposition2.setVisible(true);
+        		qcm.setVisible(true);
         	}else {
         		proposition1.setVisible(false);
         		proposition2.setVisible(false);
+        		qcm.setVisible(false);
         	}
-        });   
+        });  
         
         MultiSelectListBox<User> usersBox = new MultiSelectListBox<>();  
         List<User> users = new ArrayList<>();
@@ -92,7 +121,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
         saveSession.addClickListener(event ->{
         	Set<Categorie> cats = new HashSet<>();
         	if(commentaire.getValue()) {
-        		cats.add(new Categorie("Commentaire", 0, comIsRequired.getValue()));
+        		cats.add(new Categorie("Commentaire", -1, comIsRequired.getValue()));
         	}
         	if(note.getValue()) {
         		cats.add(new Categorie("Note", noteValue.getValue() ,noteIsRequired.getValue()));
@@ -101,18 +130,21 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
         	if(qcm.getValue()) {
         			props.add(new Proposition(proposition1.getValue()));
         			props.add(new Proposition(proposition2.getValue()));
+        	}else {
+        		props.add(new Proposition(proposition1.getValue()));
         	}
         	Set<User> jury = new HashSet<>();
         	for (Object i : usersBox.getSelectedItems()) { 
 				jury.add((User)i);
         	}
-        	Question quest = new Question(intituleQuestion.getValue(), cats, props, qcm.getValue());
-        	Set<Question> questions = new HashSet<>();
-        	questions.add(quest);
-        	sessionService.createSession(nomSession.getValue(), jury, questions);
+        	Session sess = sessionService.createSession(nomSession.getValue(), jury);
+        	
+        	questService.createQuestion(cats, props, intituleQuestion.getValue(), qcm.getValue(), sess);
+
+
         });
         
-        add(nomSession, intituleQuestion, commentaire, comIsRequired, note, noteValue, noteIsRequired, qcm, proposition1, proposition2, usersBox, saveSession);
+        add(nomSession, intituleQuestion, commentaire, comIsRequired, note, noteValue, noteIsRequired, propositions, proposition1, proposition2, qcm, usersBox, saveSession);
         
 
         setSizeFull();

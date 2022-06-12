@@ -8,5 +8,6 @@ import com.ipamc.election.data.entity.Question;
 public interface QuestionRepository extends JpaRepository<Question,Integer> {
 
 	Question findById(Long id);
+	Question findByIsActive(Boolean isActive);
 } 
 

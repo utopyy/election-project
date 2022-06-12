@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.repository.QuestionRepository;
 import com.ipamc.election.repository.SessionRepository;
 
 @Service
@@ -18,6 +19,8 @@ public class SessionService {
 
 	@Autowired
 	SessionRepository sessionRepository;
+	@Autowired
+	QuestionRepository questRepository;
 	
 	public SessionService() {
 		
@@ -36,21 +39,24 @@ public class SessionService {
 		return sessionRepository.findByIsActive(true);
 	}
 	
-	public void enableVoteQuestion(Long id) {
-		Session session = sessionRepository.findByIsActive(true);
-		for(Question question : session.getQuestions()) {
-			if(question.getId().equals(id)) {
-				question.setVoteEnabled(true);
-				break;
-			}
-		}
+	public void enableVoteQuestion() {
+		Question question = questRepository.findByIsActive(true);
+		question.setVoteEnabled(true);
+		questRepository.save(question);
 	}
 	
-	public Session createSession(String name, Set<User> users, Set<Question> questions) {
+	
+	
+	public Session createSession(String name, Set<User> users) {
 		Session session = new Session(name, users);
-		session.addQuestions(questions);
-		System.out.println("Sessiondi: "+session.getId());
-		System.out.println("Session name: "+session.getName());
 		return sessionRepository.save(session);
 	}
+	
+	public void addQuestion(Session session, Question question) {
+		Session sessDb = sessionRepository.getById(session.getId());
+		sessDb.addQuestion(question);
+		sessionRepository.save(sessDb);
+	}
+	
+	
 }
