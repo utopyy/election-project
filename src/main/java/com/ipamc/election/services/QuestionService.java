@@ -31,21 +31,15 @@ public class QuestionService {
 		
 	}
 	
+	@Transactional
 	public Question createQuestion(Set<Categorie> cats, Set<Proposition> props, String intitule, Boolean mutliChoice, Session session) {
 		Question quest = new Question(intitule, mutliChoice);
 		quest.setSession(session);
 		for(Categorie cat : cats) {
-			Integer valeur = cat.getValeur();
-			if(valeur == -1) {
-				System.out.println("hellooo\n\n"); 
-				valeur = null;
-			}
-			if(catRepository.existsByLibelleAndValeurAndIsRequired(cat.getLibelle(), valeur, cat.getIsRequired())) {
-				quest.addCategorie(catRepository.findByLibelleAndValeurAndIsRequired(cat.getLibelle(), null, cat.getIsRequired()));
-				System.out.println("Je suis là");
+			if(catRepository.existsByLibelleAndValeurAndIsRequired(cat.getLibelle(), cat.getValeur(), cat.getIsRequired())) {
+				quest.addCategorie(catRepository.findByLibelleAndValeurAndIsRequired(cat.getLibelle(), cat.getValeur(), cat.getIsRequired()));
 			}else {
-				Categorie newCat = new Categorie(cat.getLibelle(), valeur, cat.getIsRequired());
-				System.out.println("Raté");
+				Categorie newCat = new Categorie(cat.getLibelle(), cat.getValeur(), cat.getIsRequired());
 				catRepository.save(newCat);
 				quest.addCategorie(newCat);
 			}

@@ -140,7 +140,7 @@ public class MainLayout extends AppLayout {
 
             ContextMenu userMenu = new ContextMenu(avatar);
             userMenu.setOpenOnClick(true);
-            userMenu.addItem("Logout", e -> {
+            userMenu.addItem("Se déconnecter", e -> {
                 tools.logout();
             });
 

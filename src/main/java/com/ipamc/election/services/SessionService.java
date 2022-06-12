@@ -58,5 +58,9 @@ public class SessionService {
 		sessionRepository.save(sessDb);
 	}
 	
+	public Long getNumberOfSessions() {
+		return sessionRepository.count();
+	}
+	
 	
 }
