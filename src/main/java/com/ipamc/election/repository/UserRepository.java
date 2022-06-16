@@ -1,5 +1,6 @@
 package com.ipamc.election.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,7 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 	User getByActivationCode(String activationCode);
 	User findByResetPasswordToken(String token);
 	User findByPseudo(String pseudo);
+	List<User> findAllByCertified(Boolean certified);
 	
 	Boolean existsByPseudo(String pseudo);
 	Boolean existsByUsername(String username);

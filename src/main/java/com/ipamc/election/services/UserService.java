@@ -223,4 +223,8 @@ public class UserService implements IUserService {
     public List<User> findAll(){
     	return userRepository.findAll();
     }
+    
+    public List<User> findCertifiedUsers(){
+    	return userRepository.findAllByCertified(true);
+    }
 }

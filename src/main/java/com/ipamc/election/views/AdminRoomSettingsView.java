@@ -7,7 +7,9 @@ import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.CreateSession;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
@@ -58,6 +60,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		
 		content = new VerticalLayout();
 		content.setSpacing(false);
+		content.setSizeFull();
 		setContent(tabs.getSelectedTab());
 
 		add(tabs, content);
@@ -73,6 +76,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		} else if (tab.equals(manageSessions)) {
 			content.add(new Paragraph("This is the ManageSessions tab"));
 		} else {
+			createSessionView.setAlignItems(Alignment.CENTER);
 			content.add(createSessionView);
 		}
 	}

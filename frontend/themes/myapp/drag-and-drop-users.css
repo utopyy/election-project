@@ -1,0 +1,9 @@
+vaadin-vertical-layout, 
+vaadin-horizontal-layout { 
+	border: 1px solid black;
+}
+
+label.labelHelp {
+    font-weight: bold;
+    background: red;
+}
