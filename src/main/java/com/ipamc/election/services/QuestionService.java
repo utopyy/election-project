@@ -32,10 +32,10 @@ public class QuestionService {
 	}
 	
 	@Transactional
-	public Question createQuestion(Set<Categorie> cats, Set<Proposition> props, String intitule, Boolean mutliChoice, Session session) {
-		Question quest = new Question(intitule, mutliChoice);
+	public Question createQuestion(Question question, Session session) {
+		Question quest = new Question(question.getIntitule(), question.getMultiChoice(), question.getPropositionRequired());
 		quest.setSession(session);
-		for(Categorie cat : cats) {
+		for(Categorie cat : question.getCategories()) {
 			if(catRepository.existsByLibelleAndValeurAndIsRequired(cat.getLibelle(), cat.getValeur(), cat.getIsRequired())) {
 				quest.addCategorie(catRepository.findByLibelleAndValeurAndIsRequired(cat.getLibelle(), cat.getValeur(), cat.getIsRequired()));
 			}else {
@@ -43,7 +43,7 @@ public class QuestionService {
 				catRepository.save(newCat);
 				quest.addCategorie(newCat);
 			}
-		}for(Proposition p : props) {
+		}for(Proposition p : question.getPropositions()) {
 			if(propRepository.existsByLibelle(p.getLibelle())) {
 				quest.addProposition(propRepository.findByLibelle(p.getLibelle()));
 			}else {

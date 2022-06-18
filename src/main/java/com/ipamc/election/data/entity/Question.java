@@ -44,15 +44,16 @@ public class Question {
 	@OneToMany(mappedBy="question", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	private Set<Vote> votes = new HashSet<>();
 	
-    
+    private Boolean propositionRequired;
 	private Boolean multiChoice;
 	private Boolean isActive;
 	private Boolean voteEnabled;
 	
 	
-	public Question(String intitule, Boolean multiChoice) {
+	public Question(String intitule, Boolean multiChoice, Boolean propositionRequired) {
 		this.intitule = intitule;
-		multiChoice = false;
+		this.propositionRequired = propositionRequired;
+		this.multiChoice = multiChoice;
 		isActive = false;
 		voteEnabled = false;
 	}
@@ -67,7 +68,8 @@ public class Question {
 	}
 	
 	public Question() {
-		multiChoice = false;
+		isActive = false;
+		voteEnabled = false;
 	}
 
 	public Long getId() {
@@ -152,4 +154,22 @@ public class Question {
 		prop.addQuestion(this);
 		propositions.add(prop);
 	}
+
+	public Boolean getPropositionRequired() {
+		return propositionRequired;
+	}
+
+	public void setPropositionRequired(Boolean propositionRequired) {
+		this.propositionRequired = propositionRequired;
+	}
+	
+	public void removeProposition(Proposition proposition) {
+		propositions.remove(proposition);
+	}
+	
+	public void removeCategorie(Categorie categorie) {
+		categories.remove(categorie);
+	}
+	
+	
 }

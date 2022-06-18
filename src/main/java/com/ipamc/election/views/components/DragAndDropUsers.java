@@ -197,7 +197,7 @@ public class DragAndDropUsers extends FormLayout {
 	    vert1.setMargin(false);
 	    vert1.setPadding(false);
 	    vert1.setWidth("50%");
-	    vert1.setAlignItems(Alignment.CENTER);
+	    //vert1.setAlignItems(Alignment.CENTER);
 	    Label jury = new Label("Jury");
 	    jury.getStyle().set("font-size", "16px");
 	    vert2.add(jury, searchGrid2, grid2, tools2);
@@ -222,7 +222,7 @@ public class DragAndDropUsers extends FormLayout {
 	
 	private static Grid<User> setupGrid() {
 	    Grid<User> grid = new Grid<>(User.class, false);
-	    grid.addColumn(User::getUsername).setHeader("Nom d'utilisateur");
+	    grid.addColumn(User::getUsername).setHeader("Nom d'utilisateur").setSortable(true);;
 	    grid.addComponentColumn(userPermissions -> createPermissionIcon(userPermissions.certified())).setHeader("Certifié").setTextAlign(ColumnTextAlign.CENTER);               
 	    return grid;
 	}

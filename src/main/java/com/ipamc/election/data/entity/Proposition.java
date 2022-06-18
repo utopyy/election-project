@@ -27,7 +27,6 @@ public class Proposition {
 	
 	
 	public Proposition() {
-		
 	}
 	
 	public Proposition(String libelle) {
