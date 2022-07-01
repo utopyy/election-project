@@ -1,5 +1,6 @@
 package com.ipamc.election.services;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -35,6 +36,10 @@ public class SessionService {
 		}
 	}
 	
+	public List<Session> findAllSessions(){
+		return sessionRepository.findAll();
+	}
+	
 	public Session getActiveSession() {
 		return sessionRepository.findByIsActive(true);
 	}
@@ -60,6 +65,12 @@ public class SessionService {
 	
 	public Long getNumberOfSessions() {
 		return sessionRepository.count();
+	}
+	
+	public void removeSession(Long id) {
+		//Check si isActive;
+		Session sess = sessionRepository.getById(id);
+		sessionRepository.delete(sess);
 	}
 	
 	

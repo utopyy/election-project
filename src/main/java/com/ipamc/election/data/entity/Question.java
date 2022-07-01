@@ -170,6 +170,5 @@ public class Question {
 	public void removeCategorie(Categorie categorie) {
 		categories.remove(categorie);
 	}
-	
-	
+
 }

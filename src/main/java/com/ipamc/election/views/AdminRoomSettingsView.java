@@ -10,6 +10,7 @@ import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.CreateSession;
+import com.ipamc.election.views.components.ManageSessions;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -38,6 +39,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 	private QuestionService questionService;
 	private final VerticalLayout content;
 	private CreateSession createSessionView;
+	private ManageSessions manageSessionsView;
 	private final Tab createSession;
 	private final Tab activeSession;
 	private Tab manageSessions;
@@ -49,6 +51,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		this.userService = userService;
 		this.sessionService = sessionService;
 		this.questionService = questionService;
+		this.manageSessionsView = new ManageSessions(sessionService);
 		this.tools = tools;
 		createSessionView = new CreateSession(userService, sessionService, questionService);
 
@@ -56,7 +59,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		createSession = new Tab("Créer une session");
 		activeSession = new Tab("Lancer une session");
 		sp = createBadge(sessionService.getNumberOfSessions());
-		manageSessions = new Tab(new Span("Gérer mes sessions"), sp);
+		manageSessions = new Tab(new Span("Gérer les sessions"), sp);
 
 		Tabs tabs = new Tabs(createSession, activeSession, manageSessions);
 
@@ -88,7 +91,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		if (tab.equals(activeSession)) {
 			content.add(new Paragraph("This is the ActiveSession tab"));
 		} else if (tab.equals(manageSessions)) {
-			content.add(new Paragraph("This is the ManageSessions tab"));
+			content.add(manageSessionsView);
 		} else {
 			createSessionView.setAlignItems(Alignment.CENTER);
 			content.add(createSessionView);
