@@ -11,6 +11,7 @@ import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.CreateSession;
 import com.ipamc.election.views.components.ManageSessions;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -38,12 +39,10 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 	private SessionService sessionService;
 	private QuestionService questionService;
 	private final VerticalLayout content;
-	private CreateSession createSessionView;
 	private ManageSessions manageSessionsView;
-	private final Tab createSession;
 	private final Tab activeSession;
 	private Tab manageSessions;
-	private Span sp;
+	private Div sp = new Div();
 
 	public AdminRoomSettingsView(UserService userService, SecurityUtils tools, SessionService sessionService,
 			QuestionService questionService) {
@@ -51,17 +50,16 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		this.userService = userService;
 		this.sessionService = sessionService;
 		this.questionService = questionService;
-		this.manageSessionsView = new ManageSessions(sessionService);
+		this.manageSessionsView = new ManageSessions(userService, sessionService, questionService);
 		this.tools = tools;
-		createSessionView = new CreateSession(userService, sessionService, questionService);
 
 		setSpacing(false);
-		createSession = new Tab("Créer une session");
 		activeSession = new Tab("Lancer une session");
-		sp = createBadge(sessionService.getNumberOfSessions());
+		sp.add(createBadge(sessionService.getNumberOfSessions()));
+		manageSessionsView.initDeleteButton(sp);
 		manageSessions = new Tab(new Span("Gérer les sessions"), sp);
 
-		Tabs tabs = new Tabs(createSession, activeSession, manageSessions);
+		Tabs tabs = new Tabs(activeSession, manageSessions);
 
 		tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
 		tabs.setSizeFull();
@@ -82,7 +80,6 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 
 		add(tabs, content);
 
-		createSessionView.addButtonEvent(manageSessions, sessionService);
 	}
 
 	private void setContent(Tab tab) {
@@ -90,11 +87,8 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 
 		if (tab.equals(activeSession)) {
 			content.add(new Paragraph("This is the ActiveSession tab"));
-		} else if (tab.equals(manageSessions)) {
-			content.add(manageSessionsView);
 		} else {
-			createSessionView.setAlignItems(Alignment.CENTER);
-			content.add(createSessionView);
+			content.add(manageSessionsView);
 		}
 	}
 
@@ -106,18 +100,21 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 	}
 	
 	private void setupSaveBtn() {
-		createSessionView.getSaveSession().addClickListener(event ->{
+		manageSessionsView.getCreateSession().getSaveSession().addClickListener(event ->{
 			ConfirmDialog.create()
 			.withCaption("Confirmation")
-			.withMessage("Création de la session: "+createSessionView.getSessionName().getValue()+ " ?")
+			.withMessage("Création de la session: "+manageSessionsView.getCreateSession().getSessionName().getValue()+ " ?")
 			.withOkButton(() -> {
-				Session sess = sessionService.createSession(createSessionView.getSessionName().getValue(), createSessionView.getDragAndDrop().getSelectedUsers());
-				for(Question quest : createSessionView.getQuestionsCreator().getQuestions()) {
+				Session sess = sessionService.createSession(manageSessionsView.getCreateSession().getSessionName().getValue(), manageSessionsView.getCreateSession().getDragAndDrop().getSelectedUsers());
+				for(Question quest : manageSessionsView.getCreateSession().getQuestionsCreator().getQuestions()) {
 					questionService.createQuestion(quest, sess);
 				}
-				createSessionView = new CreateSession(userService, sessionService, questionService);
 				setupSaveBtn();
-				setContent(createSession);
+				Session newFullSess = sessionService.getBySessionName(sess.getName());
+				manageSessionsView.addSession(newFullSess);
+				manageSessionsView.getBackButton().click();
+				sp.removeAll();
+				sp.add(createBadge(sessionService.getNumberOfSessions()));
 				Notification notification = Notification.show("Session créée avec succès!");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);

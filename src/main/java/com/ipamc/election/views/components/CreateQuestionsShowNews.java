@@ -22,16 +22,16 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 public class CreateQuestionsShowNews extends Div {
 
 	private List<Question> questions = new ArrayList<>();
-	private static Grid<Question> grid;
-	private static Div hint;
+	private Grid<Question> grid;
+	private Div hint;
 	
 	public CreateQuestionsShowNews() {
-		this.setupAddQuestion();
-		this.setupGrid();
-		this.refreshGrid();
+		//this.setupAddQuestion();
+		//this.setupGrid();
+		//this.refreshGrid();
 	}
 	
-	private void setupAddQuestion() {
+	public void setupAddQuestion(Button saveBtn) {
 		Button addQuestion = new Button("Ajouter une question");
 		addQuestion.addClickListener(event -> {
 			DialogQuestion diag = new DialogQuestion();
@@ -46,6 +46,7 @@ public class CreateQuestionsShowNews extends Div {
 		  		    	 questions.add(question);
 		  		    	 this.refreshGrid();
 		  		    	 diag.close();
+		  		    	 saveBtn.setEnabled(true);
 		  		      }, ButtonOption.focus(), ButtonOption.caption("OUI"))
 		  		      .withCancelButton(ButtonOption.caption("NON")).open();
 	
@@ -62,15 +63,20 @@ public class CreateQuestionsShowNews extends Div {
 		add(layout);
 	}
 	
-	private void setupGrid() {
+	public void setupGrid(Button saveBtn) {
 		grid = new Grid<>(Question.class, false);
 		grid.setAllRowsVisible(true);
-		grid.addColumn(Question::getIntitule).setHeader("Intitulé").setResizable(true);;
+		grid.addColumn(Question::getIntitule).setHeader("Intitulé").setResizable(true);
 		grid.addColumn(new ComponentRenderer<>(Button::new, (button, question) -> {
             button.addThemeVariants(ButtonVariant.LUMO_ICON,
                     ButtonVariant.LUMO_ERROR,
                     ButtonVariant.LUMO_TERTIARY);
-            button.addClickListener(e -> this.removeQuestion(question));
+            button.addClickListener(e -> {
+            	this.removeQuestion(question);
+            	if(questions.size()==0) {
+            		saveBtn.setEnabled(false);
+            	}
+            });
             button.setIcon(new Icon(VaadinIcon.TRASH));
         })).setHeader("Supprimer").setTextAlign(ColumnTextAlign.END);
 		
@@ -78,12 +84,13 @@ public class CreateQuestionsShowNews extends Div {
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		
 		hint = new Div();
-		hint.setText("Aucune question n'a été créé");
+		hint.setText("Aucune question n'a été créée");
 		hint.getStyle().set("padding", "var(--lumo-size-l)")
         .set("text-align", "center").set("font-style", "italic")
         .set("color", "var(--lumo-contrast-70pct)");
 		
 		add(hint, grid);
+		this.refreshGrid();
 	}
 	
 	private void refreshGrid() {
@@ -106,5 +113,9 @@ public class CreateQuestionsShowNews extends Div {
     
     public List<Question> getQuestions(){
     	return questions;
+    }
+    
+    public Grid<Question> getGrid(){
+    	return grid;
     }
 }

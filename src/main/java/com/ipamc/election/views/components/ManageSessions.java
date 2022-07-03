@@ -11,7 +11,9 @@ import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
+import com.ipamc.election.services.UserService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -19,8 +21,10 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
@@ -43,19 +47,28 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 public class ManageSessions extends VerticalLayout {
 
 	private SessionService sessionService;
-
+	
 	private Button findAllButton;
 	private Button addButton;
 	private Button deleteButton;
 	private Button updateButton;
+	private TextField searchBar;
+	private Button backButton;
 
 	private Grid<Session> grid;
 	private List<Session> sessions;
+	
+	private CreateSession createSession;
+	
+	private Div hint = new Div();
 
-	public ManageSessions(SessionService sessionService) {
+	public ManageSessions(UserService userService, SessionService sessionService, QuestionService questionService) {
 		this.sessionService = sessionService;
 		this.sessions = sessionService.findAllSessions();
+		this.createSession = new CreateSession(userService, sessionService, questionService);
+		createSession.getStyle().set("padding-top", "0px");
 		initLayout();
+		refreshGrid();
 	}
 
 	private void initLayout() {
@@ -71,15 +84,25 @@ public class ManageSessions extends VerticalLayout {
 		deleteButton = new Button(VaadinIcon.TRASH.create());
 		deleteButton.setEnabled(false);
 		deleteButton.getElement().setAttribute("title", "Delete");
-
-		createGrid();
+		
+		backButton = new Button("Retour");
+		backButton.setVisible(false);
+		
+		createSession.setVisible(false);
+		createGrid(createSession);
+		
 		GridListDataView<Session> dataView = grid.setItems(sessions);
-		TextField searchBar = searchBarSession(dataView);
-		buttons.add(searchBar, addButton, updateButton, deleteButton);
-
-		add(buttons, grid);
-
-		initDeleteButton(dataView);
+		searchBar = searchBarSession(dataView);
+		buttons.add(searchBar, addButton, updateButton, deleteButton, backButton);
+		HorizontalLayout mainComponents = new HorizontalLayout();
+		
+		mainComponents.add(grid, createSession);
+		createSession.setWidth("50em");
+		mainComponents.setSizeFull();
+		add(buttons, hint, mainComponents);
+		setSpacing(false);
+		initAddButton();
+		initBackButton();
 		updateButtons();
 	}
 
@@ -93,8 +116,9 @@ public class ManageSessions extends VerticalLayout {
 		});
 	}
 
-	private void createGrid() {
+	private void createGrid(CreateSession createSession) {
 		grid = new Grid<>(Session.class, false);
+		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		grid.addColumn(Session::getName).setHeader("Nom");
 		grid.addComponentColumn(session -> new Button(Integer.toString(session.getUsers().size()), click -> {
 			Dialog dialog = new Dialog();
@@ -119,6 +143,10 @@ public class ManageSessions extends VerticalLayout {
 			dialog.open();
 		})).setHeader("Questions");
 		grid.setItems(sessionService.findAllSessions());
+		grid.setWidth("75%");
+		grid.addItemClickListener(event -> {
+			createSession.setVisible(false);
+		});
 	}
 
 	private VerticalLayout dialogShowJury(Session session) {
@@ -256,7 +284,7 @@ public class ManageSessions extends VerticalLayout {
 		return searchField;
 	}
 
-	private void initDeleteButton(GridListDataView<Session> sessionsView) {
+	public void initDeleteButton(Div sp) {
 		deleteButton.addClickListener(event ->{
 			Session sess = grid.getSelectedItems().iterator().next();
 			ConfirmDialog.create()
@@ -267,7 +295,9 @@ public class ManageSessions extends VerticalLayout {
 				sessions.remove(sess);
 				grid.deselectAll();
 				deleteButton.setEnabled(false);
-				grid.getDataProvider().refreshAll();
+				refreshGrid();
+				sp.removeAll();
+				sp.add(createBadge(sessionService.getNumberOfSessions()));
 				Notification notification = Notification.show("Session supprimée!");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(1500);
@@ -276,7 +306,73 @@ public class ManageSessions extends VerticalLayout {
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});
 	}
+		
+	private void initAddButton() {
+		addButton.addClickListener(event -> {
+			createSession.setVisible(true);
+			grid.setVisible(false);
+			backButton.setVisible(true);
+			addButton.setVisible(false);
+			deleteButton.setVisible(false);
+			updateButton.setVisible(false);
+			searchBar.setVisible(false);
+			hint.removeAll();
+			hint.add(new H4("Nouvelle session:"));
+			grid.deselectAll();
+		});
+	}
+	
+	private void initBackButton() {
+		backButton.addClickListener(event ->{
+			grid.setVisible(true);
+			createSession.setVisible(false);
+			backButton.setVisible(false);
+			addButton.setVisible(true);
+			deleteButton.setVisible(true);
+			updateButton.setVisible(true);
+			searchBar.setVisible(true);
+			refreshGrid();
+		});
+	}
+	
+	public void refreshGrid() {
+        if (sessions.size() > 0) {
+            grid.setVisible(true);
+            hint.setVisible(false);
+            grid.getDataProvider().refreshAll();
+        } else {
+            grid.setVisible(false);
+            hint.removeAll();
+            hint.add(new H4("Aucune session disponible..."));
+            hint.setVisible(true);
+        }
+	}
+	
+	public CreateSession getCreateSession() {
+		return createSession;
+	}
+	
+	public void setCreateSession(CreateSession createSession) {
+		this.createSession = createSession;
+	}
 
+	public Button getBackButton() {
+		return backButton;
+	}
 
+	public Grid<Session> getGrid() {
+		return grid;
+	}
 
+	public void addSession(Session session) {
+		sessions.add(session);
+	}
+	
+	private Span createBadge(Long value) {
+		Span badge = new Span(String.valueOf(value));
+		badge.getElement().getThemeList().add("badge small contrast");
+		badge.getStyle().set("margin-inline-start", "var(--lumo-space-xs)");
+		return badge;
+	}
+	
 }

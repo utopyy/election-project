@@ -73,5 +73,9 @@ public class SessionService {
 		sessionRepository.delete(sess);
 	}
 	
+	public Session getBySessionName(String name) {
+		return sessionRepository.findByName(name);
+	}
+	
 	
 }

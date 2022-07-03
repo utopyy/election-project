@@ -134,6 +134,9 @@ public class CreateSession extends VerticalLayout {
 
 		// Questions details
 		questionsCreator = new CreateQuestionsShowNews();
+		saveSession = new Button("Créer la session");
+		questionsCreator.setupGrid(saveSession);
+		questionsCreator.setupAddQuestion(saveSession);
 		questionsCreator.setSizeFull();
 		questionsCreator.getStyle().set("padding-bottom", "10px");
 		HorizontalLayout hl2 = new HorizontalLayout(questionsCreator);
@@ -158,7 +161,7 @@ public class CreateSession extends VerticalLayout {
 			juryPanel.setOpened(true);
 			juryPanel.setEnabled(true);
 		});
-		saveSession = new Button("Créer la session");
+		saveSession.setEnabled(false);
 		saveSession.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		questionsPanel.addContent(backQuestionsButton, saveSession);
 		questionsPanel.setSizeFull();
@@ -166,6 +169,7 @@ public class CreateSession extends VerticalLayout {
 		accordion.setSizeFull();
 		setSizeFull();
 	}
+
 
 	private FormLayout createFormLayout() {
 		FormLayout billingAddressFormLayout = new FormLayout();
