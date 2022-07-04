@@ -17,8 +17,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -30,6 +33,10 @@ public class CreateSession extends VerticalLayout {
 	private DragAndDropUsers dragAndDrop;
 	private TextField sessionName;
 	private CreateQuestionsShowNews questionsCreator;
+	
+	AccordionPanel sessionDetailsPanel;
+	AccordionPanel questionsPanel;
+	AccordionPanel juryPanel;
 
 
 	private static final String SESSION_NAME = "Nom de la session";
@@ -53,23 +60,28 @@ public class CreateSession extends VerticalLayout {
 		propositionBinder.setBean(new Proposition());
 
 		FormLayout sessionDetailsFormLayout = createFormLayout();
-		AccordionPanel sessionDetailsPanel = accordion.add(SESSION_NAME,  sessionDetailsFormLayout);
+		sessionDetailsPanel = accordion.add(SESSION_NAME,  sessionDetailsFormLayout);
 
 		HorizontalLayout juryLayout = new HorizontalLayout();
 		juryLayout.add(dragAndDrop);
 		juryLayout.setSizeFull();
+		juryLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 		dragAndDrop.getStyle().set("padding-top", "12px");
 		dragAndDrop.getStyle().set("padding-bottom", "12px");
-		AccordionPanel juryPanel = accordion.add(JURY, juryLayout);
+		juryPanel = accordion.add(JURY, juryLayout);
 
 		FormLayout questionsFormLayout = createFormLayout();
-		AccordionPanel questionsPanel = accordion.add(QUESTIONS,  questionsFormLayout);
+		questionsCreator = new CreateQuestionsShowNews();
+		questionsFormLayout.add(questionsCreator);
+		questionsFormLayout.setColspan(questionsCreator, 2);
+		questionsPanel = accordion.add(QUESTIONS,  questionsFormLayout);
 
 		juryPanel.setEnabled(false);
 		questionsPanel.setEnabled(false);
 		// Session name details
 		sessionName = new TextField();
 		sessionName.setPlaceholder("Nom du tournois");
+		
 		sessionBinder.forField(sessionName).bind("name");
 
 		sessionDetailsPanel.addOpenedChangeListener(e -> {
@@ -99,7 +111,14 @@ public class CreateSession extends VerticalLayout {
 		sessionName.addValueChangeListener(event ->{
 			if(sessionName.isEmpty() || sessionName.getValue().isBlank()) {
 				sessionDetailsButton.setEnabled(false);
+				sessionName.setErrorMessage("Ce champ est obligatoire!");
+				sessionName.setInvalid(true);
+			}else if(sessionService.getBySessionName(sessionName.getValue())!=null) {
+				sessionName.setErrorMessage("Ce nom existe déjà!");
+				sessionName.setInvalid(true);
+				sessionDetailsButton.setEnabled(false);
 			}else {
+				sessionName.setInvalid(false);
 				sessionDetailsButton.setEnabled(true);
 			}
 		});
@@ -108,6 +127,7 @@ public class CreateSession extends VerticalLayout {
 		juryPanel.addOpenedChangeListener(e -> {
 			if(e.isOpened()) {
 				juryPanel.setSummaryText(JURY);
+				juryPanel.scrollIntoView();
 			}else if(dragAndDrop.getSelectedUsers().size() != 0) {
 				juryPanel.setSummary(createSummary(JURY, dragAndDrop.getSelectedUsers().size()+" membres ajoutés"));
 			}else {
@@ -133,16 +153,11 @@ public class CreateSession extends VerticalLayout {
 		juryPanel.addContent(backJuryButton, juryButton);
 
 		// Questions details
-		questionsCreator = new CreateQuestionsShowNews();
 		saveSession = new Button("Créer la session");
 		questionsCreator.setupGrid(saveSession);
 		questionsCreator.setupAddQuestion(saveSession);
-		questionsCreator.setSizeFull();
 		questionsCreator.getStyle().set("padding-bottom", "10px");
-		HorizontalLayout hl2 = new HorizontalLayout(questionsCreator);
-		hl2.setSizeFull();
-		questionsFormLayout.add(hl2);
-
+		questionsFormLayout.add(questionsCreator);
 		questionsPanel.addOpenedChangeListener(e -> {
 			if(e.isOpened()) {
 				questionsPanel.setSummaryText(QUESTIONS);
@@ -179,6 +194,7 @@ public class CreateSession extends VerticalLayout {
 				);
 		return billingAddressFormLayout;
 	}
+	
 
 	private VerticalLayout createSummary(String title, String... details) {
 		VerticalLayout layout = new VerticalLayout();
@@ -236,6 +252,19 @@ public class CreateSession extends VerticalLayout {
 		return questionsCreator;
 	}
 	
-	
-
+	public void clearForm(UserService userService) {
+		sessionName.setValue("");
+		sessionName.setInvalid(false);
+		dragAndDrop.removeAll();
+		dragAndDrop.initDragAndDrop(userService);
+		questionsCreator.clear();
+		juryPanel.setOpened(false);
+		juryPanel.setOpened(false);
+		questionsPanel.setOpened(false);
+		questionsPanel.setEnabled(false);
+		sessionDetailsPanel.setOpened(true);
+		sessionDetailsPanel.setEnabled(true);
+		saveSession.setEnabled(false);
+		saveSession = new Button("Créer la session");
+	}
 }

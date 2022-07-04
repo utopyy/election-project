@@ -75,8 +75,10 @@ public class DialogQuestion extends Div {
 		intitule.addValueChangeListener(event ->{
 			if(intitule.isEmpty() || intitule.getValue().isBlank()) {
 				intitule.setInvalid(true);
+				checkForm();
 			}else {
 				intitule.setInvalid(false);
+				checkForm();
 			}
 		});
 		commentaire = new Checkbox("Commentaire");
@@ -85,8 +87,10 @@ public class DialogQuestion extends Div {
 		commentaire.addValueChangeListener(event ->{
 			if(event.getValue()) {
 				comIsRequired.setEnabled(true);
+				checkForm();
 			}else {
 				comIsRequired.setEnabled(false);
+				checkForm();
 			}
 		});   
 		HorizontalLayout commentLayout = new HorizontalLayout(commentaire, comIsRequired);
@@ -103,9 +107,11 @@ public class DialogQuestion extends Div {
 			if(event.getValue()) {
 				noteValue.setVisible(true);
 				noteIsRequired.setEnabled(true);
+				checkForm();
 			}else {
 				noteValue.setVisible(false);
 				noteIsRequired.setEnabled(false);
+				checkForm();
 			}
 		});
 		HorizontalLayout noteLayout = new HorizontalLayout(note, noteValue, noteIsRequired);
@@ -144,8 +150,14 @@ public class DialogQuestion extends Div {
 		newProposition.addValueChangeListener(event ->{
 			if(newProposition.isEmpty() || newProposition.getValue().isBlank()) {
 				addProposition.setEnabled(false);
+				newProposition.setInvalid(false);
+			}else if(propositionsList.contains(new Proposition(newProposition.getValue()))) {
+				addProposition.setEnabled(false);
+				newProposition.setInvalid(true);
+				newProposition.setErrorMessage("Cette proposition existe déjà!");
 			}else {
 				addProposition.setEnabled(true);
+				newProposition.setInvalid(false);
 			}
 		});
 		propositionsList = new HashSet<>();
@@ -165,6 +177,7 @@ public class DialogQuestion extends Div {
 			content.add(li);
 			propsLayout.add(content);
 			newProposition.setValue("");
+			checkForm();
 		});
 
 		propIsOk.addValueChangeListener(event ->{
@@ -174,12 +187,14 @@ public class DialogQuestion extends Div {
 				propIsRequired.setEnabled(true);
 				qcm.setVisible(true);
 				content.setVisible(true);
+				checkForm();
 			}else {
 				newProposition.setVisible(false);
 				addProposition.setVisible(false);
 				content.setVisible(false);
 				qcm.setVisible(false);
 				propIsRequired.setEnabled(false);
+				checkForm();
 			}
 		}); 
 		propsLayout.setPadding(false);
@@ -200,6 +215,7 @@ public class DialogQuestion extends Div {
 
 
 		addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		addBtn.setEnabled(false);
 		HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton,
 				addBtn);
 		buttonLayout
@@ -240,6 +256,7 @@ public class DialogQuestion extends Div {
 		remove.addClickListener(event -> {
 			uli.remove(li);
 			propositionsList.remove(new Proposition(value));
+			checkForm();
 		});
 		return remove;
 	}
@@ -270,6 +287,26 @@ public class DialogQuestion extends Div {
 
 	public Question getQuestion() {
 		return quest;
+	}
+
+	private void checkForm() {
+		if(!intitule.getValue().isBlank()) {
+			if(commentaire.getValue() || note.getValue() || propIsOk.getValue()) {
+				if(propIsOk.getValue()) {
+					if(propositionsList.size()>0) {
+						addBtn.setEnabled(true); 
+					}else{
+						addBtn.setEnabled(false);
+					}
+				}else {
+					addBtn.setEnabled(true);
+				}
+			}else {
+				addBtn.setEnabled(false);
+			}
+		}else {
+			addBtn.setEnabled(false);
+		}
 	}
 
 	public void createCategorieList() {

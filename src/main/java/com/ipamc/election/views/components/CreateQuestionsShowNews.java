@@ -16,10 +16,12 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
-public class CreateQuestionsShowNews extends Div {
+public class CreateQuestionsShowNews extends VerticalLayout {
 
 	private List<Question> questions = new ArrayList<>();
 	private Grid<Question> grid;
@@ -33,6 +35,7 @@ public class CreateQuestionsShowNews extends Div {
 	
 	public void setupAddQuestion(Button saveBtn) {
 		Button addQuestion = new Button("Ajouter une question");
+		addQuestion.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		addQuestion.addClickListener(event -> {
 			DialogQuestion diag = new DialogQuestion();
 			diag.getAddBtn().addClickListener(e -> {
@@ -82,7 +85,7 @@ public class CreateQuestionsShowNews extends Div {
 		
 		grid.setItems(questions);
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-		
+		grid.setSizeFull();
 		hint = new Div();
 		hint.setText("Aucune question n'a été créée");
 		hint.getStyle().set("padding", "var(--lumo-size-l)")
@@ -117,5 +120,10 @@ public class CreateQuestionsShowNews extends Div {
     
     public Grid<Question> getGrid(){
     	return grid;
+    }
+    
+    public void clear() {
+    	questions.clear();
+    	refreshGrid();
     }
 }

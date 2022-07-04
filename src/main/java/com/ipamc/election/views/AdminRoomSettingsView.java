@@ -65,7 +65,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		tabs.setSizeFull();
 		add(tabs);
 
-		setupSaveBtn();
+		setupSaveBtn(userService);
 
 		tabs.addSelectedChangeListener(event ->
 		setContent(event.getSelectedTab())
@@ -99,7 +99,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		return badge;
 	}
 	
-	private void setupSaveBtn() {
+	private void setupSaveBtn(UserService userService) {
 		manageSessionsView.getCreateSession().getSaveSession().addClickListener(event ->{
 			ConfirmDialog.create()
 			.withCaption("Confirmation")
@@ -109,12 +109,13 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 				for(Question quest : manageSessionsView.getCreateSession().getQuestionsCreator().getQuestions()) {
 					questionService.createQuestion(quest, sess);
 				}
-				setupSaveBtn();
 				Session newFullSess = sessionService.getBySessionName(sess.getName());
 				manageSessionsView.addSession(newFullSess);
 				manageSessionsView.getBackButton().click();
+				manageSessionsView.getCreateSession().clearForm(userService);
 				sp.removeAll();
 				sp.add(createBadge(sessionService.getNumberOfSessions()));
+				setupSaveBtn(userService);
 				Notification notification = Notification.show("Session créée avec succès!");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);

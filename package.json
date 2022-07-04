@@ -121,27 +121,17 @@
     "lit": "2.2.3"
   },
   "devDependencies": {
+    "@rollup/plugin-replace": "3.1.0",
     "async": "3.2.2",
-    "chokidar": "^3.5.0",
-    "compression-webpack-plugin": "4.0.1",
-    "css-loader": "5.2.7",
-    "esbuild-loader": "2.15.1",
-    "extra-watch-webpack-plugin": "1.0.3",
-    "extract-loader": "5.1.0",
-    "file-loader": "6.2.0",
-    "fork-ts-checker-webpack-plugin": "6.2.1",
     "glob": "7.1.6",
-    "html-webpack-plugin": "4.5.1",
-    "lit-css-loader": "0.1.0",
-    "loader-utils": "2.0.0",
+    "mkdirp": "1.0.4",
+    "rollup-plugin-brotli": "3.1.0",
     "typescript": "4.5.3",
-    "webpack": "4.46.0",
-    "webpack-cli": "4.9.2",
-    "webpack-dev-server": "4.8.1",
-    "webpack-merge": "4.2.2",
+    "vite": "v2.9.1",
+    "vite-plugin-checker": "0.3.4",
+    "workbox-build": "6.5.0",
     "workbox-core": "6.5.0",
-    "workbox-precaching": "6.5.0",
-    "workbox-webpack-plugin": "6.5.0"
+    "workbox-precaching": "6.5.0"
   },
   "overrides": {
     "@vaadin/accordion": "$@vaadin/accordion",
@@ -258,7 +248,6 @@
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "date-fns": "$date-fns",
     "lit": "$lit",
-    "chokidar": "$chokidar",
     "line-awesome": "$line-awesome",
     "@vaadin/lit-renderer": "$@vaadin/lit-renderer"
   },
@@ -382,28 +371,18 @@
       "lit": "2.2.3"
     },
     "devDependencies": {
+      "@rollup/plugin-replace": "3.1.0",
       "async": "3.2.2",
-      "chokidar": "^3.5.0",
-      "compression-webpack-plugin": "4.0.1",
-      "css-loader": "5.2.7",
-      "esbuild-loader": "2.15.1",
-      "extra-watch-webpack-plugin": "1.0.3",
-      "extract-loader": "5.1.0",
-      "file-loader": "6.2.0",
-      "fork-ts-checker-webpack-plugin": "6.2.1",
       "glob": "7.1.6",
-      "html-webpack-plugin": "4.5.1",
-      "lit-css-loader": "0.1.0",
-      "loader-utils": "2.0.0",
+      "mkdirp": "1.0.4",
+      "rollup-plugin-brotli": "3.1.0",
       "typescript": "4.5.3",
-      "webpack": "4.46.0",
-      "webpack-cli": "4.9.2",
-      "webpack-dev-server": "4.8.1",
-      "webpack-merge": "4.2.2",
+      "vite": "v2.9.1",
+      "vite-plugin-checker": "0.3.4",
+      "workbox-build": "6.5.0",
       "workbox-core": "6.5.0",
-      "workbox-precaching": "6.5.0",
-      "workbox-webpack-plugin": "6.5.0"
+      "workbox-precaching": "6.5.0"
     },
-    "hash": "9089424416348619342626d8684759b7cc8a4720b698e10af29916a58f78e1e2"
+    "hash": "cc55bb29b5c496f3d2c36df7ec108daf625377c5c66369fdcc0f117535df9cb2"
   }
 }

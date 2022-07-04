@@ -97,7 +97,7 @@ public class ManageSessions extends VerticalLayout {
 		HorizontalLayout mainComponents = new HorizontalLayout();
 		
 		mainComponents.add(grid, createSession);
-		createSession.setWidth("50em");
+		createSession.setWidth("100%");
 		mainComponents.setSizeFull();
 		add(buttons, hint, mainComponents);
 		setSpacing(false);
@@ -319,6 +319,12 @@ public class ManageSessions extends VerticalLayout {
 			hint.removeAll();
 			hint.add(new H4("Nouvelle session:"));
 			grid.deselectAll();
+		});
+	}
+	
+	private void initUpdateButton() {
+		updateButton.addClickListener(event -> {
+			
 		});
 	}
 	
