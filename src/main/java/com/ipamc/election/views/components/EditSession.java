@@ -1,8 +1,5 @@
 package com.ipamc.election.views.components;
 
-import org.claspina.confirmdialog.ButtonOption;
-import org.claspina.confirmdialog.ConfirmDialog;
-
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
@@ -10,30 +7,27 @@ import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
-public class CreateSession extends VerticalLayout {
+public class EditSession extends VerticalLayout {
 
 	private Button saveSession;
 	private DragAndDropUsers dragAndDrop;
 	private TextField sessionName;
 	private CreateQuestionsShowNews questionsCreator;
-	
+
 	AccordionPanel sessionDetailsPanel;
 	AccordionPanel questionsPanel;
 	AccordionPanel juryPanel;
@@ -43,13 +37,12 @@ public class CreateSession extends VerticalLayout {
 	private static final String QUESTIONS = "Questions";
 	private static final String JURY = "Membres du jury";
 
-	public CreateSession(UserService userService, SessionService sessionService, QuestionService questionService) {
+	public EditSession(UserService userService, SessionService sessionService, QuestionService questionService, Session sess) {
 
 		Accordion accordion = new Accordion();
 		dragAndDrop = new DragAndDropUsers(userService);
+		dragAndDrop.fillDragAndDrop(sess);
 
-		Binder<Session> sessionBinder = new Binder<>(Session.class);
-		sessionBinder.setBean(new Session());
 
 		Binder<Question> questionBinder = new Binder<>(Question.class);
 		questionBinder.setBean(new Question());
@@ -80,21 +73,9 @@ public class CreateSession extends VerticalLayout {
 		questionsPanel.setEnabled(false);
 		// Session name details
 		sessionName = new TextField();
-		sessionName.setPlaceholder("Nom du tournois");
+		sessionName.setPlaceholder("Nom du tournois");	
+		sessionName.setValue(sess.getName());
 		
-		sessionBinder.forField(sessionName).bind("name");
-
-		sessionDetailsPanel.addOpenedChangeListener(e -> {
-			if(e.isOpened()) {
-				sessionDetailsPanel.setSummaryText(SESSION_NAME);
-			} else if(sessionBinder.getBean() != null) {
-				Session sessionValue = sessionBinder.getBean();
-				sessionDetailsPanel.setSummary(createSummary(SESSION_NAME,
-						sessionValue.getName()
-						));
-			}
-		});    
-
 		Button sessionDetailsButton = new Button("Suivant");
 		sessionDetailsButton.addClickListener(event ->{
 			sessionDetailsPanel.setOpened(false);
@@ -102,18 +83,18 @@ public class CreateSession extends VerticalLayout {
 			juryPanel.setEnabled(true);
 			juryPanel.setOpened(true); 
 		});
-		sessionDetailsButton.setEnabled(false);
 		sessionDetailsButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		HorizontalLayout hl = new HorizontalLayout(sessionName, sessionDetailsButton);
 		sessionDetailsFormLayout.add(hl);
 
 		sessionName.setValueChangeMode(ValueChangeMode.EAGER);
 		sessionName.addValueChangeListener(event ->{
+			System.out.println("\nChecking value : "+sessionName.getValue());
 			if(sessionName.isEmpty() || sessionName.getValue().isBlank()) {
 				sessionDetailsButton.setEnabled(false);
 				sessionName.setErrorMessage("Ce champ est obligatoire!");
 				sessionName.setInvalid(true);
-			}else if(sessionService.getBySessionName(sessionName.getValue())!=null) {
+			}else if(sessionService.getBySessionName(sessionName.getValue())!=null && !sessionName.getValue().equals(sess.getName())) {
 				sessionName.setErrorMessage("Ce nom existe déjà!");
 				sessionName.setInvalid(true);
 				sessionDetailsButton.setEnabled(false);
@@ -153,15 +134,16 @@ public class CreateSession extends VerticalLayout {
 		juryPanel.addContent(backJuryButton, juryButton);
 
 		// Questions details
-		saveSession = new Button("Créer la session");
+		saveSession = new Button("Modifier la session");
 		questionsCreator.setupGrid(saveSession);
 		questionsCreator.setupAddQuestion(saveSession);
+		questionsCreator.fillGrid(sess);
 		questionsCreator.getStyle().set("padding-bottom", "10px");
 		questionsFormLayout.add(questionsCreator);
 		questionsPanel.addOpenedChangeListener(e -> {
 			if(e.isOpened()) {
+				saveSession.scrollIntoView();
 				questionsPanel.setSummaryText(QUESTIONS);
-				questionsPanel.scrollIntoView();
 			} else if(questionBinder.getBean().getIntitule() != null) {
 				Question questionValues = questionBinder.getBean();
 				questionsPanel.setSummary(createSummary(QUESTIONS,
@@ -177,7 +159,6 @@ public class CreateSession extends VerticalLayout {
 			juryPanel.setOpened(true);
 			juryPanel.setEnabled(true);
 		});
-		saveSession.setEnabled(false);
 		saveSession.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		questionsPanel.addContent(backQuestionsButton, saveSession);
 		questionsPanel.setSizeFull();
@@ -195,7 +176,7 @@ public class CreateSession extends VerticalLayout {
 				);
 		return billingAddressFormLayout;
 	}
-	
+
 
 	private VerticalLayout createSummary(String title, String... details) {
 		VerticalLayout layout = new VerticalLayout();
@@ -236,7 +217,7 @@ public class CreateSession extends VerticalLayout {
 		badge.getStyle().set("margin-inline-start", "var(--lumo-space-xs)");
 		return badge;
 	}
-	
+
 	public Button getSaveSession() {
 		return saveSession;
 	}
@@ -245,27 +226,8 @@ public class CreateSession extends VerticalLayout {
 		return dragAndDrop;
 	}
 
-	public TextField getSessionName() {
-		return sessionName;
-	}
 
 	public CreateQuestionsShowNews getQuestionsCreator() {
 		return questionsCreator;
-	}
-	
-	public void clearForm(UserService userService) {
-		sessionName.setValue("");
-		sessionName.setInvalid(false);
-		dragAndDrop.removeAll();
-		dragAndDrop.initDragAndDrop(userService);
-		questionsCreator.clear();
-		juryPanel.setOpened(false);
-		juryPanel.setOpened(false);
-		questionsPanel.setOpened(false);
-		questionsPanel.setEnabled(false);
-		sessionDetailsPanel.setOpened(true);
-		sessionDetailsPanel.setEnabled(true);
-		saveSession.setEnabled(false);
-		saveSession = new Button("Créer la session");
 	}
 }

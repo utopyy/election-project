@@ -11,6 +11,7 @@ import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.CreateSession;
 import com.ipamc.election.views.components.ManageSessions;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -127,9 +128,13 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
-			beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());		
-		}
+		try { 
+			if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
+				beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());	
+			}
+		}catch(NullPointerException ex) {
+		 UI.getCurrent().navigate(AccessDenied403.class);
+		};
 
 	}
 

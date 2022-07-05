@@ -14,21 +14,19 @@ import com.ipamc.election.data.entity.User;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -40,7 +38,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 
@@ -48,7 +45,6 @@ public class ManageSessions extends VerticalLayout {
 
 	private SessionService sessionService;
 	
-	private Button findAllButton;
 	private Button addButton;
 	private Button deleteButton;
 	private Button updateButton;
@@ -59,21 +55,24 @@ public class ManageSessions extends VerticalLayout {
 	private List<Session> sessions;
 	
 	private CreateSession createSession;
+	private EditSession editSession;
 	
 	private Div hint = new Div();
+	
+	private H4 titleTools = new H4();
 
 	public ManageSessions(UserService userService, SessionService sessionService, QuestionService questionService) {
 		this.sessionService = sessionService;
 		this.sessions = sessionService.findAllSessions();
 		this.createSession = new CreateSession(userService, sessionService, questionService);
 		createSession.getStyle().set("padding-top", "0px");
-		initLayout();
+		initLayout(userService, questionService);
 		refreshGrid();
 	}
 
-	private void initLayout() {
-		HorizontalLayout buttons = new HorizontalLayout();
-
+	private void initLayout(UserService userService, QuestionService questionService) {
+		FormLayout buttons = new FormLayout();
+		
 		addButton = new Button(VaadinIcon.PLUS.create());
 		addButton.getElement().setAttribute("title", "Add");
 
@@ -84,16 +83,47 @@ public class ManageSessions extends VerticalLayout {
 		deleteButton = new Button(VaadinIcon.TRASH.create());
 		deleteButton.setEnabled(false);
 		deleteButton.getElement().setAttribute("title", "Delete");
-		
-		backButton = new Button("Retour");
+		HorizontalLayout hl = new HorizontalLayout();
+
+		backButton = new Button(new Icon("lumo","arrow-left"));
+		hl.add(backButton);
+		hl.add(titleTools);
 		backButton.setVisible(false);
+		titleTools.setVisible(false);
+		titleTools.getStyle().set("margin-top", "6px");
+		hl.setAlignItems(Alignment.CENTER);
 		
 		createSession.setVisible(false);
-		createGrid(createSession);
+		createGrid();
 		
 		GridListDataView<Session> dataView = grid.setItems(sessions);
 		searchBar = searchBarSession(dataView);
-		buttons.add(searchBar, addButton, updateButton, deleteButton, backButton);
+		Span spacing = new Span();
+		buttons.add(searchBar, addButton, updateButton, deleteButton, hl);
+		addButton.setMaxWidth("15px");
+		updateButton.setMaxWidth("15px");
+		deleteButton.setMaxWidth("15px");
+		buttons.setResponsiveSteps(
+				new ResponsiveStep("50px", 1, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("100px", 2, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("200px", 3, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("300px", 4, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("400px", 5, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("500px", 6, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("600px", 7, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("700px", 8, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("800px", 9, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("900px", 10, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("1000px", 11, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("1100px", 12, ResponsiveStep.LabelsPosition.TOP),
+				new ResponsiveStep("1200px", 13, ResponsiveStep.LabelsPosition.TOP));
+			
+		buttons.setColspan(searchBar, 3);
+		buttons.setColspan(spacing, 8);
+		buttons.setColspan(addButton, 1);
+		buttons.setColspan(updateButton, 1);
+		buttons.setColspan(deleteButton, 1);
+		buttons.setColspan(hl, 4);
 		HorizontalLayout mainComponents = new HorizontalLayout();
 		
 		mainComponents.add(grid, createSession);
@@ -103,6 +133,7 @@ public class ManageSessions extends VerticalLayout {
 		setSpacing(false);
 		initAddButton();
 		initBackButton();
+		initUpdateButton(userService, questionService);
 		updateButtons();
 	}
 
@@ -116,10 +147,10 @@ public class ManageSessions extends VerticalLayout {
 		});
 	}
 
-	private void createGrid(CreateSession createSession) {
+	private void createGrid() {
 		grid = new Grid<>(Session.class, false);
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-		grid.addColumn(Session::getName).setHeader("Nom");
+		grid.addColumn(Session::getName).setHeader("Nom").setResizable(true);
 		grid.addComponentColumn(session -> new Button(Integer.toString(session.getUsers().size()), click -> {
 			Dialog dialog = new Dialog();
 			dialog.getElement().setAttribute("aria-label", "Add note");
@@ -143,11 +174,9 @@ public class ManageSessions extends VerticalLayout {
 			dialog.open();
 		})).setHeader("Questions");
 		grid.setItems(sessionService.findAllSessions());
-		grid.setWidth("75%");
-		grid.addItemClickListener(event -> {
-			createSession.setVisible(false);
-		});
+		grid.setWidth("100%");
 	}
+	
 
 	private VerticalLayout dialogShowJury(Session session) {
 		Grid<User> grid = setupJuryGrid();
@@ -281,6 +310,11 @@ public class ManageSessions extends VerticalLayout {
 				return true;
 			return matchesTerm(session.getName(),searchTerm);
 		});
+		searchField.addFocusListener(event -> {
+			grid.deselectAll();
+			deleteButton.setEnabled(false);
+			updateButton.setEnabled(false);			
+		});
 		return searchField;
 	}
 
@@ -295,6 +329,7 @@ public class ManageSessions extends VerticalLayout {
 				sessions.remove(sess);
 				grid.deselectAll();
 				deleteButton.setEnabled(false);
+				updateButton.setEnabled(false);
 				refreshGrid();
 				sp.removeAll();
 				sp.add(createBadge(sessionService.getNumberOfSessions()));
@@ -302,6 +337,7 @@ public class ManageSessions extends VerticalLayout {
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(1500);
 				notification.setPosition(Position.TOP_END);
+				
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});
@@ -312,19 +348,32 @@ public class ManageSessions extends VerticalLayout {
 			createSession.setVisible(true);
 			grid.setVisible(false);
 			backButton.setVisible(true);
+			titleTools.setText("Création d'une nouvelle session");
+			titleTools.setVisible(true);
 			addButton.setVisible(false);
 			deleteButton.setVisible(false);
 			updateButton.setVisible(false);
 			searchBar.setVisible(false);
 			hint.removeAll();
-			hint.add(new H4("Nouvelle session:"));
 			grid.deselectAll();
 		});
 	}
 	
-	private void initUpdateButton() {
+	private void initUpdateButton(UserService userService, QuestionService questionService) {
 		updateButton.addClickListener(event -> {
-			
+			Session sess = grid.getSelectedItems().iterator().next();
+			editSession = new EditSession(userService, sessionService, questionService, sess);
+			add(editSession);
+			grid.setVisible(false);
+			backButton.setVisible(true);
+			titleTools.setText("Modification de "+sess.getName());
+			titleTools.setVisible(true);
+			addButton.setVisible(false);
+			deleteButton.setVisible(false);
+			updateButton.setVisible(false);
+			searchBar.setVisible(false);
+			hint.removeAll();
+			grid.deselectAll();
 		});
 	}
 	
@@ -332,11 +381,17 @@ public class ManageSessions extends VerticalLayout {
 		backButton.addClickListener(event ->{
 			grid.setVisible(true);
 			createSession.setVisible(false);
+			try{
+				remove(editSession);
+			}catch(NullPointerException ex) {};
 			backButton.setVisible(false);
+			titleTools.setVisible(false);
 			addButton.setVisible(true);
 			deleteButton.setVisible(true);
 			updateButton.setVisible(true);
 			searchBar.setVisible(true);
+			deleteButton.setEnabled(false);
+			updateButton.setEnabled(false);
 			refreshGrid();
 		});
 	}

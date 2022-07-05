@@ -217,7 +217,7 @@ public class DragAndDropUsers extends FormLayout {
 
 	}
 	
-	/**public void fillDragAndDrop(Session session) {
+	public void fillDragAndDrop(Session session) {
 		clearGrids();
 		List<User> usersSelected = new ArrayList<>();
 		usersSelected.addAll(session.getUsers());
@@ -229,13 +229,13 @@ public class DragAndDropUsers extends FormLayout {
 		}
 		dataView1.addItems(usersLeftList);
 		dataView2.addItems(usersSelected);
-	}*/ 
+	}
 
 	private static Grid<User> setupGrid() {
 		Grid<User> grid = new Grid<>(User.class, false);
 		grid.addColumn(User::getUsername).setHeader("Nom d'utilisateur").setSortable(true);;
 		grid.addComponentColumn(userPermissions -> createPermissionIcon(userPermissions.certified())).setHeader("Certifié").setTextAlign(ColumnTextAlign.CENTER);               
-		return grid;
+		return grid; 
 	}
 
 	private boolean matchesTerm(String value, String searchTerm) {
@@ -310,7 +310,7 @@ public class DragAndDropUsers extends FormLayout {
 		while(it.hasNext()) {
 			usersView2.add(it.next());
 		}
-		dataView2.removeItems(usersView1);
+		dataView1.removeItems(usersView1);
 		dataView2.removeItems(usersView2);
 	}
 }

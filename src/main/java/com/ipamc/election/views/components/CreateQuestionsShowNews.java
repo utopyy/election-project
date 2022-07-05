@@ -7,13 +7,19 @@ import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
 
 import com.ipamc.election.data.entity.Categorie;
+import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
+import com.ipamc.election.data.entity.Session;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -50,6 +56,7 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		  		    	 this.refreshGrid();
 		  		    	 diag.close();
 		  		    	 saveBtn.setEnabled(true);
+		  		    	 addQuestion.scrollIntoView();
 		  		      }, ButtonOption.focus(), ButtonOption.caption("OUI"))
 		  		      .withCancelButton(ButtonOption.caption("NON")).open();
 	
@@ -70,6 +77,10 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		grid = new Grid<>(Question.class, false);
 		grid.setAllRowsVisible(true);
 		grid.addColumn(Question::getIntitule).setHeader("Intitulé").setResizable(true);
+		grid.addComponentColumn(question -> createCommentaireButton(question)).setHeader("Commentaire").setTextAlign(ColumnTextAlign.CENTER);		
+		grid.addComponentColumn(question -> createNoteButton(question)).setHeader("Note").setTextAlign(ColumnTextAlign.CENTER);
+		grid.addComponentColumn(question -> createPropositionsButton(question)).setHeader("Propositions").setTextAlign(ColumnTextAlign.CENTER);
+
 		grid.addColumn(new ComponentRenderer<>(Button::new, (button, question) -> {
             button.addThemeVariants(ButtonVariant.LUMO_ICON,
                     ButtonVariant.LUMO_ERROR,
@@ -107,6 +118,13 @@ public class CreateQuestionsShowNews extends VerticalLayout {
         }
 	}
 	
+	public void fillGrid(Session sess) {
+		for(Question quest : sess.getQuestions()) {
+			questions.add(quest);
+		}
+		refreshGrid();	
+	}
+	
     private void removeQuestion(Question question) {
         if (question == null)
             return;
@@ -126,4 +144,126 @@ public class CreateQuestionsShowNews extends VerticalLayout {
     	questions.clear();
     	refreshGrid();
     }
+    
+	private static Button createCommentaireButton(Question question) {
+		Button commentaire = new Button(new Icon("lumo","checkmark"));
+		commentaire.addThemeVariants(ButtonVariant.LUMO_ICON);
+		commentaire.setVisible(false);
+		for(Categorie cat : question.getCategories()) {
+			if(cat.getLibelle().equals("Commentaire")) {
+				commentaire.setVisible(true);
+				break;
+			}
+		}
+		commentaire.addClickListener(event -> {
+			Dialog dialog = new Dialog();
+			dialog.getElement().setAttribute("aria-label", "Add note");
+			VerticalLayout dialogLayout = new VerticalLayout();
+			String obligatoire = "Obligatoire";
+			for(Categorie cat : question.getCategories()) {
+				if(cat.getLibelle().equals("Commentaire")) {
+					if(!cat.getIsRequired()) {
+						obligatoire = "Pas obligatoire";
+					}
+					break;
+				}
+			}
+			dialogLayout.add(new Label("- "+obligatoire));
+			dialog.add(dialogLayout);
+			dialog.setHeaderTitle("Détail");
+			dialogLayout.getStyle().set("width", "300px").set("max-width", "100%");
+			dialogLayout.getStyle().set("height", "200px").set("max-height", "100%");
+			dialogLayout.setSpacing(false);
+			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+			dialog.getHeader().add(closeButton);
+			dialog.open();
+		});
+		return commentaire;
+	}
+	
+	private static Button createNoteButton(Question question) {
+		Button note = new Button(new Icon("lumo","checkmark"));
+		note.addThemeVariants(ButtonVariant.LUMO_ICON);
+		note.setVisible(false);
+		for(Categorie cat : question.getCategories()) {
+			if(cat.getLibelle().equals("Note")) {
+				note.setVisible(true);
+				break;
+			}
+		}
+		note.addClickListener(event -> {
+			Dialog dialog = new Dialog();
+			dialog.getElement().setAttribute("aria-label", "Add note");
+			VerticalLayout dialogLayout = new VerticalLayout();
+			String valeur = "";
+			String obligatoire = "Obligatoire";
+			for(Categorie cat : question.getCategories()) {
+				if(cat.getLibelle().equals("Note")) {
+					if(!cat.getIsRequired()) {
+						obligatoire = "Pas obligatoire";
+					}
+					valeur = Integer.toString(cat.getValeur());
+					break;
+				}
+			}
+			dialogLayout.add(new Label("- Note /"+valeur));
+			dialogLayout.add(new Label("- "+obligatoire));
+			dialogLayout.setPadding(false);
+			dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+			dialogLayout.getStyle().set("width", "300px").set("max-width", "100%");
+			dialogLayout.getStyle().set("height", "200px").set("max-height", "100%");
+			dialogLayout.setSpacing(false);
+			dialog.add(dialogLayout);
+			dialog.setHeaderTitle("Détail");
+			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+			dialog.getHeader().add(closeButton);
+			dialog.open();
+		});
+		return note;
+	}
+	
+	private static Button createPropositionsButton(Question question) {
+		Button props = new Button(new Icon("lumo","checkmark"));
+		props.addThemeVariants(ButtonVariant.LUMO_ICON);
+		props.setVisible(false);
+		if(question.getPropositions().size()>0) {
+			props.setVisible(true);
+		}
+		props.addClickListener(event -> {
+			Dialog dialog = new Dialog();
+			dialog.getElement().setAttribute("aria-label", "Add note");
+			VerticalLayout dialogLayout = new VerticalLayout();
+			String answer = "Plusieurs réponses possibles";
+			if(!question.getMultiChoice()) {
+				answer = "Une seule réponse";
+			}
+			dialogLayout.add(new Label("- "+answer));
+			String obligatoire = "Obligatoire";
+			if(!question.getPropositionRequired()) {
+				obligatoire = "Pas obligatoire";
+			}
+			dialogLayout.add(new Label("- "+obligatoire));
+			dialogLayout.add(new Label("- Liste des propositions: "));
+			VerticalLayout listProps = new VerticalLayout();
+			listProps.setSpacing(false);
+			listProps.setPadding(false);
+			for(Proposition p : question.getPropositions()) {
+				listProps.add(new Span("   -> "+p.getLibelle()));
+			}
+			dialogLayout.add(listProps);
+			dialogLayout.setSpacing(false);
+			dialogLayout.getStyle().set("width", "300px").set("max-width", "100%");
+			dialogLayout.getStyle().set("height", "200px").set("max-height", "100%");
+			dialog.add(dialogLayout);
+			dialog.setHeaderTitle("Détail");
+			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+			dialog.getHeader().add(closeButton);
+			dialog.open();
+		});
+		return props;
+	}
+
 }
