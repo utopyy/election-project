@@ -116,8 +116,7 @@ public class ManageSessions extends VerticalLayout {
 				new ResponsiveStep("900px", 10, ResponsiveStep.LabelsPosition.TOP),
 				new ResponsiveStep("1000px", 11, ResponsiveStep.LabelsPosition.TOP),
 				new ResponsiveStep("1100px", 12, ResponsiveStep.LabelsPosition.TOP),
-				new ResponsiveStep("1200px", 13, ResponsiveStep.LabelsPosition.TOP));
-			
+				new ResponsiveStep("1200px", 13, ResponsiveStep.LabelsPosition.TOP));	
 		buttons.setColspan(searchBar, 3);
 		buttons.setColspan(spacing, 8);
 		buttons.setColspan(addButton, 1);
@@ -363,6 +362,7 @@ public class ManageSessions extends VerticalLayout {
 		updateButton.addClickListener(event -> {
 			Session sess = grid.getSelectedItems().iterator().next();
 			editSession = new EditSession(userService, sessionService, questionService, sess);
+			editSession.initUpdateSession(sessionService, questionService, this);
 			add(editSession);
 			grid.setVisible(false);
 			backButton.setVisible(true);
@@ -416,6 +416,10 @@ public class ManageSessions extends VerticalLayout {
 	public void setCreateSession(CreateSession createSession) {
 		this.createSession = createSession;
 	}
+	
+	public EditSession getEditSession() {
+		return editSession;
+	}
 
 	public Button getBackButton() {
 		return backButton;
@@ -435,5 +439,11 @@ public class ManageSessions extends VerticalLayout {
 		badge.getStyle().set("margin-inline-start", "var(--lumo-space-xs)");
 		return badge;
 	}
+	
+	public void removeSession(Session sess) {
+		sessions.remove(sess);
+	}
+	
+	
 	
 }

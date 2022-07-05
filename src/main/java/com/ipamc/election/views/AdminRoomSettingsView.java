@@ -125,7 +125,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});
 	}
-
+	
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 		try { 

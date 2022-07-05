@@ -57,6 +57,7 @@ public class SessionService {
 		return sessionRepository.save(session);
 	}
 	
+	
 	public void addQuestion(Session session, Question question) {
 		Session sessDb = sessionRepository.getById(session.getId());
 		sessDb.addQuestion(question);

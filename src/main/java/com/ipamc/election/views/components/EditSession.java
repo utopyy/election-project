@@ -1,5 +1,8 @@
 package com.ipamc.election.views.components;
 
+import org.claspina.confirmdialog.ButtonOption;
+import org.claspina.confirmdialog.ConfirmDialog;
+
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
@@ -13,6 +16,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,6 +33,7 @@ public class EditSession extends VerticalLayout {
 	private DragAndDropUsers dragAndDrop;
 	private TextField sessionName;
 	private CreateQuestionsShowNews questionsCreator;
+	private Session sessionToUpdate;
 
 	AccordionPanel sessionDetailsPanel;
 	AccordionPanel questionsPanel;
@@ -42,7 +49,7 @@ public class EditSession extends VerticalLayout {
 		Accordion accordion = new Accordion();
 		dragAndDrop = new DragAndDropUsers(userService);
 		dragAndDrop.fillDragAndDrop(sess);
-
+		sessionToUpdate = sess;
 
 		Binder<Question> questionBinder = new Binder<>(Question.class);
 		questionBinder.setBean(new Question());
@@ -75,7 +82,7 @@ public class EditSession extends VerticalLayout {
 		sessionName = new TextField();
 		sessionName.setPlaceholder("Nom du tournois");	
 		sessionName.setValue(sess.getName());
-		
+
 		Button sessionDetailsButton = new Button("Suivant");
 		sessionDetailsButton.addClickListener(event ->{
 			sessionDetailsPanel.setOpened(false);
@@ -94,7 +101,7 @@ public class EditSession extends VerticalLayout {
 				sessionDetailsButton.setEnabled(false);
 				sessionName.setErrorMessage("Ce champ est obligatoire!");
 				sessionName.setInvalid(true);
-			}else if(sessionService.getBySessionName(sessionName.getValue())!=null && !sessionName.getValue().equals(sess.getName())) {
+			}else if(sessionService.getBySessionName(sessionName.getValue())!=null && !sessionName.getValue().equals(sessionToUpdate.getName())) {
 				sessionName.setErrorMessage("Ce nom existe déjà!");
 				sessionName.setInvalid(true);
 				sessionDetailsButton.setEnabled(false);
@@ -137,7 +144,7 @@ public class EditSession extends VerticalLayout {
 		saveSession = new Button("Modifier la session");
 		questionsCreator.setupGrid(saveSession);
 		questionsCreator.setupAddQuestion(saveSession);
-		questionsCreator.fillGrid(sess);
+		questionsCreator.fillGrid(sessionToUpdate);
 		questionsCreator.getStyle().set("padding-bottom", "10px");
 		questionsFormLayout.add(questionsCreator);
 		questionsPanel.addOpenedChangeListener(e -> {
@@ -218,6 +225,33 @@ public class EditSession extends VerticalLayout {
 		return badge;
 	}
 
+	public void initUpdateSession(SessionService sessionService, QuestionService questionService, ManageSessions manageSessions) {
+		saveSession.addClickListener(event ->{
+			ConfirmDialog.create()
+			.withCaption("Confirmation")
+			.withMessage("Modification de : "+sessionToUpdate.getName())
+			.withOkButton(() -> {
+				Session session = sessionToUpdate;
+				sessionService.removeSession(session.getId());
+				manageSessions.removeSession(session);
+				session.setName(sessionName.getValue());
+				session.setUsers(dragAndDrop.getSelectedUsers());
+				Session newSess = sessionService.createSession(session.getName(), session.getUsers());
+				for(Question quest : questionsCreator.getQuestions()) {
+					questionService.createQuestion(quest, newSess);
+				}
+				Session newFullSess = sessionService.getBySessionName(newSess.getName());
+				manageSessions.addSession(newFullSess);
+				Notification notification = Notification.show("Session modifiée avec succès!");
+				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				notification.setDuration(3000);
+				notification.setPosition(Position.TOP_END);
+				manageSessions.getBackButton().click();
+			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
+			.withCancelButton(ButtonOption.caption("NON")).open();
+		});
+	}
+
 	public Button getSaveSession() {
 		return saveSession;
 	}
@@ -226,6 +260,9 @@ public class EditSession extends VerticalLayout {
 		return dragAndDrop;
 	}
 
+	public Session getSessionToUpdate() {
+		return sessionToUpdate;
+	}
 
 	public CreateQuestionsShowNews getQuestionsCreator() {
 		return questionsCreator;
