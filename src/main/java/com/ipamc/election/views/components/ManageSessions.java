@@ -63,7 +63,7 @@ public class ManageSessions extends VerticalLayout {
 
 	public ManageSessions(UserService userService, SessionService sessionService, QuestionService questionService) {
 		this.sessionService = sessionService;
-		this.sessions = sessionService.findAllSessions();
+		this.sessions = sessionService.findSessionsNotArchived();
 		this.createSession = new CreateSession(userService, sessionService, questionService);
 		createSession.getStyle().set("padding-top", "0px");
 		initLayout(userService, questionService);
@@ -172,7 +172,7 @@ public class ManageSessions extends VerticalLayout {
 			dialog.getHeader().add(closeButton);
 			dialog.open();
 		})).setHeader("Questions");
-		grid.setItems(sessionService.findAllSessions());
+		grid.setItems(sessionService.findSessionsNotArchived());
 		grid.setWidth("100%");
 	}
 	
@@ -357,7 +357,6 @@ public class ManageSessions extends VerticalLayout {
 			grid.deselectAll();
 		});
 	}
-	
 	private void initUpdateButton(UserService userService, QuestionService questionService) {
 		updateButton.addClickListener(event -> {
 			Session sess = grid.getSelectedItems().iterator().next();
@@ -400,6 +399,7 @@ public class ManageSessions extends VerticalLayout {
         if (sessions.size() > 0) {
             grid.setVisible(true);
             hint.setVisible(false);
+            grid.setItems(sessionService.findSessionsNotArchived());
             grid.getDataProvider().refreshAll();
         } else {
             grid.setVisible(false);
@@ -444,6 +444,10 @@ public class ManageSessions extends VerticalLayout {
 		sessions.remove(sess);
 	}
 	
+	public void disableBtns() {
+		updateButton.setEnabled(false);
+		deleteButton.setEnabled(false);
+	}
 	
 	
 }

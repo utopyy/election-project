@@ -222,21 +222,6 @@ public class CreateSession extends VerticalLayout {
 		return layout;
 	}
 
-	public void addButtonEvent(Tab ok, SessionService sessionService) {
-		saveSession.addClickListener(event ->{
-			ok.removeAll();
-			Span so = createBadge(sessionService.getNumberOfSessions());
-			ok.add(new Span("Gérer mes sessions"), so);
-		});
-	}
-
-	private Span createBadge(Long value) {
-		Span badge = new Span(String.valueOf(value));
-		badge.getElement().getThemeList().add("badge small contrast");
-		badge.getStyle().set("margin-inline-start", "var(--lumo-space-xs)");
-		return badge;
-	}
-	
 	public Button getSaveSession() {
 		return saveSession;
 	}

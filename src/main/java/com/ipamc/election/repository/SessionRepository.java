@@ -11,6 +11,7 @@ public interface SessionRepository extends JpaRepository<Session,Long> {
 	
 	Session findByName(String session);
 	Session findByIsActive(Boolean isActive);
+	List<Session> findAllByArchived(Boolean isArchived);
 	
 	Boolean existsByIsActive(Boolean isActive);
 }

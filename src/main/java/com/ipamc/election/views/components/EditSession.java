@@ -241,6 +241,8 @@ public class EditSession extends VerticalLayout {
 					questionService.createQuestion(quest, newSess);
 				}
 				Session newFullSess = sessionService.getBySessionName(newSess.getName());
+				newFullSess.setIsActive(session.getIsActive());
+				sessionService.save(newFullSess);
 				manageSessions.addSession(newFullSess);
 				Notification notification = Notification.show("Session modifiée avec succès!");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);

@@ -11,6 +11,7 @@ import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.CreateSession;
 import com.ipamc.election.views.components.ManageSessions;
+import com.ipamc.election.views.components.StartSession;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
@@ -41,10 +42,11 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 	private QuestionService questionService;
 	private final VerticalLayout content;
 	private ManageSessions manageSessionsView;
+	private StartSession startSession;
 	private final Tab activeSession;
 	private Tab manageSessions;
 	private Div sp = new Div();
-
+	
 	public AdminRoomSettingsView(UserService userService, SecurityUtils tools, SessionService sessionService,
 			QuestionService questionService) {
 
@@ -52,16 +54,16 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		this.sessionService = sessionService;
 		this.questionService = questionService;
 		this.manageSessionsView = new ManageSessions(userService, sessionService, questionService);
+		this.startSession = new StartSession(sp, sessionService);
 		this.tools = tools;
 
 		setSpacing(false);
 		activeSession = new Tab("Lancer une session");
-		sp.add(createBadge(sessionService.getNumberOfSessions()));
+		sp.add(createBadge(Long.valueOf(sessionService.findSessionsNotArchived().size())));
 		manageSessionsView.initDeleteButton(sp);
 		manageSessions = new Tab(new Span("Gérer les sessions"), sp);
 
 		Tabs tabs = new Tabs(activeSession, manageSessions);
-
 		tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
 		tabs.setSizeFull();
 		add(tabs);
@@ -71,24 +73,22 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		tabs.addSelectedChangeListener(event ->
 		setContent(event.getSelectedTab())
 				);
-
-
-
 		content = new VerticalLayout();
 		content.setSpacing(false);
 		content.setSizeFull();
 		setContent(tabs.getSelectedTab());
-
 		add(tabs, content);
-
 	}
 
 	private void setContent(Tab tab) {
 		content.removeAll();
 
 		if (tab.equals(activeSession)) {
-			content.add(new Paragraph("This is the ActiveSession tab"));
+			startSession.refreshSelect(sessionService);
+			content.add(startSession);
 		} else {
+			manageSessionsView.refreshGrid();
+			manageSessionsView.disableBtns();
 			content.add(manageSessionsView);
 		}
 	}

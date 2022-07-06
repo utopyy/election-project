@@ -102,7 +102,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
     	if(sessionService.checkSessionAccess(userService.getByUsername(tools.getAuthenticatedUser().getUsername()))) {
     		if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getHasJoinedSession()) {
     			session = sessionService.getActiveSession();
-    			quest = session.getQuestions().iterator().next(); // A REMPLACER PAR GET ACTIVE QUESTION
+    			quest = session.getActiveQuestion();
     			props = new PropositionsJury(quest);
     			cats = new CategoriesJury(quest, props, propService, userService, tools, catService, voteCatService);
     			add(cats, props);

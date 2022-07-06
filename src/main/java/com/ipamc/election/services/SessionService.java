@@ -40,6 +40,10 @@ public class SessionService {
 		return sessionRepository.findAll();
 	}
 	
+	public List<Session> findSessionsNotArchived(){
+		return sessionRepository.findAllByArchived(false);
+	}
+	
 	public Session getActiveSession() {
 		return sessionRepository.findByIsActive(true);
 	}
@@ -65,7 +69,7 @@ public class SessionService {
 	}
 	
 	public Long getNumberOfSessions() {
-		return sessionRepository.count();
+		return Long.valueOf(sessionRepository.findAllByArchived(false).size());
 	}
 	
 	public void removeSession(Long id) {
@@ -76,6 +80,34 @@ public class SessionService {
 	
 	public Session getBySessionName(String name) {
 		return sessionRepository.findByName(name);
+	}
+	
+	public void save(Session session) {
+		sessionRepository.save(session);
+	}
+	
+	public void updateActiveSession(Session session) {
+		if(!session.getIsActive()) {
+			if(sessionRepository.findByIsActive(true)!=null) {
+				Session oldActive = sessionRepository.findByIsActive(true);
+				oldActive.setIsActive(false);
+				sessionRepository.save(oldActive);
+			}
+			session.setIsActive(true);
+			sessionRepository.save(session);
+		}
+	}
+	
+	public void archive(Session session) {
+		Session toArchive = sessionRepository.findByName(session.getName());
+		toArchive.setIsActive(false);
+		toArchive.setArchived(true);
+		sessionRepository.save(toArchive);
+	}
+	
+	public void pauseSession(Session session) {
+		session.setIsActive(false);
+		sessionRepository.save(session);
 	}
 	
 	

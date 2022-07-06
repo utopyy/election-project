@@ -35,6 +35,7 @@ public class Session {
 	private Boolean isActive;
 	@OneToMany(mappedBy = "session", cascade= {CascadeType.ALL, CascadeType.REMOVE}, fetch = FetchType.EAGER)
 	private Set<Question> questions = new HashSet<Question>(); 
+	private Boolean archived;
 
 
 	public Session() {}
@@ -47,6 +48,7 @@ public class Session {
 		this.name = name;
 		this.users = users;
 		isActive = false;
+		archived = false;
 	}
 	public Long getId() {
 		return id;
@@ -143,7 +145,21 @@ public class Session {
 			return false;
 		return true;
 	}
-
-
-
+	
+	public Boolean getArchived() {
+		return archived;
+	}
+	
+	public void setArchived(Boolean bool) {
+		archived = bool;
+	}
+	
+	public Question getActiveQuestion() {
+		for(Question quest : questions) {
+			if(quest.getIsActive()) {
+				return quest;
+			}
+		}
+		return null;
+	}
 }
