@@ -54,4 +54,19 @@ public class QuestionService {
 		}
 		return questRepository.save(quest);
 	}
+	
+	public void activeQuestion(Session activeSession, Question activeQuestion) {
+		Question oldActiveQuestion = null;
+		for(Question quest : activeSession.getQuestions()) {
+			if(quest.getIsActive()) {
+				oldActiveQuestion = quest;
+			}
+		}
+		if(oldActiveQuestion!=null) {
+			oldActiveQuestion.setIsActive(false);
+			questRepository.save(oldActiveQuestion);
+		}
+		activeQuestion.setIsActive(true);
+		questRepository.save(activeQuestion);
+	}
 }

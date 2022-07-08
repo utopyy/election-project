@@ -87,17 +87,15 @@ public class SessionService {
 	}
 	
 	public void updateActiveSession(Session session) {
-		if(!session.getIsActive()) {
-			if(sessionRepository.findByIsActive(true)!=null) {
-				Session oldActive = sessionRepository.findByIsActive(true);
-				oldActive.setIsActive(false);
-				sessionRepository.save(oldActive);
-			}
-			session.setIsActive(true);
-			sessionRepository.save(session);
+		if(sessionRepository.findByIsActive(true)!=null) {
+			Session oldActive = sessionRepository.findByIsActive(true);
+			oldActive.setIsActive(false);
+			sessionRepository.save(oldActive);
 		}
+		session.setIsActive(true);
+		sessionRepository.save(session);
 	}
-	
+
 	public void archive(Session session) {
 		Session toArchive = sessionRepository.findByName(session.getName());
 		toArchive.setIsActive(false);

@@ -7,6 +7,7 @@ import java.util.List;
 import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
 
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.services.SessionService;
@@ -92,6 +93,7 @@ public class StartSession extends VerticalLayout {
 			setActive.setText("Session activée");
 	        addDetailsSess(activeSession);
 			setActive.setEnabled(false);
+			Broadcaster.broadcast("ACTIVE_SESSION");
 		});
 	}
 	
@@ -113,7 +115,7 @@ public class StartSession extends VerticalLayout {
 		}
 		details.add(new Label(Integer.toString(sess.getUsers().size())+" "+jure));
 		details.add(new Label(Integer.toString(sess.getQuestions().size())+" "+question));
-		HorizontalLayout buttons = new HorizontalLayout(archive, pause);
+		HorizontalLayout buttons = new HorizontalLayout(pause, archive);
 		details.add(buttons);
 		details.add(new Hr());
 		details.add(infos);
@@ -132,6 +134,7 @@ public class StartSession extends VerticalLayout {
 				refreshSelect(sessionService);
 				selectSession.setPlaceholder("Sessions");
 				Notification notification = Notification.show("Session archivée!");
+				Broadcaster.broadcast("ACTIVE_SESSION");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);
 				notification.setPosition(Position.TOP_END);
@@ -151,6 +154,7 @@ public class StartSession extends VerticalLayout {
 				refreshSelect(sessionService);
 				selectSession.setPlaceholder("Sessions");
 				Notification notification = Notification.show("Session mise en pause!");
+				Broadcaster.broadcast("ACTIVE_SESSION");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);
 				notification.setPosition(Position.TOP_END);
@@ -205,9 +209,25 @@ public class StartSession extends VerticalLayout {
 	}
 	
 	private void infosBtn() {
-		Label archive = new Label("- Archiver : Permet de cloturer la session. Elle ne sera plus utilisable mais reste visible dans la partie \" Historique \".");
-		Label pause = new Label("- Mettre en pause : Permet de désactiver la session tout en la conservant si vous souhaitez la relancer plus tard.");
-		infos.add(archive, pause);
+		HorizontalLayout archiveLayout = new HorizontalLayout();
+		HorizontalLayout pauseLayout = new HorizontalLayout();
+		Label bold1 = new Label("Archiver : "); 
+		bold1.getStyle().set("padding-right", "2px");
+		bold1.getStyle().set("font-weight", "600");
+		bold1.getStyle().set("font-style", "italic");
+		Label archive = new Label(" Permet de cloturer la session. Elle ne sera plus utilisable mais reste visible dans la partie \" Historique \".");
+		archive.getStyle().set("font-style", "italic");
+		archiveLayout.add(bold1, archive);
+		Label bold2 = new Label("Mettre en pause : ");
+		bold2.getStyle().set("font-style", "italic");
+		bold2.getStyle().set("font-weight", "600");
+		bold2.getStyle().set("padding-right", "2px");
+		Label pause = new Label("  Permet de désactiver la session tout en la conservant si vous souhaitez la relancer plus tard.");
+		pause.getStyle().set("font-style", "italic");
+		pauseLayout.add(bold2, new Span(" "), pause);
+		pauseLayout.setSpacing(false);
+		archiveLayout.setSpacing(false);
+		infos.add(pauseLayout, archiveLayout);
 		infos.setSpacing(false);
 	}
 
