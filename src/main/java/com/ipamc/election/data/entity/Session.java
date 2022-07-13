@@ -98,6 +98,11 @@ public class Session {
 		question.setSession(this);
 		this.questions.add(question);
 	}
+	
+	public void removeQuestion(Question question) {
+		question.setSession(null);
+		this.questions.remove(question);
+	}
 
 	public void removeQuestions() {
 		questions.clear();
@@ -162,4 +167,11 @@ public class Session {
 		}
 		return null;
 	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+	
+	
 }

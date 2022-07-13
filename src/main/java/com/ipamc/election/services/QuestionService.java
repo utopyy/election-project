@@ -26,11 +26,11 @@ public class QuestionService {
 	CategorieRepository catRepository;
 	@Autowired
 	PropositionRepository propRepository;
-	
+
 	public QuestionService() {
-		
+
 	}
-	
+
 	@Transactional
 	public Question createQuestion(Question question, Session session) {
 		Question quest = new Question(question.getIntitule(), question.getMultiChoice(), question.getPropositionRequired());
@@ -54,7 +54,7 @@ public class QuestionService {
 		}
 		return questRepository.save(quest);
 	}
-	
+
 	public void activeQuestion(Session activeSession, Question activeQuestion) {
 		Question oldActiveQuestion = null;
 		for(Question quest : activeSession.getQuestions()) {
@@ -63,10 +63,37 @@ public class QuestionService {
 			}
 		}
 		if(oldActiveQuestion!=null) {
-			oldActiveQuestion.setIsActive(false);
-			questRepository.save(oldActiveQuestion);
+			questRepository.activateQuestion(false, oldActiveQuestion.getId());
 		}
-		activeQuestion.setIsActive(true);
-		questRepository.save(activeQuestion);
+		questRepository.activateQuestion(true, activeQuestion.getId());
 	}
+
+	public void updateQuestion(Long id, Question question) {
+		Question quest = questRepository.findById(id);
+		quest.getCategories().clear();
+		quest.getPropositions().clear();
+		quest.setIntitule(question.getIntitule());
+		quest.setMultiChoice(question.getMultiChoice());
+		quest.setPropositionRequired(question.getPropositionRequired());
+		for(Categorie cat : question.getCategories()) {
+			if(catRepository.existsByLibelleAndValeurAndIsRequired(cat.getLibelle(), cat.getValeur(), cat.getIsRequired())) {
+				quest.addCategorie(catRepository.findByLibelleAndValeurAndIsRequired(cat.getLibelle(), cat.getValeur(), cat.getIsRequired()));
+			}else {
+				Categorie newCat = new Categorie(cat.getLibelle(), cat.getValeur(), cat.getIsRequired());
+				catRepository.save(newCat);
+				quest.addCategorie(newCat);
+			}
+		}for(Proposition p : question.getPropositions()) {
+			if(propRepository.existsByLibelle(p.getLibelle())) {
+				quest.addProposition(propRepository.findByLibelle(p.getLibelle()));
+			}else {
+				Proposition newProp = new Proposition(p.getLibelle());
+				propRepository.save(newProp);
+				quest.addProposition(propRepository.findByLibelle(p.getLibelle()));
+			}
+		}
+		questRepository.save(quest);
+
+	}
+
 }
