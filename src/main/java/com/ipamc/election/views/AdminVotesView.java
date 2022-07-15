@@ -12,11 +12,14 @@ import com.ipamc.election.views.components.DetailsQuestionEditable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.model.Responsive;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -29,6 +32,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -147,17 +151,46 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			}
 			step2.add(detailsQuest);
 			remove(step1);
-			add(step2);
+			HorizontalLayout hl = new HorizontalLayout();
+			Button back = new Button("Retour", new Icon(VaadinIcon.ARROW_LEFT));
+			initBackButton(back, hl);
+			Button next = new Button("Lancer le vote", new Icon(VaadinIcon.ARROW_RIGHT));
+			initNextButton(next);
+			next.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			next.setIconAfterText(true);
+			hl.add(back, next);
+			hl.setJustifyContentMode(JustifyContentMode.BETWEEN);
+			hl.getStyle().set("margin-top", "10px");
+			hl.setWidthFull();
+			hl.setMaxWidth("900px");
+			add(hl, step2);
+		});
+	}
+	
+	private void initBackButton(Button btn, HorizontalLayout hl) {
+		btn.addClickListener(event -> {
+			remove(hl);
+			remove(step2);
+			initView();
+		});
+	}
+	
+	private void initNextButton(Button btn) {
+		btn.addClickListener(event -> {
+			questionService.activeQuestion(activeSession, activeQuestion);
+		});
+	}
+	
+	private void initLaunchVoteBtn(Button btn) {
+		btn.addClickListener(event -> {
+			Broadcaster.broadcast("ENABLE_VOTE");
 		});
 	}
 
 
 	private void initStep2() {
-		Label hint = new Label("Vérifiez/modifiez les paramètres de la question et activer le vote pour le jury.");
 		step2 = new VerticalLayout();
-		step2.add(hint);
 		step2.setAlignItems(FlexComponent.Alignment.CENTER);
-		step2.getStyle().set("margin-top", "50px");
 		step2.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
 		step2.setMaxWidth("900px");
 		step2.getStyle().set("background-color","White");

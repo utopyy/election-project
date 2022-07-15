@@ -1,5 +1,6 @@
 package com.ipamc.election.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -8,11 +9,14 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.repository.JureRepository;
 import com.ipamc.election.repository.QuestionRepository;
 import com.ipamc.election.repository.SessionRepository;
+import com.ipamc.election.repository.UserRepository;
 
 @Service
 @Transactional 
@@ -22,6 +26,10 @@ public class SessionService {
 	SessionRepository sessionRepository;
 	@Autowired
 	QuestionRepository questRepository;
+	@Autowired
+	JureRepository jureRepository;
+	@Autowired
+	UserRepository userRepository;
 	
 	public SessionService() {
 		
@@ -30,7 +38,8 @@ public class SessionService {
 	public Boolean checkSessionAccess(User user) {
 		if(sessionRepository.existsByIsActive(true)) {
 			Session session = sessionRepository.findByIsActive(true);
-			return session.userAllowed(user);
+			return true;
+			//return session.userAllowed(user);   A CORRIGER!!!!
 		}else {
 			return false;
 		}
@@ -57,8 +66,13 @@ public class SessionService {
 	
 	
 	public Session createSession(String name, Set<User> users) {
-		Session session = new Session(name, users);
-		return sessionRepository.save(session);
+		Session sess = new Session(name);
+		sessionRepository.save(sess);
+		for(User user : users) {
+			Jure jure = new Jure(sess, user);
+			jureRepository.save(jure);
+		} 
+		return sess;
 	}
 	
 	

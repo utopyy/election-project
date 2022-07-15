@@ -103,7 +103,7 @@ public class StartSession extends VerticalLayout {
 		details.add(new H4("Session en cours : "+sess.getName()));
 		String jure;
 		String question;
-		if(sess.getUsers().size()>1) {
+		if(sess.getJures().size()>1) {
 			jure = "jurés";
 		}else {
 			jure = "juré";
@@ -113,7 +113,7 @@ public class StartSession extends VerticalLayout {
 		}else {
 			question = "question";
 		}
-		details.add(new Label(Integer.toString(sess.getUsers().size())+" "+jure));
+		details.add(new Label(Integer.toString(sess.getJures().size())+" "+jure));
 		details.add(new Label(Integer.toString(sess.getQuestions().size())+" "+question));
 		HorizontalLayout buttons = new HorizontalLayout(pause, archive);
 		details.add(buttons);

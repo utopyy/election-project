@@ -101,6 +101,11 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
     	H4 info = new H4();
     	if(sessionService.checkSessionAccess(userService.getByUsername(tools.getAuthenticatedUser().getUsername()))) {
     		if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getHasJoinedSession()) {
+    			
+    			//code ici en attente d'une question...
+    			
+    			//CA CEST A METTRE DANS LE BROADCASTER;
+    			/**
     			session = sessionService.getActiveSession();
     			quest = session.getActiveQuestion();
     			props = new PropositionsJury(quest);
@@ -114,7 +119,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
     				UI.getCurrent().getPage().reload();
     			});
     			Button submit = cats.getSubmit();
-    			add(sessionName, info, submit, leave);
+    			add(sessionName, info, submit, leave);*/
     		}else {
 	    		sessionName.setText(sessionService.getActiveSession().getName());
 		  	    info.setText("Indiquez un pseudo pour rejoindre le salon");
@@ -185,7 +190,6 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
    		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
    			beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());		
    		}
-
 	}
 }
 

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.AuthorizedRoute;
 import com.ipamc.election.data.entity.Categorie;
+import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Role;
@@ -33,6 +34,7 @@ import com.ipamc.election.data.entity.Vote;
 import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
+import com.ipamc.election.repository.JureRepository;
 import com.ipamc.election.repository.RoleRepository;
 import com.ipamc.election.repository.SessionRepository;
 import com.ipamc.election.repository.UserRepository;
@@ -51,6 +53,8 @@ public class UserService implements IUserService {
     private RoleRepository roleRepository;
 	@Autowired
     private VoteRepository voteRepository;
+	@Autowired
+	private JureRepository jureRepository;
 	
 	private final MailSender mailSender;
     
@@ -203,14 +207,14 @@ public class UserService implements IUserService {
         userRepository.save(user);
     } 
     
-    public void joinsSession(User user) {
-    	user.setHasJoinedSession(true);
-    	userRepository.save(user);
+    public void joinsSession(Jure jure) {
+    	jure.setHasJoined(true);
+    	jureRepository.save(jure);
     }
     
-    public void leavesSession(User user) {
-    	user.setHasJoinedSession(false);
-    	userRepository.save(user);
+    public void leavesSession(Jure jure) {
+    	jure.setHasJoined(false);
+    	jureRepository.save(jure);
     }
 
     

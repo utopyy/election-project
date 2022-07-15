@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.services.UserService;
@@ -220,7 +221,9 @@ public class DragAndDropUsers extends FormLayout {
 	public void fillDragAndDrop(Session session) {
 		clearGrids();
 		List<User> usersSelected = new ArrayList<>();
-		usersSelected.addAll(session.getUsers());
+		for(Jure jure : session.getJures()) {
+			usersSelected.add(jure.getUser());
+		}
 		List<User>usersLeftList = new ArrayList<>();
 		for(User u : userService.findAll()) {
 			if(!usersSelected.contains(u)) {

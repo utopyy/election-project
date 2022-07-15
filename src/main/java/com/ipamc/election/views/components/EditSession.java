@@ -235,8 +235,7 @@ public class EditSession extends VerticalLayout {
 				sessionService.removeSession(session.getId());
 				manageSessions.removeSession(session);
 				session.setName(sessionName.getValue());
-				session.setUsers(dragAndDrop.getSelectedUsers());
-				Session newSess = sessionService.createSession(session.getName(), session.getUsers());
+				Session newSess = sessionService.createSession(session.getName(),dragAndDrop.getSelectedUsers());
 				for(Question quest : questionsCreator.getQuestions()) {
 					questionService.createQuestion(quest, newSess);
 				}

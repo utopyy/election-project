@@ -44,8 +44,8 @@ public class User {
 			joinColumns = @JoinColumn(name = "idUtilisateur"), 
 			inverseJoinColumns = @JoinColumn(name = "idRole"))
     private Set<Role> roles = new HashSet<>();
-    @ManyToMany(mappedBy = "users")
-    private Set<Session> sessions = new HashSet<>();
+    @OneToMany(mappedBy="user", fetch = FetchType.EAGER, orphanRemoval = true)
+    private Set<Jure> jures = new HashSet<>();
 	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	private Set<Vote> votes = new HashSet<>();
     
@@ -53,14 +53,12 @@ public class User {
     private String activationCode;
     private String resetPasswordToken;
     private Boolean active;
-    private Boolean hasJoinedSession;
     
 	public User() {	
 		this.pseudo = null;
 		this.certified = false;
 		this.active = false;
 		this.activationCode = RandomStringUtils.randomAlphanumeric(32);
-		this.hasJoinedSession = false;
 	}
 	
 	
@@ -169,34 +167,10 @@ public class User {
 	}
 
 
-
-	public Set<Session> getSessions() {
-		return sessions;
-	}
-
-
-
-	public void setSessions(Set<Session> sessions) {
-		this.sessions = sessions;
-	}
-
-
-
 	public Boolean getActive() {
 		return active;
 	}
 	
-
-	public Boolean getHasJoinedSession() {
-		return hasJoinedSession;
-	}
-
-
-	public void setHasJoinedSession(Boolean hasJoinedSession) {
-		this.hasJoinedSession = hasJoinedSession;
-	}
-	
-
 
 	public Set<Vote> getVotes() {
 		return votes;
@@ -211,6 +185,17 @@ public class User {
 	public void addVote(Vote vote) {
 		vote.setUser(this);
 		votes.add(vote);
+	}
+	
+
+	public Set<Jure> getJures() {
+		return jures;
+	}
+
+
+
+	public void setJures(Set<Jure> jures) {
+		this.jures = jures;
 	}
 
 

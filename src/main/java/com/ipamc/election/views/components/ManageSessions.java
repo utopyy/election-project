@@ -7,6 +7,7 @@ import org.claspina.confirmdialog.ConfirmDialog;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.ipamc.election.data.entity.Categorie;
+import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
@@ -150,7 +151,7 @@ public class ManageSessions extends VerticalLayout {
 		grid = new Grid<>(Session.class, false);
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		grid.addColumn(Session::getName).setHeader("Nom").setResizable(true);
-		grid.addComponentColumn(session -> new Button(Integer.toString(session.getUsers().size()), click -> {
+		grid.addComponentColumn(session -> new Button(Integer.toString(session.getJures().size()), click -> {
 			Dialog dialog = new Dialog();
 			dialog.getElement().setAttribute("aria-label", "Add note");
 			VerticalLayout dialogLayout = dialogShowJury(session);
@@ -178,11 +179,10 @@ public class ManageSessions extends VerticalLayout {
 	
 
 	private VerticalLayout dialogShowJury(Session session) {
-		Grid<User> grid = setupJuryGrid();
-		GridListDataView<User> dataView = grid.setItems(session.getUsers());
+		Grid<Jure> grid = setupJuryGrid();
+		GridListDataView<Jure> dataView = grid.setItems(session.getJures());
 		TextField searchField = createSearchField(dataView);
-		VerticalLayout fieldLayout = new VerticalLayout();
-		fieldLayout.add(searchField, grid);
+		VerticalLayout fieldLayout = new VerticalLayout(searchField, grid);
 		fieldLayout.setSpacing(false);
 		fieldLayout.setPadding(false);
 		fieldLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
@@ -244,10 +244,10 @@ public class ManageSessions extends VerticalLayout {
 
 
 
-	private static Grid<User> setupJuryGrid() {
-		Grid<User> myGrid = new Grid<>(User.class, false);
-		myGrid.addColumn(User::getUsername).setHeader("Nom d'utilisateur").setSortable(true);
-		myGrid.addComponentColumn(userPermissions -> createPermissionIcon(userPermissions.certified())).setHeader("Certifié").setTextAlign(ColumnTextAlign.CENTER);               
+	private static Grid<Jure> setupJuryGrid() {
+		Grid<Jure> myGrid = new Grid<>(Jure.class, false);
+		myGrid.addColumn(jure -> jure.getUser().getUsername()).setHeader("Nom d'utilisateur").setSortable(true);
+		myGrid.addComponentColumn(userPermissions -> createPermissionIcon(userPermissions.getUser().certified())).setHeader("Certifié").setTextAlign(ColumnTextAlign.CENTER);               
 		return myGrid;
 	}
 
@@ -276,20 +276,20 @@ public class ManageSessions extends VerticalLayout {
 		return value.toLowerCase().contains(searchTerm.toLowerCase());
 	}
 
-	private TextField createSearchField(GridListDataView<User> users) {
+	private TextField createSearchField(GridListDataView<Jure> jury) {
 		TextField searchField = new TextField();
 		searchField.setWidth("100%");
 		searchField.setPlaceholder("Recherche");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> users.refreshAll());
+		searchField.addValueChangeListener(e -> jury.refreshAll());
 
-		users.addFilter(user -> {
+		jury.addFilter(jure -> {
 			String searchTerm = searchField.getValue().trim();
 
 			if (searchTerm.isEmpty())
 				return true;
-			return matchesTerm(user.getUsername(),searchTerm);
+			return matchesTerm(jure.getUser().getUsername(),searchTerm);
 		});
 		return searchField;
 	}

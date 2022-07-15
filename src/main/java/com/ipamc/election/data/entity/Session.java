@@ -26,27 +26,28 @@ public class Session {
 	private Long id;	
 	@NotNull
 	private String name;
-	@ManyToMany(fetch = FetchType.EAGER,
-			cascade = CascadeType.MERGE)
-	@JoinTable (name = "Jures",
-	joinColumns = @JoinColumn(name = "id_session"),
-	inverseJoinColumns = @JoinColumn(name = "id_utilisateur"))
-	Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy="session", fetch = FetchType.EAGER, orphanRemoval = true)
+    private Set<Jure> jures = new HashSet<>();
 	private Boolean isActive;
 	@OneToMany(mappedBy = "session", cascade= {CascadeType.ALL, CascadeType.REMOVE}, fetch = FetchType.EAGER)
 	private Set<Question> questions = new HashSet<Question>(); 
 	private Boolean archived;
 
 
-	public Session() {}
+	public Session() {
+		this.archived = false;
+		this.isActive = false;
+	}
 
 	public Session(String name) {
 		this.name = name;
+		isActive = false;
+		archived = false;
 	}
-	public Session(String name, Set<User> users) {
+	public Session(String name, Set<Jure> jures) {
 		super();
 		this.name = name;
-		this.users = users;
+		this.jures = jures;
 		isActive = false;
 		archived = false;
 	}
@@ -62,27 +63,14 @@ public class Session {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Set<User> getUsers() {
-		return users;
-	}
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
 
-	public void addUser(User user) {
-		users.add(user);
-	}
-
+	
 	public Boolean getIsActive() {
 		return isActive;
 	}
 
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
-	}
-
-	public Boolean userAllowed(User user) {
-		return users.contains(user);
 	}
 
 	public Set<Question> getQuestions() {
@@ -108,70 +96,22 @@ public class Session {
 		questions.clear();
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((questions == null) ? 0 : questions.hashCode());
-		result = prime * result + ((users == null) ? 0 : users.hashCode());
-		return result;
+	public Set<Jure> getJures() {
+		return jures;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Session other = (Session) obj;
-		if (isActive == null) {
-			if (other.isActive != null)
-				return false;
-		} else if (!isActive.equals(other.isActive))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (questions == null) {
-			if (other.questions != null)
-				return false;
-		} else if (!questions.equals(other.questions))
-			return false;
-		if (users == null) {
-			if (other.users != null)
-				return false;
-		} else if (!users.equals(other.users))
-			return false;
-		return true;
+	public void setJures(Set<Jure> jures) {
+		this.jures = jures;
 	}
-	
+
 	public Boolean getArchived() {
 		return archived;
 	}
-	
-	public void setArchived(Boolean bool) {
-		archived = bool;
-	}
-	
-	public Question getActiveQuestion() {
-		for(Question quest : questions) {
-			if(quest.getIsActive()) {
-				return quest;
-			}
-		}
-		return null;
-	}
 
-	@Override
-	public String toString() {
-		return name;
+	public void setArchived(Boolean archived) {
+		this.archived = archived;
 	}
+	
 	
 	
 }
