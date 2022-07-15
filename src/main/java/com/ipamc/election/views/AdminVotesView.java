@@ -19,6 +19,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.select.Select;
@@ -49,7 +50,9 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private Question activeQuestion;
 	private SessionService sessionService;
 	private Button pickQuest; 
-	private Details detailsQuest;
+	private DetailsQuestionEditable detailsQuest;
+	private VerticalLayout step1;
+	private VerticalLayout step2;
 	Registration broadcasterRegistration;
 
 
@@ -60,6 +63,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		this.tools = tools;
 		setAlignItems(Alignment.CENTER);
 		initView();
+		getStyle().set("background-color","rgb(251,253,255)");
 	}
 
 	private void initView() {
@@ -70,24 +74,24 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			Label hint = new Label("Sélectionnez la question que vous voulez poser ou créez-en une nouvelle.");	
 			Button ok = new Button("Ok");
 			initSelectQuestions();
+			initPickQuestionBtn(ok);
+			initStep2();
 			HorizontalLayout pickQuest = new HorizontalLayout(selectQuestion, ok);
-			VerticalLayout options = new VerticalLayout(hint, pickQuest);
-			options.setAlignItems(FlexComponent.Alignment.CENTER);
-			options.getStyle().set("margin-top", "50px");
-			options.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-			options.setMaxWidth("600px");
-			add(options);
+			step1 = new VerticalLayout(hint, pickQuest);
+			step1.setAlignItems(FlexComponent.Alignment.CENTER);
+			step1.getStyle().set("margin-top", "50px");
+			step1.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+			step1.setMaxWidth("600px");
+			step1.getStyle().set("background-color","White");
+			add(step1);
 			/**
             Button openVotes = new Button("Lancer la phase de votes");
             openVotes.addClickListener(event -> {
             		Broadcaster.broadcast("ENABLE_VOTE");
             });
             add(openVotes);*/
-			//
-			//setSizeFull();
 			setSpacing(false);
-			//setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-			//getStyle().set("text-align", "center");	
+			setSizeFull();
 		}else {
 			// AFFICHER MESSAGE : PAS DE SESSION ACTIVE, + link pour en activer une?
 		}
@@ -127,13 +131,37 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			}
 			questionService.activeQuestion(activeSession, selectQuestion.getValue()); 
 			initView();
-			detailsQuest = new Details("Details de la question", new DetailsQuestionEditable(activeQuestion, questionService, sessionService));
+			detailsQuest = new DetailsQuestionEditable(activeQuestion, questionService, sessionService);
 			add(detailsQuest);
 		});
 	}
 
+	private void initPickQuestionBtn(Button ok) {
+		ok.addClickListener(event -> {
+			step2.removeAll();
+			if(selectQuestion.getValue() != null) {
+				activeQuestion = selectQuestion.getValue();
+				detailsQuest = new DetailsQuestionEditable(activeQuestion, questionService, sessionService);
+			}else {
+				detailsQuest = new DetailsQuestionEditable(questionService, sessionService);
+			}
+			step2.add(detailsQuest);
+			remove(step1);
+			add(step2);
+		});
+	}
 
 
+	private void initStep2() {
+		Label hint = new Label("Vérifiez/modifiez les paramètres de la question et activer le vote pour le jury.");
+		step2 = new VerticalLayout();
+		step2.add(hint);
+		step2.setAlignItems(FlexComponent.Alignment.CENTER);
+		step2.getStyle().set("margin-top", "50px");
+		step2.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+		step2.setMaxWidth("900px");
+		step2.getStyle().set("background-color","White");
+	}
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
