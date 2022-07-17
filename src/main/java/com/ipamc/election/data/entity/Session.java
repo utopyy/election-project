@@ -112,6 +112,22 @@ public class Session {
 		this.archived = archived;
 	}
 	
+	public Boolean jureAllowed(Jure jure) {
+		for(Jure j : jures) {
+			if(j.equals(jure))
+				return true;
+		}
+		return false;
+	}
+	
+	public Question getActiveQuestion() {
+		for(Question quest : questions) {
+			if(quest.getIsActive())
+				return quest;
+		}
+		return null;
+	}
+	
 	
 	
 }

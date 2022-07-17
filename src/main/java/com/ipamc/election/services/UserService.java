@@ -207,9 +207,14 @@ public class UserService implements IUserService {
         userRepository.save(user);
     } 
     
-    public void joinsSession(Jure jure) {
-    	jure.setHasJoined(true);
-    	jureRepository.save(jure);
+    public void joinsSession(User user, Session session) {
+    	for(Jure jure : session.getJures()) {
+    		if(user.equals(jure.getUser())) {
+    			jure.setHasJoined(true);
+    			jureRepository.save(jure);
+    			break;
+    		}
+    	}
     }
     
     public void leavesSession(Jure jure) {

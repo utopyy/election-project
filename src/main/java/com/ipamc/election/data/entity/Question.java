@@ -47,7 +47,7 @@ public class Question {
     private Boolean propositionRequired;
 	private Boolean multiChoice;
 	private Boolean isActive;
-	private Boolean voteEnabled;
+
 	
 	
 	public Question(String intitule, Boolean multiChoice, Boolean propositionRequired) {
@@ -55,7 +55,6 @@ public class Question {
 		this.propositionRequired = propositionRequired;
 		this.multiChoice = multiChoice;
 		isActive = false;
-		voteEnabled = false;
 	}
 	
 	public Question(String intitule, Set<Proposition> propositions, Set<Categorie> categories, Boolean multiChoice) {
@@ -64,12 +63,10 @@ public class Question {
 		this.categories = categories;
 		this.multiChoice = multiChoice;
 		isActive = false;
-		voteEnabled = false;	
 	}
 	
 	public Question() {
 		isActive = false;
-		voteEnabled = false;
 	}
 
 	public Long getId() {
@@ -137,14 +134,6 @@ public class Question {
 		this.isActive = isActive;
 	}
 
-	public Boolean getVoteEnabled() {
-		return voteEnabled;
-	}
-
-	public void setVoteEnabled(Boolean voteEnabled) {
-		this.voteEnabled = voteEnabled;
-	}
-	
 	public void addCategorie(Categorie cat) {
 		cat.addQuestion(this);
 		categories.add(cat);

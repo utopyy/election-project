@@ -7,7 +7,7 @@ import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
-import com.ipamc.election.views.components.CategoriesJury;
+
 import com.ipamc.election.views.components.DetailsQuestionEditable;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -16,6 +16,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.model.Responsive;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -39,6 +40,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.claspina.confirmdialog.ButtonOption;
+import org.claspina.confirmdialog.ConfirmDialog;
+
 
 @Route(value = "salon" , layout = MainLayout.class)
 @PageTitle("Salon de votes")
@@ -51,12 +55,11 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private SecurityUtils tools;
 	private Select<Question> selectQuestion;
 	private Session activeSession;
-	private Question activeQuestion;
-	private SessionService sessionService;
-	private Button pickQuest; 
+	private SessionService sessionService; 
 	private DetailsQuestionEditable detailsQuest;
 	private VerticalLayout step1;
 	private VerticalLayout step2;
+	private VerticalLayout step3;
 	Registration broadcasterRegistration;
 
 
@@ -73,31 +76,38 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private void initView() {
 		removeAll();
 		if(sessionService.getActiveSession() != null) {
-			activeSession = sessionService.getActiveSession();
-			add(new H2(activeSession.getName()));
-			Label hint = new Label("Sélectionnez la question que vous voulez poser ou créez-en une nouvelle.");	
-			Button ok = new Button("Ok");
-			initSelectQuestions();
-			initPickQuestionBtn(ok);
-			initStep2();
-			HorizontalLayout pickQuest = new HorizontalLayout(selectQuestion, ok);
-			step1 = new VerticalLayout(hint, pickQuest);
-			step1.setAlignItems(FlexComponent.Alignment.CENTER);
-			step1.getStyle().set("margin-top", "50px");
-			step1.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-			step1.setMaxWidth("600px");
-			step1.getStyle().set("background-color","White");
-			add(step1);
-			/**
-            Button openVotes = new Button("Lancer la phase de votes");
-            openVotes.addClickListener(event -> {
-            		Broadcaster.broadcast("ENABLE_VOTE");
-            });
-            add(openVotes);*/
-			setSpacing(false);
-			setSizeFull();
+			if(sessionService.getActiveSession().getActiveQuestion() != null) {
+				initStep3();
+				Button back = new Button("Retour", new Icon(VaadinIcon.ARROW_LEFT));
+				initBackButton(back);
+				// CREER UNE SECTION POUR VOTER SI LE USER FAIT PARTIE DES MEMBRES DU JURY
+				
+				// CREER SECTION OU LES VOTES SONT AFFICHES PAR JURE
+				
+				add(back, step3);
+			}else {
+				activeSession = sessionService.getActiveSession();
+				add(new H2(activeSession.getName()));
+				Label hint = new Label("Sélectionnez la question que vous voulez poser ou créez-en une nouvelle.");	
+				Button ok = new Button("Ok");
+				initSelectQuestions();
+				initPickQuestionBtn(ok);
+				initStep2();
+				HorizontalLayout pickQuest = new HorizontalLayout(selectQuestion, ok);
+				step1 = new VerticalLayout(hint, pickQuest);
+				step1.setAlignItems(FlexComponent.Alignment.CENTER);
+				step1.getStyle().set("margin-top", "50px");
+				step1.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+				step1.setMaxWidth("600px");
+				step1.getStyle().set("background-color","White");
+				add(step1);
+				setSpacing(false);
+				setSizeFull();
+			}
 		}else {
 			// AFFICHER MESSAGE : PAS DE SESSION ACTIVE, + link pour en activer une?
+			// TEMPORAIRE
+			add(new Label("Aucune session active"));
 		}
 	}
 
@@ -106,9 +116,6 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		List<Question> questions = new ArrayList<>();
 		for(Question quest : activeSession.getQuestions()) {
 			questions.add(quest);
-			if(quest.getIsActive()) {
-				activeQuestion = quest;
-			}
 		}
 		Collections.sort(questions, new Comparator<Question>() {
 			@Override
@@ -125,27 +132,13 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 				return "Nouvelle question";
 		});
 		selectQuestion.setEmptySelectionCaption("Nouvelle question");
-		//setupQuestion();
-	}
-
-	private void setupQuestion() {
-		selectQuestion.addValueChangeListener(event -> {
-			if(selectQuestion.getValue() != null) {
-				activeQuestion = selectQuestion.getValue();
-			}
-			questionService.activeQuestion(activeSession, selectQuestion.getValue()); 
-			initView();
-			detailsQuest = new DetailsQuestionEditable(activeQuestion, questionService, sessionService);
-			add(detailsQuest);
-		});
 	}
 
 	private void initPickQuestionBtn(Button ok) {
 		ok.addClickListener(event -> {
 			step2.removeAll();
 			if(selectQuestion.getValue() != null) {
-				activeQuestion = selectQuestion.getValue();
-				detailsQuest = new DetailsQuestionEditable(activeQuestion, questionService, sessionService);
+				detailsQuest = new DetailsQuestionEditable(selectQuestion.getValue(), questionService, sessionService);
 			}else {
 				detailsQuest = new DetailsQuestionEditable(questionService, sessionService);
 			}
@@ -155,7 +148,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			Button back = new Button("Retour", new Icon(VaadinIcon.ARROW_LEFT));
 			initBackButton(back, hl);
 			Button next = new Button("Lancer le vote", new Icon(VaadinIcon.ARROW_RIGHT));
-			initNextButton(next);
+			initNextButton(next, detailsQuest);
 			next.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			next.setIconAfterText(true);
 			hl.add(back, next);
@@ -166,7 +159,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			add(hl, step2);
 		});
 	}
-	
+
 	private void initBackButton(Button btn, HorizontalLayout hl) {
 		btn.addClickListener(event -> {
 			remove(hl);
@@ -174,16 +167,12 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			initView();
 		});
 	}
-	
-	private void initNextButton(Button btn) {
+
+	private void initNextButton(Button btn, DetailsQuestionEditable detailsQuest) {
 		btn.addClickListener(event -> {
-			questionService.activeQuestion(activeSession, activeQuestion);
-		});
-	}
-	
-	private void initLaunchVoteBtn(Button btn) {
-		btn.addClickListener(event -> {
+			questionService.activeQuestion(activeSession, detailsQuest.getQuestionPicked());
 			Broadcaster.broadcast("ENABLE_VOTE");
+			initView();
 		});
 	}
 
@@ -194,6 +183,28 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		step2.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
 		step2.setMaxWidth("900px");
 		step2.getStyle().set("background-color","White");
+	}
+
+	private void initStep3() {
+		step3 = new VerticalLayout();
+		step3.setAlignItems(FlexComponent.Alignment.CENTER);
+		step3.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+		step3.setMaxWidth("900px");
+		step3.getStyle().set("background-color","White");
+	}
+	
+	private void initBackButton(Button back) {
+		back.addClickListener(event -> {
+			ConfirmDialog.create()
+			.withCaption("Confirmation")
+			.withMessage("Cette action désactivera les votes des membres du jury et ils en seront notifiés.")
+			.withOkButton(() -> {
+				sessionService.removeActiveQuestion(sessionService.getActiveSession());
+				Broadcaster.broadcast("ENABLE_VOTE");
+				initView();
+			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
+			.withCancelButton(ButtonOption.caption("NON")).open();
+		});
 	}
 
 	@Override

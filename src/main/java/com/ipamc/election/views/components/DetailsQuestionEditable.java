@@ -41,6 +41,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	private TextField questIntitule;
 	private Button update;
 	private Button create;
+	private Question questionPicked;
 	
 	public DetailsQuestionEditable(Question quest, QuestionService questionService, SessionService sessionService) {
 		this.questionService = questionService;
@@ -67,6 +68,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	}
 
 	private void initEmptyForm() {
+		questionPicked = new Question();
     	questIntitule = new TextField("Question");
     	create = new Button("Créer");
     	create.setEnabled(false);
@@ -307,6 +309,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	    	}
 	    	newQuest.setCategories(catList);
 	    	questionService.updateQuestion(idQuest, newQuest);
+	    	questionPicked = questionService.getById(idQuest);
 	    	Notification notification = Notification.show("Modifications enregistrées!");
 	    	notification.setDuration(2000);
 	    	notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -329,7 +332,8 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	    		catList.add(new Categorie("Note", note.getValue(), note.getIsRequired()));
 	    	}
 	    	newQuest.setCategories(catList);
-	    	questionService.createQuestion(newQuest, sessionService.getActiveSession());
+	    	questionPicked = questionService.createQuestion(newQuest, sessionService.getActiveSession());
+	    	System.out.println("question picked:"+ questionPicked.getId());
 	    	Notification notification = Notification.show("Question créée!");
 	    	notification.setDuration(2000);
 	    	notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -337,6 +341,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     }
     
     private void initForm(Question quest) {
+    	questionPicked = quest;
     	questIntitule = new TextField("Question");
     	questIntitule.setValue(quest.getIntitule());
     	update = new Button("Mettre à jour");
@@ -482,6 +487,10 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	}
     	btn.setEnabled(true);
     	return true;   	
+    }
+    
+    public Question getQuestionPicked() {
+    	return questionPicked;
     }
     
     //AJOUTER FORM CHECKER DANS LE REMOVE PROPOSITION ET DANS LE CHANGE NOOM SESSION TEXTFIELD

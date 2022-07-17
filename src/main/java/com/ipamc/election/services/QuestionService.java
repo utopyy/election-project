@@ -67,6 +67,10 @@ public class QuestionService {
 		}
 		questRepository.activateQuestion(true, activeQuestion.getId());
 	}
+	
+	public Question getById(Long id) {
+		return questRepository.findById(id);
+	}
 
 	public void updateQuestion(Long id, Question question) {
 		Question quest = questRepository.findById(id);
@@ -95,5 +99,6 @@ public class QuestionService {
 		questRepository.save(quest);
 
 	}
+
 
 }
