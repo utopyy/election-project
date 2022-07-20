@@ -7,6 +7,7 @@ import com.ipamc.election.data.entity.Question;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,11 +19,14 @@ public class QuestionModule extends VerticalLayout {
 
 	private IntegerField note;
 	private TextArea commentaire;
-	private MultiSelectListBox<Proposition> propositions;
+	private MultiSelectListBox<Proposition> propositions = new MultiSelectListBox<>();;
 	private Question question;
 	private String libelle;
 	private Boolean isRequired;
-	
+	private Icon noteIcon;
+	private Icon commentaireIcon;
+	private Icon propIcon;
+
 	// Commentaire constructor
 	public QuestionModule(Boolean obligatoire, Question question) {
 		initLayout();
@@ -61,9 +65,9 @@ public class QuestionModule extends VerticalLayout {
 		title.setSpacing(false);
 		title.setAlignItems(Alignment.CENTER);
 		if(obligatoire) {
-			Icon icon = new Icon("lumo", "error");
-			icon.getStyle().set("padding-left", "3px");
-			title.add(new Label("Commentaire"), icon);
+			commentaireIcon = new Icon("lumo", "error");
+			commentaireIcon.getStyle().set("padding-left", "3px");
+			title.add(new Label("Commentaire"), commentaireIcon);
 		}else {
 			title.add(new Label("Commentaire"));
 		}
@@ -79,21 +83,20 @@ public class QuestionModule extends VerticalLayout {
 		title.setSpacing(false);
 		title.setAlignItems(Alignment.CENTER);
 		if(obligatoire) {
-			Icon icon = new Icon("lumo", "error");
-			icon.getStyle().set("padding-left", "3px");
-			title.add(new Label("Propositions"), icon);
+			propIcon = new Icon("lumo", "error");
+			propIcon.getStyle().set("padding-left", "3px");
+			title.add(new Label("Propositions"), propIcon);
 		}else {
 			title.add(new Label("Propositions"));
 		}
-		propositions = new MultiSelectListBox<>();
 		propositions.setItems(propositionsList);
 		propositions.setRenderer(new ComponentRenderer<>(proposition ->
-			new Text(proposition.getLibelle()))
-		);
-		title.getStyle().set("padding-bottom", "5px");
+		new Text(proposition.getLibelle()))
+				);
 		propositions.setMaxHeight("130px");
 		propositions.setWidthFull();
 		add(title, propositions);
+		title.getStyle().set("padding-bottom", "5px");
 		isRequired = obligatoire;
 	}
 
@@ -102,9 +105,9 @@ public class QuestionModule extends VerticalLayout {
 		title.setSpacing(false);
 		title.setAlignItems(Alignment.CENTER);
 		if(obligatoire) {
-			Icon icon = new Icon("lumo", "error");
-			icon.getStyle().set("padding-left", "3px");
-			title.add(new Label("Note"), icon);
+			noteIcon = new Icon("lumo", "error");
+			noteIcon.getStyle().set("padding-left", "3px");
+			title.add(new Label("Note"), noteIcon);
 		}else {
 			title.add(new Label("Note"));
 		}
@@ -114,15 +117,42 @@ public class QuestionModule extends VerticalLayout {
 		note.setMin(0);
 		add(title,note);
 	}
+	
+	
+
+	public Icon getNoteIcon() {
+		return noteIcon;
+	}
+
+	public void setNoteIcon(Icon noteIcon) {
+		this.noteIcon = noteIcon;
+	}
+
+	public Icon getCommentaireIcon() {
+		return commentaireIcon;
+	}
+
+	public void setCommentaireIcon(Icon commentaireIcon) {
+		this.commentaireIcon = commentaireIcon;
+	}
+
+	public Icon getPropIcon() {
+		return propIcon;
+	}
+
+	public void setPropIcon(Icon propIcon) {
+		this.propIcon = propIcon;
+	}
 
 	public IntegerField getNote() {
 		return note;
 	}
+	
 
 	public TextArea getCommentaire() {
 		return commentaire;
 	}
-	
+
 	public MultiSelectListBox<Proposition> getPropositions(){
 		return propositions;
 	}
@@ -162,5 +192,4 @@ public class QuestionModule extends VerticalLayout {
 	public void setIsRequired(Boolean isRequired) {
 		this.isRequired = isRequired;
 	}
-
 }

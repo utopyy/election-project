@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.web.socket.adapter.standard.ConvertingEncoderDecoderSupport.BinaryDecoder;
+
 import com.ipamc.election.data.BroadcastMessageType;
 import com.ipamc.election.data.entity.BroadcastMessage;
 import com.ipamc.election.data.entity.Broadcaster;
@@ -26,6 +28,7 @@ import com.ipamc.election.services.VoteService;
 import com.ipamc.election.views.components.QuestionModule;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.KeyDownEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -198,61 +201,88 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 				break;
 			}
 		}
-		if(!btn.isEnabled()) {
-			for(QuestionModule question : modules)
-				switch(question.getLibelle()) {
-				case "commentaire" :
-					question.getCommentaire().setValueChangeMode(ValueChangeMode.EAGER);
-					question.getCommentaire().addValueChangeListener(event -> {
-						if(question.getIsRequired() && event.getValue().isBlank()) {
-							question.getCommentaire().setInvalid(true);
-						}else {
-							question.getCommentaire().setInvalid(false);
-						}
-						if(disableButton(modules)) {
-							btn.setEnabled(false);
-						}else {
-							btn.setEnabled(true);
+		for(QuestionModule question : modules)
+			switch(question.getLibelle()) {
+			case "commentaire" :
+				question.getCommentaire().setValueChangeMode(ValueChangeMode.EAGER);
+				question.getCommentaire().addValueChangeListener(event -> {
+					if(question.getIsRequired() && event.getValue().isBlank()) {
+						question.getCommentaire().setInvalid(true);
+						question.getCommentaireIcon().setColor("RED");
+					}else {
+						question.getCommentaire().setInvalid(false);
+						if(question.getIsRequired())
+							question.getCommentaireIcon().setColor("");
+					}
+					if(disableButton(modules)) {
+						btn.setEnabled(false);
+					}else {
+						btn.setEnabled(true);
+					}
+				});
+				break;
+			case "note" :
+				question.getNote().setValueChangeMode(ValueChangeMode.EAGER);
+				question.getNote().addValueChangeListener(event -> {
+					if(question.getIsRequired() && event.getValue() == null) {
+						question.getNote().setInvalid(true);
+						question.getNoteIcon().setColor("RED");
+						disableButton(modules);
+					}else if(event.getValue() != null && event.getValue() > question.getNote().getMax()){
+						question.getNote().setInvalid(true);
+						if(question.getIsRequired())
+							question.getNoteIcon().setColor("RED");
+					}else {
+						question.getNote().setInvalid(false);
+						if(question.getIsRequired())
+						question.getNoteIcon().setColor("");
+					}
+					if(disableButton(modules)) {
+						btn.setEnabled(false);
+					}else {
+						btn.setEnabled(true);
+					}
+					if(question.getNote().getValue() != null && question.getNote().getValue() < 0) {
+						question.getNote().setValue(0);
+					}
+				});
+				break;
+			case "propositions" : 
+				question.getPropositions().addSelectionListener(event -> {
+					if(question.getQuestion().getPropositionRequired() && question.getPropositions().isEmpty()) {
+						question.getPropIcon().setColor("RED");
+					}else {
+						if(question.getIsRequired())
+						question.getPropIcon().setColor("");
+					}
+					if(disableButton(modules)) {
+						btn.setEnabled(false);
+					}else {
+						btn.setEnabled(true);
+					}
+				});	
+				if(!quest.getMultiChoice()) {
+					question.getPropositions().addValueChangeListener(event -> {
+						if(event.getValue().size()>1) {
+							Set<Proposition> addProps = new HashSet<>();
+							Set<Proposition> removeProps = new HashSet<>();
+							for(Proposition p : event.getValue()) {
+								if(!event.getOldValue().contains(p)) {
+									addProps.add(p);
+								}else {
+									removeProps.add(p);
+								}
+							}
+							question.getPropositions().updateSelection(addProps, removeProps);
 						}
 					});
-					break;
-				case "note" :
-					question.getNote().setValueChangeMode(ValueChangeMode.EAGER);
-					question.getNote().addValueChangeListener(event -> {
-						if(question.getIsRequired() && event.getValue() == null) {
-							question.getNote().setInvalid(true);
-							disableButton(modules);
-						}else if(event.getValue() > question.getNote().getMax()){
-							question.getNote().setInvalid(true);
-						}else {
-							question.getNote().setInvalid(false);
-						}
-						if(disableButton(modules)) {
-							btn.setEnabled(false);
-						}else {
-							btn.setEnabled(true);
-						}
-					});
-					break;
-				case "propositions" : 
-					question.getPropositions().addSelectionListener(event -> {
-						if(question.getQuestion().getPropositionRequired() && question.getPropositions().isEmpty()) {
-							// METTRE UN MESSAGE ERREUR ICI - BORDURE ROUGE?
-						}else {
-							// RETIRER MESSAGE ERREUR
-						}
-						if(disableButton(modules)) {
-							btn.setEnabled(false);
-						}else {
-							btn.setEnabled(true);
-						}
-					});
-					break;
-				default : 
-					break;
 				}
-		}
+				break;
+			default : 
+				break;
+			}
 	}
+
 
 	private Boolean disableButton(List<QuestionModule> modules) {
 		for(QuestionModule question : modules) {
@@ -263,9 +293,12 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 				}
 				break;
 			case "note" :
-				if((question.getIsRequired() && question.getNote().getValue() == null) || question.getNote().getValue() > question.getNote().getMax()) {
+				if((question.getIsRequired() && question.getNote().getValue() == null) ||  (question.getNote().getValue() != null && question.getNote().getValue() > question.getNote().getMax())) {
 					return true;
-				}		
+				}
+				if(question.getNote().getValue() != null && question.getNote().isInvalid()){
+					return true;
+				}
 				break;
 			case "propositions" : 
 				if(question.getQuestion().getPropositionRequired() && question.getPropositions().isEmpty()) {
@@ -286,5 +319,6 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			beforeEnterEvent.forwardTo("registration_confirm/"+tools.getAuthenticatedUser().getUsername());		
 		}
 	}
+
 }
 
