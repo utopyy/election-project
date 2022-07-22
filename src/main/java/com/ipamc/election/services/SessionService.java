@@ -1,6 +1,7 @@
 package com.ipamc.election.services;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -76,6 +77,12 @@ public class SessionService {
 		sessDb.addQuestion(question);
 		sessionRepository.save(sessDb);
 	}
+	
+	public void removeQuestion(Session session, Question question) {
+		Session sessDb = sessionRepository.getById(session.getId());
+		sessDb.removeQuestion(question);
+		sessionRepository.save(session);
+	}
 
 	public Long getNumberOfSessions() {
 		return Long.valueOf(sessionRepository.findAllByArchived(false).size());
@@ -138,5 +145,43 @@ public class SessionService {
 			quest.setIsActive(false);
 			questRepository.save(quest);
 		}catch(NullPointerException ex) {}
+	}
+	
+	public Session updateSession(Session session, Set<User> users, List<Question> questions, QuestionService questService) {
+		Session sessToUpdate = sessionRepository.getById(session.getId());
+		sessToUpdate.setName(session.getName());
+		Set<Jure> jury = new HashSet<>();
+		for(User user : users) {
+			Jure jure;
+			if(jureRepository.existsBySessionAndUser(session, user)){
+				jure = jureRepository.findBySessionAndUser(session, user);
+			}else {
+				jure = new Jure(sessToUpdate, user);
+			}
+			jureRepository.save(jure);
+			jury.add(jure);
+		}
+		sessToUpdate.setJures(jury);
+		for(Jure jure : session.getJures()) {
+			if(!jury.contains(jure)) {
+				jureRepository.delete(jure);
+			}
+		}	
+		Set<Question> quests = new HashSet<>();
+		for(Question question : questions) {
+			Question quest;
+			if(questRepository.existsByIntituleAndSession(question.getIntitule(),session)) {
+				quest = questRepository.findByIntituleAndSession(question.getIntitule(), session);
+			}else {
+				quest = questService.createQuestion(question, session);
+			}
+			quests.add(quest);
+		}
+		for(Question question : session.getQuestions()) {
+			if(!quests.contains(question)) {
+				questRepository.deleteById(question.getId());
+			}
+		}
+		return sessionRepository.save(sessToUpdate);
 	}
 }

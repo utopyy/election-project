@@ -1,17 +1,17 @@
 package com.ipamc.election.views.components;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
-import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
-import com.ipamc.election.data.entity.User;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
@@ -27,7 +27,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -49,11 +48,11 @@ public class ManageSessions extends VerticalLayout {
 	private Button addButton;
 	private Button deleteButton;
 	private Button updateButton;
-	private TextField searchBar;
 	private Button backButton;
 
 	private Grid<Session> grid;
 	private List<Session> sessions;
+	private TextField searchBar;
 	
 	private CreateSession createSession;
 	private EditSession editSession;
@@ -95,10 +94,9 @@ public class ManageSessions extends VerticalLayout {
 		hl.setAlignItems(Alignment.CENTER);
 		
 		createSession.setVisible(false);
-		createGrid();
-		
+		createGrid();		
 		GridListDataView<Session> dataView = grid.setItems(sessions);
-		searchBar = searchBarSession(dataView);
+		createSearchBar(dataView);
 		Span spacing = new Span();
 		buttons.add(searchBar, addButton, updateButton, deleteButton, hl);
 		addButton.setMaxWidth("15px");
@@ -131,9 +129,9 @@ public class ManageSessions extends VerticalLayout {
 		mainComponents.setSizeFull();
 		add(buttons, hint, mainComponents);
 		setSpacing(false);
-		initAddButton();
-		initBackButton();
-		initUpdateButton(userService, questionService);
+		initAddButton(searchBar);
+		initBackButton(searchBar);
+		initUpdateButton(userService, questionService, searchBar);
 		updateButtons();
 	}
 
@@ -150,7 +148,7 @@ public class ManageSessions extends VerticalLayout {
 	private void createGrid() {
 		grid = new Grid<>(Session.class, false);
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-		grid.addColumn(Session::getName).setHeader("Nom").setResizable(true);
+		grid.addColumn(Session::getName).setHeader("Nom").setResizable(true).setSortable(true);
 		grid.addComponentColumn(session -> new Button(Integer.toString(session.getJures().size()), click -> {
 			Dialog dialog = new Dialog();
 			dialog.getElement().setAttribute("aria-label", "Add note");
@@ -173,7 +171,6 @@ public class ManageSessions extends VerticalLayout {
 			dialog.getHeader().add(closeButton);
 			dialog.open();
 		})).setHeader("Questions");
-		grid.setItems(sessionService.findSessionsNotArchived());
 		grid.setWidth("100%");
 	}
 	
@@ -293,30 +290,27 @@ public class ManageSessions extends VerticalLayout {
 		});
 		return searchField;
 	}
+	
+	private void createSearchBar(GridListDataView<Session> dataView) {
+		searchBar = new TextField();
+		searchBar.setWidth("100%");
+		searchBar.setPlaceholder("Recherche");
+		searchBar.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		searchBar.setValueChangeMode(ValueChangeMode.EAGER);
+		searchBar.addValueChangeListener(event -> dataView.refreshAll());
 
-	private TextField searchBarSession(GridListDataView<Session> sessions) {
-		TextField searchField = new TextField();
-		searchField.setWidth("100%");
-		searchField.setPlaceholder("Recherche");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> sessions.refreshAll());
-
-		sessions.addFilter(session -> {
-			String searchTerm = searchField.getValue().trim();
-
+		dataView.addFilter(session -> {
+			String searchTerm = searchBar.getValue().trim();
 			if (searchTerm.isEmpty())
 				return true;
 			return matchesTerm(session.getName(),searchTerm);
 		});
-		searchField.addFocusListener(event -> {
+		searchBar.addFocusListener(event -> {
 			grid.deselectAll();
 			deleteButton.setEnabled(false);
 			updateButton.setEnabled(false);			
 		});
-		return searchField;
 	}
-
 	public void initDeleteButton(Div sp) {
 		deleteButton.addClickListener(event ->{
 			Session sess = grid.getSelectedItems().iterator().next();
@@ -342,7 +336,7 @@ public class ManageSessions extends VerticalLayout {
 		});
 	}
 		
-	private void initAddButton() {
+	private void initAddButton(TextField searchBar) {
 		addButton.addClickListener(event -> {
 			createSession.setVisible(true);
 			grid.setVisible(false);
@@ -357,7 +351,7 @@ public class ManageSessions extends VerticalLayout {
 			grid.deselectAll();
 		});
 	}
-	private void initUpdateButton(UserService userService, QuestionService questionService) {
+	private void initUpdateButton(UserService userService, QuestionService questionService, TextField searchBar) {
 		updateButton.addClickListener(event -> {
 			Session sess = grid.getSelectedItems().iterator().next();
 			editSession = new EditSession(userService, sessionService, questionService, sess);
@@ -376,7 +370,7 @@ public class ManageSessions extends VerticalLayout {
 		});
 	}
 	
-	private void initBackButton() {
+	private void initBackButton(TextField searchBar) {
 		backButton.addClickListener(event ->{
 			grid.setVisible(true);
 			createSession.setVisible(false);
@@ -399,7 +393,6 @@ public class ManageSessions extends VerticalLayout {
         if (sessions.size() > 0) {
             grid.setVisible(true);
             hint.setVisible(false);
-            grid.setItems(sessionService.findSessionsNotArchived());
             grid.getDataProvider().refreshAll();
         } else {
             grid.setVisible(false);

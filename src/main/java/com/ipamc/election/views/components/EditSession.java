@@ -3,10 +3,12 @@ package com.ipamc.election.views.components;
 import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
 
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
+import com.ipamc.election.repository.SessionRepository;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
@@ -96,7 +98,6 @@ public class EditSession extends VerticalLayout {
 
 		sessionName.setValueChangeMode(ValueChangeMode.EAGER);
 		sessionName.addValueChangeListener(event ->{
-			System.out.println("\nChecking value : "+sessionName.getValue());
 			if(sessionName.isEmpty() || sessionName.getValue().isBlank()) {
 				sessionDetailsButton.setEnabled(false);
 				sessionName.setErrorMessage("Ce champ est obligatoire!");
@@ -231,23 +232,16 @@ public class EditSession extends VerticalLayout {
 			.withCaption("Confirmation")
 			.withMessage("Modification de : "+sessionToUpdate.getName())
 			.withOkButton(() -> {
-				Session session = sessionToUpdate;
-				sessionService.removeSession(session.getId());
-				manageSessions.removeSession(session);
-				session.setName(sessionName.getValue());
-				Session newSess = sessionService.createSession(session.getName(),dragAndDrop.getSelectedUsers());
-				for(Question quest : questionsCreator.getQuestions()) {
-					questionService.createQuestion(quest, newSess);
-				}
-				Session newFullSess = sessionService.getBySessionName(newSess.getName());
-				newFullSess.setIsActive(session.getIsActive());
-				sessionService.save(newFullSess);
-				manageSessions.addSession(newFullSess);
+				manageSessions.removeSession(sessionToUpdate);
+				sessionToUpdate.setName(sessionName.getValue());
+				sessionService.updateSession(sessionToUpdate, dragAndDrop.getSelectedUsers(), questionsCreator.getQuestions(), questionService);
 				Notification notification = Notification.show("Session modifiée avec succès!");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);
 				notification.setPosition(Position.TOP_END);
 				manageSessions.getBackButton().click();
+				Session newFullSess = sessionService.getBySessionName(sessionToUpdate.getName());
+				manageSessions.addSession(newFullSess);
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});

@@ -43,7 +43,8 @@ public class QuestionService {
 				catRepository.save(newCat);
 				quest.addCategorie(newCat);
 			}
-		}for(Proposition p : question.getPropositions()) {
+		}
+		for(Proposition p : question.getPropositions()) {
 			if(propRepository.existsByLibelle(p.getLibelle())) {
 				quest.addProposition(propRepository.findByLibelle(p.getLibelle()));
 			}else {
@@ -72,7 +73,7 @@ public class QuestionService {
 		return questRepository.findById(id);
 	}
 
-	public void updateQuestion(Long id, Question question) {
+	public Question updateQuestion(Long id, Question question) {
 		Question quest = questRepository.findById(id);
 		quest.getCategories().clear();
 		quest.getPropositions().clear();
@@ -96,8 +97,12 @@ public class QuestionService {
 				quest.addProposition(propRepository.findByLibelle(p.getLibelle()));
 			}
 		}
-		questRepository.save(quest);
+		return questRepository.save(quest);
 
+	}
+	
+	public void removeQuestion(Question question) {
+		questRepository.delete(question);
 	}
 
 

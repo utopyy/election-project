@@ -82,6 +82,9 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		grid.addComponentColumn(question -> createPropositionsButton(question)).setHeader("Propositions").setTextAlign(ColumnTextAlign.CENTER);
 
 		grid.addColumn(new ComponentRenderer<>(Button::new, (button, question) -> {
+			if(question.getIsActive()) {
+				button.setEnabled(false);
+			}
             button.addThemeVariants(ButtonVariant.LUMO_ICON,
                     ButtonVariant.LUMO_ERROR,
                     ButtonVariant.LUMO_TERTIARY);

@@ -1,23 +1,15 @@
 package com.ipamc.election.views;
 
-import java.awt.desktop.UserSessionEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.web.socket.adapter.standard.ConvertingEncoderDecoderSupport.BinaryDecoder;
-
-import com.ipamc.election.data.BroadcastMessageType;
-import com.ipamc.election.data.entity.BroadcastMessage;
 import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
-import com.ipamc.election.data.entity.Vote;
-import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.CategorieService;
 import com.ipamc.election.services.PropositionService;
@@ -28,24 +20,14 @@ import com.ipamc.election.services.VoteService;
 import com.ipamc.election.views.components.QuestionModule;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.KeyDownEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.listbox.ListBox;
-import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -53,7 +35,6 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.Command;
 import com.vaadin.flow.shared.Registration;
 
 @Route(value = "jury", layout = MainLayout.class)
@@ -99,6 +80,10 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		this.tools = tools;
 		this.sessionService = sessionService;
 		this.voteService = voteService;
+		initView();
+	}
+	
+	private void initView() {
 		H2 sessionName = new H2();
 		H4 info = new H4();
 		setJustifyContentMode(JustifyContentMode.CENTER);
@@ -110,8 +95,8 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 					add(new Label("En attente d'une question...."));
 				}else {
 					setJustifyContentMode(JustifyContentMode.START);
-					quest = session.getActiveQuestion();
-					add(new H2(quest.getIntitule()));
+					quest = session.getActiveQuestion(); 
+					add(new VerticalLayout(new H2(quest.getSession().getName()), new H3(quest.getIntitule())));
 					List<QuestionModule> questionsModule = new ArrayList<>();
 					for(Categorie cat : quest.getCategories()) {
 						QuestionModule register;
