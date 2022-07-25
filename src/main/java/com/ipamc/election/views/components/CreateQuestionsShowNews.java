@@ -34,9 +34,6 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 	private Div hint;
 	
 	public CreateQuestionsShowNews() {
-		//this.setupAddQuestion();
-		//this.setupGrid();
-		//this.refreshGrid();
 	}
 	
 	public void setupAddQuestion(Button saveBtn) {
@@ -90,9 +87,9 @@ public class CreateQuestionsShowNews extends VerticalLayout {
                     ButtonVariant.LUMO_TERTIARY);
             button.addClickListener(e -> {
             	this.removeQuestion(question);
-            	if(questions.size()==0) {
+            	/*if(questions.size()==0) {
             		saveBtn.setEnabled(false);
-            	}
+            	}**/ 
             });
             button.setIcon(new Icon(VaadinIcon.TRASH));
         })).setHeader("Supprimer").setTextAlign(ColumnTextAlign.END);

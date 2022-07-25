@@ -42,6 +42,9 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	private Button update;
 	private Button create;
 	private Question questionPicked;
+	private CategorieGridDetails comment;
+	private CategorieGridDetails note;
+	private CategorieGridDetails prop;
 	
 	public DetailsQuestionEditable(Question quest, QuestionService questionService, SessionService sessionService) {
 		this.questionService = questionService;
@@ -55,30 +58,31 @@ public class DetailsQuestionEditable extends VerticalLayout {
 		grid.setAllRowsVisible(true);
 	}
 	
-	public DetailsQuestionEditable(QuestionService questionService, SessionService sessionService) {
+	public DetailsQuestionEditable(QuestionService questionService, SessionService sessionService, Button button) {
 		this.questionService = questionService;
 		this.sessionService = sessionService;
-		initEmptyForm();
-		HorizontalLayout headerGrid = new HorizontalLayout(questIntitule, create);
+		initEmptyForm(button);
+		HorizontalLayout headerGrid = new HorizontalLayout(questIntitule);
 		headerGrid.setSizeFull();
 		headerGrid.setPadding(false);
 		headerGrid.setAlignItems(Alignment.BASELINE);
 		add(headerGrid, grid);
 		grid.setAllRowsVisible(true);
+		button.setEnabled(false);
 	}
 
-	private void initEmptyForm() {
+	private void initEmptyForm(Button button) {
 		questionPicked = new Question();
     	questIntitule = new TextField("Question");
     	create = new Button("Créer");
     	create.setEnabled(false);
     	
     	List<CategorieGridDetails> catsDet = new ArrayList<>();
-    	CategorieGridDetails comment = new CategorieGridDetails(false,false);
-    	CategorieGridDetails note = new CategorieGridDetails(false,false, 0);
-    	CategorieGridDetails prop = new CategorieGridDetails(false,false, false);
+    	comment = new CategorieGridDetails(false,false);
+    	note = new CategorieGridDetails(false,false, 0);
+    	prop = new CategorieGridDetails(false,false, false);
     	
-        setupTfdFilterCreator(create, comment, note, prop);
+        setupTfdFilterCreator(button);
     	
     	grid.addColumn(CategorieGridDetails::getLibelleCat).setAutoWidth(true).setFlexGrow(0).setHeader("Type de question");
     	
@@ -86,7 +90,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     		Checkbox actif = new Checkbox(question.getIsActive());
     		actif.addValueChangeListener(event -> {
     			question.setIsActive(actif.getValue());
-    			formChecker(create, comment, note, prop);
+    			formChecker(button, comment, note, prop);
     		});
     		return actif;
     	}).setAutoWidth(true).setFlexGrow(0).setHeader("Actif");;
@@ -131,7 +135,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	        	Proposition newProp = new Proposition(newPropTf.getValue());
     	        	propositionsList.add(newProp);
     	        	grid.getDataProvider().refreshAll();
-    	        	formChecker(create, comment, note, prop);
+    	        	formChecker(button, comment, note, prop);
     	        });
     			setupAddProposition(newPropTf, addProp);
     			HorizontalLayout propLayout = new HorizontalLayout(newPropTf, addProp);
@@ -146,7 +150,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     		if(question.getLibelleCat().equals("Propositions")) {
 	        	Span propsBadges = new Span();
 	    		for(Proposition propo : propositionsList) {
-	    			Span propositionBadge = createPropositionBadge(propo, create, comment, note, prop);
+	    			Span propositionBadge = createPropositionBadge(propo, button, comment, note, prop);
 	    			propositionBadge.getStyle().set("display", "inline-block");
 	    			propositionBadge.getStyle().set("margin-right", "10px");
 	    			propositionBadge.getStyle().set("margin-bottom", "10px");
@@ -183,7 +187,6 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	catsDet.add(note);
     	catsDet.add(prop);
     	grid.setItems(catsDet);
-    	setupCreateButton(questIntitule, comment, note, prop, update);
     	grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 	}
 	
@@ -210,8 +213,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
 		});
 	}
 	
-	private void setupTfdFilterCreator(Button btn, CategorieGridDetails comment, 
-    		CategorieGridDetails note, CategorieGridDetails prop) {
+	private void setupTfdFilterCreator(Button btn) {
 		questIntitule.setValueChangeMode(ValueChangeMode.EAGER);
 		questIntitule.addValueChangeListener(event ->{
 			if(questIntitule.getValue().isBlank()){
@@ -316,39 +318,15 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	});
     }
     
-    private void setupCreateButton(TextField questionName, CategorieGridDetails comment, 
-    		CategorieGridDetails note, CategorieGridDetails prop, Button update) {
-    	create.addClickListener(event -> {
-    		Question newQuest = new Question(questionName.getValue(), prop.getQcm(), prop.getIsRequired());
-	    	newQuest.setIntitule(questionName.getValue());
-	    	newQuest.setPropositions(propositionsList);
-	    	Set<Categorie> catList = new HashSet<>();
-	    	if(comment.getIsActive()) {
-	    		catList.add(new Categorie("Commentaire", -1, comment.getIsRequired()));
-	    	}
-	    	if(note.getIsActive()) {
-	    		if(note.getValue() == null)
-	    			note.setValue(20);
-	    		catList.add(new Categorie("Note", note.getValue(), note.getIsRequired()));
-	    	}
-	    	newQuest.setCategories(catList);
-	    	questionPicked = questionService.createQuestion(newQuest, sessionService.getActiveSession());
-	    	System.out.println("question picked:"+ questionPicked.getId());
-	    	Notification notification = Notification.show("Question créée!");
-	    	notification.setDuration(2000);
-	    	notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-    	});
-    }
-    
     private void initForm(Question quest) {
     	questionPicked = quest;
     	questIntitule = new TextField("Question");
     	questIntitule.setValue(quest.getIntitule());
     	update = new Button("Mettre à jour");
     	List<CategorieGridDetails> catsDet = new ArrayList<>();
-    	CategorieGridDetails comment = new CategorieGridDetails(false,false);
-    	CategorieGridDetails note = new CategorieGridDetails(false,false, 0);
-    	CategorieGridDetails prop = new CategorieGridDetails(false,false, false);
+    	comment = new CategorieGridDetails(false,false);
+    	note = new CategorieGridDetails(false,false, 0);
+    	prop = new CategorieGridDetails(false,false, false);
         
     	setupTfdFilter(quest, update, comment, note, prop);	
     	grid.addColumn(CategorieGridDetails::getLibelleCat).setAutoWidth(true).setFlexGrow(0).setHeader("Type de question");
@@ -477,6 +455,10 @@ public class DetailsQuestionEditable extends VerticalLayout {
     }
     
     private Boolean formChecker(Button btn, CategorieGridDetails comment, CategorieGridDetails note, CategorieGridDetails proposition) {
+    	if(questIntitule.isInvalid() || questIntitule.isEmpty()) {
+    		btn.setEnabled(false);
+    		return false;
+    	}
     	if(proposition.getIsActive() && propositionsList.size() == 0) {
     		btn.setEnabled(false);
     		return false;
@@ -493,10 +475,27 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	return questionPicked;
     }
     
-    //AJOUTER FORM CHECKER DANS LE REMOVE PROPOSITION ET DANS LE CHANGE NOOM SESSION TEXTFIELD
-    //VERIFIER SI LES MAJ SE FONT CORRECTEMENT QUAND "ACTIF" N'EST PAS CHECK
-    
-    //IDEM AVEC CREATE
+    public Boolean isNewQuestion() {
+    	return create != null;
+    }
+
+    public void saveSession() {
+    	Question newQuest = new Question(questIntitule.getValue(), prop.getQcm(), prop.getIsRequired());
+    	newQuest.setIntitule(questIntitule.getValue());
+    	newQuest.setPropositions(propositionsList);
+    	Set<Categorie> catList = new HashSet<>();
+    	if(comment.getIsActive()) {
+    		catList.add(new Categorie("Commentaire", -1, comment.getIsRequired()));
+    	}
+    	if(note.getIsActive()) {
+    		if(note.getValue() == null)
+    			note.setValue(20);
+    		catList.add(new Categorie("Note", note.getValue(), note.getIsRequired()));
+    	}
+    	newQuest.setCategories(catList);
+    	questionPicked = questionService.createQuestion(newQuest, sessionService.getActiveSession());
+    }
+
     
     //STEP3
     

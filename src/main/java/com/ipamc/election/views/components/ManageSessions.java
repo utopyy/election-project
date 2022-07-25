@@ -7,6 +7,7 @@ import java.util.List;
 import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
 
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Proposition;
@@ -330,7 +331,7 @@ public class ManageSessions extends VerticalLayout {
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(1500);
 				notification.setPosition(Position.TOP_END);
-				
+				Broadcaster.broadcast("SESS_DELETE");
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});

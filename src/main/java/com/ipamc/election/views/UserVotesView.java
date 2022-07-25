@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ipamc.election.data.UserVoteState;
 import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
+import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.CategorieService;
 import com.ipamc.election.services.PropositionService;
@@ -52,6 +54,8 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private PropositionService propService;
 	private CategorieService catService;
 	private VoteCategorieService voteCatService;
+	private UserVoteState state;
+	private User authenticatedUser;
 	Registration broadcasterRegistration;
 
 	@Override
@@ -59,9 +63,13 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = Broadcaster.register(newMessage -> {
 			if(newMessage.equals("ENABLE_VOTE")) {
-				ui.access(() -> UI.getCurrent().getPage().reload());
+				ui.access(() -> updateState());
 			}else if(newMessage.equals("ACTIVE_SESSION")) {
-				ui.access(() -> UI.getCurrent().getPage().reload());
+				ui.access(() -> updateState());
+			}else if(newMessage.equals("SESS_ACTIVE_UPDATED")) {
+				ui.access(() -> updateState());
+			}else if(newMessage.equals("SESS_DELETE")) {
+				ui.access(() -> updateState());
 			}
 		});
 	}
@@ -80,100 +88,14 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		this.tools = tools;
 		this.sessionService = sessionService;
 		this.voteService = voteService;
+		authenticatedUser = userService.getByUsername(tools.getAuthenticatedUser().getUsername());
 		initView();
 	}
-	
+
 	private void initView() {
-		H2 sessionName = new H2();
-		H4 info = new H4();
 		setJustifyContentMode(JustifyContentMode.CENTER);
 		setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-		if(sessionService.checkSessionAccess(userService.getByUsername(tools.getAuthenticatedUser().getUsername()))) {
-			this.session = sessionService.getActiveSession();
-			if(sessionService.jureHasJoined(userService.getByUsername(tools.getAuthenticatedUser().getUsername()))) {
-				if(session.getActiveQuestion() == null) {
-					add(new Label("En attente d'une question...."));
-				}else {
-					setJustifyContentMode(JustifyContentMode.START);
-					quest = session.getActiveQuestion(); 
-					add(new VerticalLayout(new H2(quest.getSession().getName()), new H3(quest.getIntitule())));
-					List<QuestionModule> questionsModule = new ArrayList<>();
-					for(Categorie cat : quest.getCategories()) {
-						QuestionModule register;
-						if(cat.getLibelle().equals("Commentaire")) {
-							register = new QuestionModule(cat.getIsRequired(), quest);
-						}else {
-							register = new QuestionModule(cat.getValeur(), cat.getIsRequired(), quest);							
-						}
-						add(register);
-						questionsModule.add(register);
-					}
-					if(quest.getPropositions().size()>0) {
-						QuestionModule register = new QuestionModule(quest.getPropositions(), quest.getPropositionRequired(), quest.getMultiChoice(), quest);
-						add(register);
-						questionsModule.add(register);
-					}
-					Button sendVote = new Button("Envoyer le vote");
-					add(sendVote);
-					sendVoteChecker(questionsModule, sendVote);
-				}
-			}else {
-				sessionName.setText(sessionService.getActiveSession().getName());
-				info.setText("Indiquez un pseudo pour rejoindre le salon");
-				pickPseudo = new TextField();
-				pickPseudo.setMinLength(3);
-				pickPseudo.setMaxLength(12);
-				pickPseudo.setHelperText("De 3 à 12 caractères");
-
-				Button submitButton = new Button("Rejoindre");
-				submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-				if(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getPseudo() != null) {
-					pickPseudo.setValue(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getPseudo());
-					submitButton.setEnabled(true);
-				}else {
-					submitButton.setEnabled(false);
-				}
-
-				pickPseudo.setValueChangeMode(ValueChangeMode.EAGER);
-				pickPseudo.addValueChangeListener(event ->{
-					if(event.getValue().length() > 2 && event.getValue().length() < 13) {
-						if(userService.pseudoExists(event.getValue()) && 
-								!(userService.getByPseudo(event.getValue()).getUsername().equals(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).getUsername()))) {
-							pickPseudo.setInvalid(true);
-							pickPseudo.setErrorMessage("Ce pseudo est déjà pris...");
-							submitButton.setEnabled(false);
-						}else {
-							submitButton.setEnabled(true);
-						}
-					}else {
-						pickPseudo.setErrorMessage("");
-						submitButton.setEnabled(false);
-					}
-				});
-
-				submitButton.addClickListener(event -> {
-					if(!userService.pseudoExists(pickPseudo.getValue()) || (userService.pseudoExists(pickPseudo.getValue()) && userService.getByPseudo(pickPseudo.getValue()).equals(userService.getByUsername(tools.getAuthenticatedUser().getUsername())))) {
-						userService.updatePseudo(tools.getAuthenticatedUser().getUsername(),pickPseudo.getValue()); 
-						userService.joinsSession(userService.getByUsername(tools.getAuthenticatedUser().getUsername()), session);
-						UI.getCurrent().getPage().reload();
-					}else {
-						pickPseudo.setInvalid(true);
-						pickPseudo.setErrorMessage("Oups, quelqu'un vient juste de prendre ce pseudo...");
-					}
-				});
-
-				HorizontalLayout layout = new HorizontalLayout();
-				layout.setPadding(true);
-				layout.add(pickPseudo);
-				layout.add(submitButton);
-
-				add(sessionName, info, layout);
-			}
-		} else {
-			info.setText("Aucun salon de votes n'est disponible pour vous.");
-			add(info);
-		}
+		updateState();
 		setSizeFull();
 		getStyle().set("text-align", "center");
 
@@ -220,7 +142,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 					}else {
 						question.getNote().setInvalid(false);
 						if(question.getIsRequired())
-						question.getNoteIcon().setColor("");
+							question.getNoteIcon().setColor("");
 					}
 					if(disableButton(modules)) {
 						btn.setEnabled(false);
@@ -238,7 +160,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 						question.getPropIcon().setColor("RED");
 					}else {
 						if(question.getIsRequired())
-						question.getPropIcon().setColor("");
+							question.getPropIcon().setColor("");
 					}
 					if(disableButton(modules)) {
 						btn.setEnabled(false);
@@ -296,6 +218,150 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		}
 		return false;
 
+	}
+
+	private void updateState() {
+		if(sessionService.getActiveSession()!=null) {
+			session = sessionService.getActiveSession();
+		}
+		stateChecker();
+		switch(state) {
+		case NOT_ALLOWED:
+			showNotAllowed();
+			break;
+		case PICK_PSEUDO:
+			showPickPseudo();
+			break;
+		case WAITING_QUEST:
+			showWaitingQuest();
+			break;
+		case ANSWER_QUEST:
+			showAnswerQuest();
+			break;
+		case WAITING_RESULTS:
+			break;
+		case SHOW_RESULTS:
+			break;
+		default:
+		}
+	}
+
+	private void showNotAllowed() {
+		session = null;
+		pageCleaner();
+		H4 info = new H4();
+		info.setText("Aucun salon de votes n'est disponible pour vous.");
+		add(info);
+	}
+
+	private void showPickPseudo() {
+		pageCleaner();
+		H4 info = new H4();
+		info.setText("Indiquez un pseudo pour rejoindre le salon");
+		pickPseudo = new TextField();
+		pickPseudo.setMinLength(3);
+		pickPseudo.setMaxLength(12);
+		pickPseudo.setHelperText("De 3 à 12 caractères");
+
+		Button submitButton = new Button("Rejoindre");
+		submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+		if(authenticatedUser.getPseudo() != null) {
+			pickPseudo.setValue(authenticatedUser.getPseudo());
+			submitButton.setEnabled(true);
+		}else {
+			submitButton.setEnabled(false);
+		}
+
+		pickPseudo.setValueChangeMode(ValueChangeMode.EAGER);
+		pickPseudo.addValueChangeListener(event ->{
+			if(event.getValue().length() > 2 && event.getValue().length() < 13) {
+				if(userService.pseudoExists(event.getValue()) && 
+						!(userService.getByPseudo(event.getValue()).getUsername().equals(authenticatedUser.getUsername()))) {
+					pickPseudo.setInvalid(true);
+					pickPseudo.setErrorMessage("Ce pseudo est déjà pris...");
+					submitButton.setEnabled(false);
+				}else {
+					submitButton.setEnabled(true);
+				}
+			}else {
+				pickPseudo.setErrorMessage("");
+				submitButton.setEnabled(false);
+			}
+		});
+
+		submitButton.addClickListener(event -> {
+			if(!userService.pseudoExists(pickPseudo.getValue()) || (userService.pseudoExists(pickPseudo.getValue()) && userService.getByPseudo(pickPseudo.getValue()).equals(authenticatedUser))) {
+				userService.updatePseudo(tools.getAuthenticatedUser().getUsername(),pickPseudo.getValue()); 
+				userService.joinsSession(authenticatedUser, session);
+				UI.getCurrent().getPage().reload();
+			}else {
+				pickPseudo.setInvalid(true);
+				pickPseudo.setErrorMessage("Oups, quelqu'un vient juste de prendre ce pseudo...");
+			}
+		});
+
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setPadding(true);
+		layout.add(pickPseudo);
+		layout.add(submitButton);
+
+		add(info, layout);
+	}
+
+	private void showWaitingQuest() {
+		pageCleaner();
+		add(new Label("En attente d'une question...."));
+	}
+
+	private void showAnswerQuest() {
+		pageCleaner();
+		setJustifyContentMode(JustifyContentMode.START);
+		quest = session.getActiveQuestion(); 
+		add(new H3(quest.getIntitule()));
+		List<QuestionModule> questionsModule = new ArrayList<>();
+		for(Categorie cat : quest.getCategories()) {
+			QuestionModule register;
+			if(cat.getLibelle().equals("Commentaire")) {
+				register = new QuestionModule(cat.getIsRequired(), quest);
+			}else {
+				register = new QuestionModule(cat.getValeur(), cat.getIsRequired(), quest);							
+			}
+			add(register);
+			questionsModule.add(register);
+		}
+		if(quest.getPropositions().size()>0) {
+			QuestionModule register = new QuestionModule(quest.getPropositions(), quest.getPropositionRequired(), quest.getMultiChoice(), quest);
+			add(register);
+			questionsModule.add(register);
+		}
+		Button sendVote = new Button("Envoyer le vote");
+		add(sendVote);
+		sendVoteChecker(questionsModule, sendVote);
+	}
+
+	private void pageCleaner() {
+		removeAll();
+		if(session!=null) {
+			add(new H2(session.getName()));
+		}
+	}
+
+	private void stateChecker() {
+		if(sessionService.checkSessionAccess(authenticatedUser)) {
+			this.session = sessionService.getActiveSession();
+			if(sessionService.jureHasJoined(authenticatedUser)) {
+				if(session.getActiveQuestion() == null) {
+					state = UserVoteState.WAITING_QUEST;
+				}else {
+					state = UserVoteState.ANSWER_QUEST;
+				}
+			}else {
+				state = UserVoteState.PICK_PSEUDO;
+			}
+		}else {
+			state = UserVoteState.NOT_ALLOWED;
+		}
 	}
 
 	@Override

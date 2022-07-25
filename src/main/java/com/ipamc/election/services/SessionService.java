@@ -171,7 +171,7 @@ public class SessionService {
 		for(Question question : questions) {
 			Question quest;
 			if(questRepository.existsByIntituleAndSession(question.getIntitule(),session)) {
-				quest = questRepository.findByIntituleAndSession(question.getIntitule(), session);
+				quest = question;
 			}else {
 				quest = questService.createQuestion(question, session);
 			}

@@ -60,6 +60,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private VerticalLayout step1;
 	private VerticalLayout step2;
 	private VerticalLayout step3;
+	private Button next;
 	Registration broadcasterRegistration;
 
 
@@ -136,19 +137,19 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 
 	private void initPickQuestionBtn(Button ok) {
 		ok.addClickListener(event -> {
+			next = new Button("Lancer le vote", new Icon(VaadinIcon.ARROW_RIGHT));
 			step2.removeAll();
 			if(selectQuestion.getValue() != null) {
 				detailsQuest = new DetailsQuestionEditable(selectQuestion.getValue(), questionService, sessionService);
 			}else {
-				detailsQuest = new DetailsQuestionEditable(questionService, sessionService);
+				detailsQuest = new DetailsQuestionEditable(questionService, sessionService, next);
 			}
+			initNextButton(next, detailsQuest);
 			step2.add(detailsQuest);
 			remove(step1);
 			HorizontalLayout hl = new HorizontalLayout();
 			Button back = new Button("Retour", new Icon(VaadinIcon.ARROW_LEFT));
 			initBackButton(back, hl);
-			Button next = new Button("Lancer le vote", new Icon(VaadinIcon.ARROW_RIGHT));
-			initNextButton(next, detailsQuest);
 			next.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			next.setIconAfterText(true);
 			hl.add(back, next);
@@ -170,6 +171,9 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 
 	private void initNextButton(Button btn, DetailsQuestionEditable detailsQuest) {
 		btn.addClickListener(event -> {
+			if(detailsQuest.isNewQuestion()) {
+				detailsQuest.saveSession();
+			}
 			questionService.activeQuestion(activeSession, detailsQuest.getQuestionPicked());
 			Broadcaster.broadcast("ENABLE_VOTE");
 			initView();

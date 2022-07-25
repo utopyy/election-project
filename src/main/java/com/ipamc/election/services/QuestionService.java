@@ -75,6 +75,7 @@ public class QuestionService {
 
 	public Question updateQuestion(Long id, Question question) {
 		Question quest = questRepository.findById(id);
+		System.out.println("Question to update: "+quest.getIntitule());
 		quest.getCategories().clear();
 		quest.getPropositions().clear();
 		quest.setIntitule(question.getIntitule());
