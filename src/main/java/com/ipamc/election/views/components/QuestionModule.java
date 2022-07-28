@@ -1,9 +1,13 @@
 package com.ipamc.election.views.components;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
+import com.ipamc.election.data.entity.Vote;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -191,5 +195,17 @@ public class QuestionModule extends VerticalLayout {
 
 	public void setIsRequired(Boolean isRequired) {
 		this.isRequired = isRequired;
+	}
+	
+	public Set<Proposition> getPropositionsSelected() {
+		return propositions.getSelectedItems();
+	}
+	
+	public Integer getNoteValue() {
+		return note.getValue();
+	}
+	
+	public String getCommentaireValue() {
+		return commentaire.getValue();
 	}
 }

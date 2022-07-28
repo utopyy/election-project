@@ -159,5 +159,22 @@ public class Question {
 	public void removeCategorie(Categorie categorie) {
 		categories.remove(categorie);
 	}
+	
+	public Categorie getCategorieByLibelle(String libelle) {
+		for(Categorie cat : categories) {
+			if(cat.getLibelle().equals(libelle)) {
+				return cat;
+			}
+		}
+		return null;
+	}
+	
+	public Boolean jureHasVoted(Jure jure) {
+		for(Vote vote : votes) {
+			if(vote.getJure().equals(jure))
+				return true;
+		}
+		return false;
+	}
 
 }

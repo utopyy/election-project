@@ -19,6 +19,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -36,15 +37,18 @@ import com.sun.istack.NotNull;
 @NaturalIdCache
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Vote {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;	
 	@NotNull
-    private LocalDateTime date;
+	private LocalDateTime date;
 	@ManyToOne
-	@JoinColumn(name = "idUtilisateur", referencedColumnName = "id")
-	private User user;
+	@JoinColumns({
+		@JoinColumn(name = "idUser", referencedColumnName = "id_utilisateur"),
+		@JoinColumn(name = "idSession", referencedColumnName = "id_session")
+	})
+	private Jure jure;
 	@ManyToOne
 	@JoinColumn(name = "idQuestion", referencedColumnName = "id")
 	private Question question;
@@ -58,17 +62,19 @@ public class Vote {
 
 	@ManyToMany(cascade=CascadeType.MERGE, fetch = FetchType.EAGER)  
 	@JoinTable(	name = "Votes_propositions", joinColumns = @JoinColumn(name = "id_vote"), 
-				inverseJoinColumns = @JoinColumn(name = "id_proposition"))
+	inverseJoinColumns = @JoinColumn(name = "id_proposition"))
 	private Set<Proposition> propositions = new HashSet<>();
-	
-	
-	public Vote() {}
-	
-	public Vote(User user, Question question, Set<Proposition> propositions) {
+
+
+	public Vote() {
+		date = (OffsetDateTime.now( ZoneOffset.UTC )).toLocalDateTime() ;
+	}
+
+	public Vote(Jure jure, Question question, Set<Proposition> propositions) {
 		date = (OffsetDateTime.now( ZoneOffset.UTC )).toLocalDateTime() ;
 		this.question = question;
 		this.propositions = propositions;
-		this.user = user;
+		this.jure = jure;
 		//this.categories = categories;
 	}
 	public Long getId() {
@@ -83,11 +89,11 @@ public class Vote {
 	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
-	public User getUser() {
-		return user;
+	public Jure getJure() {
+		return jure;
 	}
-	public void setUser(User user) {
-		this.user = user;
+	public void setJure(Jure jure) {
+		this.jure = jure;
 	}	
 	/*public Set<Categorie> getCategories() {
 		return categories;
@@ -95,7 +101,7 @@ public class Vote {
 	public void setCategories(Set<Categorie> categories) {
 		this.categories = categories;
 	}**/
-	
+
 	public Set<Proposition> getPropositions() {
 		return propositions;
 	}
@@ -108,33 +114,33 @@ public class Vote {
 	public void setQuestion(Question question) {
 		this.question = question;
 	}
-	
-	
+
+
 
 	public Set<VoteCategorie> getVotesCategories() {
 		return votesCategories;
 	}
 
-	public void setVoteCategorie(Set<VoteCategorie> votesCategories) {
+	public void setVotesCategories(Set<VoteCategorie> votesCategories) {
 		this.votesCategories = votesCategories;
 	}
 
 	@Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
- 
-        if (o == null || getClass() != o.getClass())
-            return false;
- 
-        Vote post = (Vote) o;
-        return Objects.equals(id, post.id);
-    }
- 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-	
-	
+	public boolean equals(Object o) {
+		if (this == o) return true;
+
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Vote post = (Vote) o;
+		return Objects.equals(id, post.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+
 
 }

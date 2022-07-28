@@ -1,14 +1,19 @@
 package com.ipamc.election.data.entity;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -82,6 +87,9 @@ public class Jure {
 	@ManyToOne
 	@JoinColumn(name = "id_session", insertable = false, updatable = false)
 	private Session session;
+	
+	@OneToMany(mappedBy="jure", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	private Set<Vote> votes = new HashSet<>();
 
 	@Column
 	private Boolean hasJoined;	 
@@ -129,6 +137,22 @@ public class Jure {
 	public void setHasJoined(Boolean hasJoined) {
 		this.hasJoined = hasJoined;
 	}
+	
+	public Set<Vote> getVotes() {
+		return votes;
+	}
+
+
+
+	public void setVotes(Set<Vote> votes) {
+		this.votes = votes;
+	}
+	
+	public void addVote(Vote vote) {
+		vote.setJure(this);
+		votes.add(vote);
+	}
+	
 	
 	
 

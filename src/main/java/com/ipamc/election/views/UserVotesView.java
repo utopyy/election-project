@@ -8,12 +8,16 @@ import java.util.Set;
 import com.ipamc.election.data.UserVoteState;
 import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
+import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
+import com.ipamc.election.data.entity.Vote;
+import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.CategorieService;
+import com.ipamc.election.services.JureService;
 import com.ipamc.election.services.PropositionService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
@@ -25,6 +29,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
@@ -48,6 +53,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private UserService userService;
 	private SecurityUtils tools;
 	private SessionService sessionService;
+	private JureService jureService; 
 	private VoteService voteService;
 	private Session session;
 	private TextField pickPseudo;
@@ -57,14 +63,17 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private VoteCategorieService voteCatService;
 	private UserVoteState state;
 	private User authenticatedUser;
+	private Button sendVote;
 	Registration broadcasterRegistration;
 	ProgressBar pg;
+	List<Vote> votes;
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = Broadcaster.register(newMessage -> {
 			ui.access(() -> pg.setVisible(true));
+			ui.access(() -> sendVote.setEnabled(false));
 			if(newMessage.equals("ENABLE_VOTE")) {
 				ui.access(() -> updateState());
 			}else if(newMessage.equals("ACTIVE_SESSION") || newMessage.equals("ARCHIVE_SESSION")) {
@@ -75,6 +84,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 				ui.access(() -> updateState());
 			}
 			ui.access(() -> pg.setVisible(false));
+			ui.access(() -> sendVote.setEnabled(true));
 		});
 	}
 
@@ -84,8 +94,9 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		broadcasterRegistration = null;
 	}
 
-	public UserVotesView(UserService userService, SecurityUtils tools, SessionService sessionService, VoteService voteService, CategorieService catService, PropositionService propService, VoteCategorieService voteCatService) {
+	public UserVotesView(UserService userService, JureService jureService, SecurityUtils tools, SessionService sessionService, VoteService voteService, CategorieService catService, PropositionService propService, VoteCategorieService voteCatService) {
 		this.userService = userService;
+		this.jureService = jureService;
 		this.propService = propService;
 		this.catService = catService;
 		this.voteCatService = voteCatService;
@@ -248,6 +259,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			showAnswerQuest();
 			break;
 		case WAITING_RESULTS:
+			showWaitingResults();
 			break;
 		case SHOW_RESULTS:
 			break;
@@ -346,9 +358,39 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			add(register);
 			questionsModule.add(register);
 		}
-		Button sendVote = new Button("Envoyer le vote");
+		sendVote = new Button("Envoyer le vote");
+		getStyle().set("padding_bottom","20px");
 		add(sendVote);
 		sendVoteChecker(questionsModule, sendVote);
+		sendVote.addClickListener(event -> {
+			Vote vote = new Vote();
+
+			vote.setJure(jureService.findBySessionAndUser(session, authenticatedUser));
+			vote.setQuestion(quest);
+			Set<VoteCategorie> votesCategories = new HashSet<>();
+			for(QuestionModule question : questionsModule) {
+				switch(question.getLibelle()) {
+				case "commentaire":
+					try {
+						votesCategories.add(new VoteCategorie(vote,quest.getCategorieByLibelle("Commentaire"),question.getCommentaireValue()));
+					}catch(NullPointerException ex) {}
+					break;
+				case "note":
+					try {
+						votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
+					}catch(NullPointerException ex) {}
+					break;
+				case "propositions":
+					vote.setPropositions(question.getPropositionsSelected());
+					break;
+				default:
+				}
+			}
+			voteService.saveVote(vote);
+			for(VoteCategorie voteCat : votesCategories)
+			voteCatService.saveVoteCategorie(voteCat);
+			updateState();
+		});
 	}
 
 	private void pageCleaner() {
@@ -361,11 +403,21 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private void stateChecker() {
 		if(sessionService.checkSessionAccess(authenticatedUser)) {
 			this.session = sessionService.getActiveSession();
-			if(sessionService.jureHasJoined(authenticatedUser)) {
+			if(sessionService.jureHasJoined(authenticatedUser)) { 
 				if(session.getActiveQuestion() == null) {
 					state = UserVoteState.WAITING_QUEST;
 				}else {
-					state = UserVoteState.ANSWER_QUEST;
+					Jure jure = new Jure();
+					for(Jure jureCheck : session.getJures()) {
+						if(jureCheck.getUser().equals(authenticatedUser)){
+								jure = jureCheck;
+								break;
+						}
+					}
+					if(session.getActiveQuestion().jureHasVoted(jure))
+						state = UserVoteState.WAITING_RESULTS;
+					else
+						state = UserVoteState.ANSWER_QUEST;
 				}
 			}else {
 				state = UserVoteState.PICK_PSEUDO;
@@ -374,7 +426,38 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			state = UserVoteState.NOT_ALLOWED;
 		}
 	}
-
+	
+	private void showWaitingResults() {
+		pageCleaner();
+		Set<Jure> jury = session.getJures();
+		System.out.print("jury size:"+jury.size());
+		VerticalLayout hl = new VerticalLayout();
+		for(Jure jure : jury) {
+			if(jure.getUser().equals(authenticatedUser)) {
+				hl.add(new Label(jure.getUser().getUsername()+" (toi) : A voté"));
+			}else {
+				if(voteService.getVoteByJureAndQuestion(jure, quest) == null) {
+					VerticalLayout vl = new VerticalLayout();
+					HorizontalLayout hh = new HorizontalLayout();
+					ProgressBar progressBar = new ProgressBar();
+					progressBar.setIndeterminate(true);
+					vl.setMaxWidth("200px");
+					Div progressBarLabel = new Div();
+					progressBarLabel.setText("En attente...");
+					vl.add(progressBarLabel, progressBar);
+					hh.add(jure.getUser().getUsername()+ " : ");
+					hh.add(vl);
+					hh.setAlignItems(Alignment.CENTER);
+					hl.add(hh);
+				}else {
+					
+					hl.add(new Label(jure.getUser().getUsername()+" : A voté"));
+				}
+			}
+		}
+		add(hl);
+	}
+	
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {

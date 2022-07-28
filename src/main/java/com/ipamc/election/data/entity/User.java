@@ -46,8 +46,6 @@ public class User {
     private Set<Role> roles = new HashSet<>();
     @OneToMany(mappedBy="user", fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<Jure> jures = new HashSet<>();
-	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
-	private Set<Vote> votes = new HashSet<>();
     
     
     private String activationCode;
@@ -169,22 +167,6 @@ public class User {
 
 	public Boolean getActive() {
 		return active;
-	}
-	
-
-	public Set<Vote> getVotes() {
-		return votes;
-	}
-
-
-
-	public void setVotes(Set<Vote> votes) {
-		this.votes = votes;
-	}
-	
-	public void addVote(Vote vote) {
-		vote.setUser(this);
-		votes.add(vote);
 	}
 	
 

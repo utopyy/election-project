@@ -223,12 +223,12 @@ public class UserService implements IUserService {
     }
 
     
-    public Vote createVote(User user, Question question, Set<Proposition> propositions) {
+    /*public Vote createVote(User user, Question question, Set<Proposition> propositions) {
     	Vote vote = new Vote(user, question, propositions);
     	return voteRepository.save(vote);
     	
     }
-    
+    **/
     public List<User> findAll(){
     	return userRepository.findAll();
     }
