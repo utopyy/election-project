@@ -30,6 +30,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -57,20 +58,23 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private UserVoteState state;
 	private User authenticatedUser;
 	Registration broadcasterRegistration;
+	ProgressBar pg;
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = Broadcaster.register(newMessage -> {
+			ui.access(() -> pg.setVisible(true));
 			if(newMessage.equals("ENABLE_VOTE")) {
 				ui.access(() -> updateState());
-			}else if(newMessage.equals("ACTIVE_SESSION")) {
+			}else if(newMessage.equals("ACTIVE_SESSION") || newMessage.equals("ARCHIVE_SESSION")) {
 				ui.access(() -> updateState());
 			}else if(newMessage.equals("SESS_ACTIVE_UPDATED")) {
 				ui.access(() -> updateState());
 			}else if(newMessage.equals("SESS_DELETE")) {
 				ui.access(() -> updateState());
 			}
+			ui.access(() -> pg.setVisible(false));
 		});
 	}
 
@@ -90,6 +94,10 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		this.voteService = voteService;
 		authenticatedUser = userService.getByUsername(tools.getAuthenticatedUser().getUsername());
 		initView();
+		pg = new ProgressBar();
+		pg.setIndeterminate(true);
+		pg.setVisible(false);
+		add(pg);
 	}
 
 	private void initView() {
@@ -221,6 +229,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	}
 
 	private void updateState() {
+		
 		if(sessionService.getActiveSession()!=null) {
 			session = sessionService.getActiveSession();
 		}
@@ -320,6 +329,8 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		quest = session.getActiveQuestion(); 
 		add(new H3(quest.getIntitule()));
 		List<QuestionModule> questionsModule = new ArrayList<>();
+		ArrayList<Categorie> catsSorted  = new ArrayList<>(quest.getCategories());
+		catsSorted.sort((c1,c2) -> c1.getLibelle().compareTo(c2.getLibelle()));
 		for(Categorie cat : quest.getCategories()) {
 			QuestionModule register;
 			if(cat.getLibelle().equals("Commentaire")) {

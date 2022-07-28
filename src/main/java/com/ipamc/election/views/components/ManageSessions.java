@@ -1,8 +1,10 @@
 package com.ipamc.election.views.components;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
@@ -190,7 +192,9 @@ public class ManageSessions extends VerticalLayout {
 
 	private VerticalLayout dialogShowQuestion(Session session) {
 		VerticalLayout mainLayout = new VerticalLayout();
-		for(Question quest : session.getQuestions()) {
+		ArrayList<Question> questsSorted  = new ArrayList<>(session.getQuestions());
+		questsSorted.sort((q1,q2) -> q1.getIntitule().compareTo(q2.getIntitule()));
+ 		for(Question quest : questsSorted) {
 			VerticalLayout detailsLayout = new VerticalLayout();
 			detailsLayout.setSpacing(false);
 			detailsLayout.setPadding(false);
@@ -315,9 +319,15 @@ public class ManageSessions extends VerticalLayout {
 	public void initDeleteButton(Div sp) {
 		deleteButton.addClickListener(event ->{
 			Session sess = grid.getSelectedItems().iterator().next();
+			String dialogMessage;
+			if(sess.getIsActive()) {
+				dialogMessage = "La session "+sess.getName() +" est active dans le salon de votes, voulez-vous vraiment la supprimer ?";
+			}else {
+				dialogMessage = "Voulez vous supprimer la session "+sess.getName() +" ?";
+			}
 			ConfirmDialog.create()
 			.withCaption("Confirmation")
-			.withMessage("Voulez vous supprimer la session "+sess.getName() +" ?")
+			.withMessage(dialogMessage)
 			.withOkButton(() -> {
 				sessionService.removeSession(sess.getId());
 				sessions.remove(sess);
@@ -335,6 +345,15 @@ public class ManageSessions extends VerticalLayout {
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});
+	}
+	
+	public void archiveSess() {
+		sessions = sessionService.findSessionsNotArchived();
+		for(Session sess : sessions) {
+			System.out.println(sess.getName());
+		}
+		grid.setItems(sessions);
+		refreshGrid();
 	}
 		
 	private void initAddButton(TextField searchBar) {
@@ -439,6 +458,7 @@ public class ManageSessions extends VerticalLayout {
 	}
 	
 	public void disableBtns() {
+		grid.deselectAll();
 		updateButton.setEnabled(false);
 		deleteButton.setEnabled(false);
 	}

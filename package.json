@@ -8,6 +8,7 @@
     "@polymer/iron-meta": "3.0.1",
     "@polymer/iron-resizable-behavior": "3.0.1",
     "@polymer/polymer": "3.4.1",
+    "@vaadin-component-factory/vcf-tooltip": "23.0.5",
     "@vaadin/accordion": "23.1.0",
     "@vaadin/app-layout": "23.1.0",
     "@vaadin/avatar": "23.1.0",
@@ -260,7 +261,8 @@
     "lit": "$lit",
     "line-awesome": "$line-awesome",
     "@vaadin/lit-renderer": "$@vaadin/lit-renderer",
-    "chokidar": "$chokidar"
+    "chokidar": "$chokidar",
+    "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip"
   },
   "vaadin": {
     "dependencies": {
@@ -270,6 +272,7 @@
       "@polymer/iron-meta": "3.0.1",
       "@polymer/iron-resizable-behavior": "3.0.1",
       "@polymer/polymer": "3.4.1",
+      "@vaadin-component-factory/vcf-tooltip": "23.0.5",
       "@vaadin/accordion": "23.1.0",
       "@vaadin/app-layout": "23.1.0",
       "@vaadin/avatar": "23.1.0",
@@ -404,6 +407,6 @@
       "workbox-precaching": "6.5.0",
       "workbox-webpack-plugin": "6.5.0"
     },
-    "hash": "39fb49013611f3f70756b58f9f790209ee0e6cf493bb5a5413130453e9a96b78"
+    "hash": "a9905e46d5cfd5e706bd1eb3ae163dfca79e96d569e3764933f8080868cbb8c0"
   }
 }

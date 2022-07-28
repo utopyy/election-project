@@ -1,6 +1,7 @@
 package com.ipamc.election.views.components;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.claspina.confirmdialog.ButtonOption;
@@ -32,36 +33,36 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 	private List<Question> questions = new ArrayList<>();
 	private Grid<Question> grid;
 	private Div hint;
-	
+
 	public CreateQuestionsShowNews() {
 	}
-	
+
 	public void setupAddQuestion(Button saveBtn) {
 		Button addQuestion = new Button("Ajouter une question");
 		addQuestion.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		addQuestion.addClickListener(event -> {
-			DialogQuestion diag = new DialogQuestion();
+			DialogQuestion diag = new DialogQuestion(questions);
 			diag.getAddBtn().addClickListener(e -> {
-	    		if(!diag.getIntitule().getValue().isBlank()) {
-	    			diag.createCategorieList();
-		    		ConfirmDialog.create()
-		  		      .withCaption("Confirmation")
-		  		      .withMessage("Création de la question: "+diag.getIntitule().getValue())
-		  		      .withOkButton(() -> {
-		  		    	 Question question = diag.saveQuestion();
-		  		    	 questions.add(question);
-		  		    	 this.refreshGrid();
-		  		    	 diag.close();
-		  		    	 saveBtn.setEnabled(true);
-		  		    	 addQuestion.scrollIntoView();
-		  		      }, ButtonOption.focus(), ButtonOption.caption("OUI"))
-		  		      .withCancelButton(ButtonOption.caption("NON")).open();
-	
-	    		}else {
-	    			diag.getIntitule().setInvalid(true);
-	    			diag.getIntitule().setErrorMessage("Ce champ est obligatoire");
-	    		}	
-	    	});
+				if(!diag.getIntitule().getValue().isBlank()) {
+					diag.createCategorieList();
+					ConfirmDialog.create()
+					.withCaption("Confirmation")
+					.withMessage("Création de la question: "+diag.getIntitule().getValue())
+					.withOkButton(() -> {
+						Question question = diag.saveQuestion();
+						questions.add(question);
+						this.refreshGrid();
+						diag.close();
+						saveBtn.setEnabled(true);
+						addQuestion.scrollIntoView();
+					}, ButtonOption.focus(), ButtonOption.caption("OUI"))
+					.withCancelButton(ButtonOption.caption("NON")).open();
+
+				}else {
+					diag.getIntitule().setInvalid(true);
+					diag.getIntitule().setErrorMessage("Ce champ est obligatoire");
+				}	
+			});
 			diag.open();
 		});
 
@@ -69,7 +70,7 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		layout.getStyle().set("padding-bottom", "15px");
 		add(layout);
 	}
-	
+
 	public void setupGrid(Button saveBtn) {
 		grid = new Grid<>(Question.class, false);
 		grid.setAllRowsVisible(true);
@@ -79,72 +80,83 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		grid.addComponentColumn(question -> createPropositionsButton(question)).setHeader("Propositions").setTextAlign(ColumnTextAlign.CENTER);
 
 		grid.addColumn(new ComponentRenderer<>(Button::new, (button, question) -> {
-			if(question.getIsActive()) {
-				button.setEnabled(false);
-			}
-            button.addThemeVariants(ButtonVariant.LUMO_ICON,
-                    ButtonVariant.LUMO_ERROR,
-                    ButtonVariant.LUMO_TERTIARY);
-            button.addClickListener(e -> {
-            	this.removeQuestion(question);
-            	/*if(questions.size()==0) {
-            		saveBtn.setEnabled(false);
-            	}**/ 
-            });
-            button.setIcon(new Icon(VaadinIcon.TRASH));
-        })).setHeader("Supprimer").setTextAlign(ColumnTextAlign.END);
-		
+			button.addThemeVariants(ButtonVariant.LUMO_ICON,
+					ButtonVariant.LUMO_ERROR,
+					ButtonVariant.LUMO_TERTIARY);
+			button.addClickListener(e -> {
+				if(question.getIsActive() && question.getSession().getIsActive()) {
+					ConfirmDialog.create()
+					.withCaption("Confirmation")
+					.withMessage("Cette question est actuellement activée dans le salon de vote, voulez-vous vraiment la supprimer?")
+					.withOkButton(() -> {
+						this.removeQuestion(question);
+						if(questions.size()==0) {
+							saveBtn.setEnabled(false);
+						}
+					}, ButtonOption.focus(), ButtonOption.caption("OUI"))
+					.withCancelButton(ButtonOption.caption("NON")).open();
+				}else {
+					this.removeQuestion(question);
+					if(questions.size()==0) {
+						saveBtn.setEnabled(false);
+					}
+				}
+			});
+			button.setIcon(new Icon(VaadinIcon.TRASH));
+		})).setHeader("Supprimer").setTextAlign(ColumnTextAlign.END);
+
 		grid.setItems(questions);
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		grid.setSizeFull();
 		hint = new Div();
 		hint.setText("Aucune question n'a été créée");
 		hint.getStyle().set("padding", "var(--lumo-size-l)")
-        .set("text-align", "center").set("font-style", "italic")
-        .set("color", "var(--lumo-contrast-70pct)");
-		
+		.set("text-align", "center").set("font-style", "italic")
+		.set("color", "var(--lumo-contrast-70pct)");
+
 		add(hint, grid);
 		this.refreshGrid();
 	}
-	
+
 	private void refreshGrid() {
-        if (questions.size() > 0) {
-            grid.setVisible(true);
-            hint.setVisible(false);
-            grid.getDataProvider().refreshAll();
-        } else {
-            grid.setVisible(false);
-            hint.setVisible(true);
-        }
+		if (questions.size() > 0) {
+			grid.setVisible(true);
+			hint.setVisible(false);
+			grid.getDataProvider().refreshAll();
+		} else {
+			grid.setVisible(false);
+			hint.setVisible(true);
+		}
 	}
-	
+
 	public void fillGrid(Session sess) {
 		for(Question quest : sess.getQuestions()) {
 			questions.add(quest);
 		}
+		questions.sort((q1,q2) -> q1.getIntitule().compareTo(q2.getIntitule()));
 		refreshGrid();	
 	}
-	
-    private void removeQuestion(Question question) {
-        if (question == null)
-            return;
-        questions.remove(question);
-        this.refreshGrid();
-    }	
-    
-    public List<Question> getQuestions(){
-    	return questions;
-    }
-    
-    public Grid<Question> getGrid(){
-    	return grid;
-    }
-    
-    public void clear() {
-    	questions.clear();
-    	refreshGrid();
-    }
-    
+
+	private void removeQuestion(Question question) {
+		if (question == null)
+			return;
+		questions.remove(question);
+		this.refreshGrid();
+	}	
+
+	public List<Question> getQuestions(){
+		return questions;
+	}
+
+	public Grid<Question> getGrid(){
+		return grid;
+	}
+
+	public void clear() {
+		questions.clear();
+		refreshGrid();
+	}
+
 	private static Button createCommentaireButton(Question question) {
 		Button commentaire = new Button(new Icon("lumo","checkmark"));
 		commentaire.addThemeVariants(ButtonVariant.LUMO_ICON);
@@ -181,7 +193,7 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		});
 		return commentaire;
 	}
-	
+
 	private static Button createNoteButton(Question question) {
 		Button note = new Button(new Icon("lumo","checkmark"));
 		note.addThemeVariants(ButtonVariant.LUMO_ICON);
@@ -223,7 +235,7 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 		});
 		return note;
 	}
-	
+
 	private static Button createPropositionsButton(Question question) {
 		Button props = new Button(new Icon("lumo","checkmark"));
 		props.addThemeVariants(ButtonVariant.LUMO_ICON);

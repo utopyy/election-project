@@ -1,6 +1,7 @@
 package com.ipamc.election.views.components;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.claspina.confirmdialog.ButtonOption;
@@ -9,6 +10,7 @@ import org.claspina.confirmdialog.ConfirmDialog;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
+import com.ipamc.election.data.entity.Session;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -44,13 +46,14 @@ public class DialogQuestion extends Div {
 	private Checkbox comIsRequired;
 	private Checkbox note;
 	private IntegerField noteValue;
+	private List<Question> questions;
 	Checkbox noteIsRequired;
 	Button addBtn = new Button("Créer");
 
-	public DialogQuestion() {
+	public DialogQuestion(List<Question> questions) {
 		dialog = new Dialog();
 		dialog.getElement().setAttribute("aria-label", "Question");
-
+		this.questions = questions;
 		VerticalLayout dialogLayout = createDialogLayout(dialog);
 		dialog.add(dialogLayout);
 		dialog.addDialogCloseActionListener(event -> {
@@ -75,9 +78,15 @@ public class DialogQuestion extends Div {
 		intitule.addValueChangeListener(event ->{
 			if(intitule.isEmpty() || intitule.getValue().isBlank()) {
 				intitule.setInvalid(true);
+				intitule.setErrorMessage("Ce champ est obligtoire");
+				checkForm();
+			}else if(questionExists(intitule.getValue())) {
+				intitule.setInvalid(true);
+				intitule.setErrorMessage("Une question avec le même nom existe déjà");
 				checkForm();
 			}else {
 				intitule.setInvalid(false);
+				intitule.setErrorMessage("");
 				checkForm();
 			}
 		});
@@ -288,9 +297,18 @@ public class DialogQuestion extends Div {
 	public Question getQuestion() {
 		return quest;
 	}
+	
+	private Boolean questionExists(String questionIntitule) {
+		for(Question quest : questions) {
+			if(quest.getIntitule().equals(questionIntitule)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private void checkForm() {
-		if(!intitule.getValue().isBlank()) {
+		if(!intitule.getValue().isBlank() && !questionExists(intitule.getValue())) {
 			if(commentaire.getValue() || note.getValue() || propIsOk.getValue()) {
 				if(propIsOk.getValue()) {
 					if(propositionsList.size()>0) {

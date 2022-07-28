@@ -3,6 +3,7 @@ package com.ipamc.election.views;
 import org.claspina.confirmdialog.ButtonOption;
 import org.claspina.confirmdialog.ConfirmDialog;
 
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.security.SecurityUtils;
@@ -11,6 +12,7 @@ import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.ManageSessions;
 import com.ipamc.election.views.components.StartSession;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -18,6 +20,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
@@ -25,6 +28,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 
 
 @Route(value = "gestionsalon", layout = MainLayout.class)
@@ -42,6 +46,20 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 	private final Tab activeSession;
 	private Tab manageSessions;
 	private Div sp = new Div();
+	Registration broadcasterRegistration;
+	ProgressBar pg;
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		UI ui = attachEvent.getUI();
+		broadcasterRegistration = Broadcaster.register(newMessage -> {
+			ui.access(() -> pg.setVisible(true));
+			if(newMessage.equals("ARCHIVE_SESSION")) {
+				ui.access(() -> manageSessionsView.archiveSess());
+			}
+			ui.access(() -> pg.setVisible(false));
+		});
+	}
 	
 	public AdminRoomSettingsView(UserService userService, SecurityUtils tools, SessionService sessionService,
 			QuestionService questionService) {
@@ -62,6 +80,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		Tabs tabs = new Tabs(activeSession, manageSessions);
 		tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
 		tabs.setSizeFull();
+		tabs.setMaxHeight("20px");
 		add(tabs);
 
 		setupSaveBtn(userService);
@@ -74,6 +93,12 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 		content.setSizeFull();
 		setContent(tabs.getSelectedTab());
 		add(tabs, content);
+		getStyle().set("background-color","rgb(251,253,255)");
+		setSizeFull();
+		pg = new ProgressBar();
+		pg.setIndeterminate(true);
+		pg.setVisible(false);
+		add(pg);
 	}
 
 	private void setContent(Tab tab) {
@@ -83,7 +108,7 @@ public class AdminRoomSettingsView extends VerticalLayout implements BeforeEnter
 			startSession.refreshSelect(sessionService);
 			content.add(startSession);
 		} else {
-			manageSessionsView.refreshGrid();
+			//manageSessionsView.refreshGrid();
 			manageSessionsView.disableBtns();
 			content.add(manageSessionsView);
 		}

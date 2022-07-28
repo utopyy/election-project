@@ -2,6 +2,7 @@ package com.ipamc.election.views.components;
 
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 import org.claspina.confirmdialog.ButtonOption;
@@ -11,12 +12,18 @@ import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.services.SessionService;
+import com.vaadin.componentfactory.Tooltip;
+import com.vaadin.componentfactory.TooltipAlignment;
+import com.vaadin.componentfactory.TooltipPosition;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -27,6 +34,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 
+@CssImport(value = "./themes/myapp/custom-tooltip.css", themeFor = "vcf-tooltip")
 public class StartSession extends VerticalLayout {
 
 	Select<Session> selectSession;
@@ -50,6 +58,7 @@ public class StartSession extends VerticalLayout {
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         details.setJustifyContentMode(JustifyContentMode.CENTER);
         details.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        details.getStyle().set("margin-top", "20px");
 	}
 	
 	private void initSelectSession(SessionService sessionService) {
@@ -99,7 +108,6 @@ public class StartSession extends VerticalLayout {
 	
 	private void addDetailsSess(Session sess) {
 		details.removeAll();
-		details.add(new Hr());
 		details.add(new H4("Session en cours : "+sess.getName()));
 		String jure;
 		String question;
@@ -117,8 +125,9 @@ public class StartSession extends VerticalLayout {
 		details.add(new Label(Integer.toString(sess.getQuestions().size())+" "+question));
 		HorizontalLayout buttons = new HorizontalLayout(pause, archive);
 		details.add(buttons);
-		details.add(new Hr());
 		details.add(infos);
+		details.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+		details.getStyle().set("background-color","White");
 	}
 	
 	private void initArchive(Div sp, SessionService sessionService) {
@@ -134,7 +143,7 @@ public class StartSession extends VerticalLayout {
 				refreshSelect(sessionService);
 				selectSession.setPlaceholder("Sessions");
 				Notification notification = Notification.show("Session archivée!");
-				Broadcaster.broadcast("ACTIVE_SESSION");
+				Broadcaster.broadcast("ARCHIVE_SESSION");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);
 				notification.setPosition(Position.TOP_END);
@@ -179,7 +188,6 @@ public class StartSession extends VerticalLayout {
 		}
 		if(activeSession == null) {
 			details.removeAll();
-			details.add(new Hr());
 			details.add(new H4("Aucune session n'est en cours"));
 			details.add(new Icon(VaadinIcon.FROWN_O));
 		}
@@ -210,23 +218,44 @@ public class StartSession extends VerticalLayout {
 	
 	private void infosBtn() {
 		HorizontalLayout archiveLayout = new HorizontalLayout();
-		HorizontalLayout pauseLayout = new HorizontalLayout();
-		Label bold1 = new Label("Archiver : "); 
-		bold1.getStyle().set("padding-right", "2px");
+		archiveLayout.setAlignItems(Alignment.CENTER);
+		archiveLayout.setSpacing(false);
+		Label bold1 = new Label("Archiver"); 
 		bold1.getStyle().set("font-weight", "600");
 		bold1.getStyle().set("font-style", "italic");
-		Label archive = new Label(" Permet de cloturer la session. Elle ne sera plus utilisable mais reste visible dans la partie \" Historique \".");
-		archive.getStyle().set("font-style", "italic");
-		archiveLayout.add(bold1, archive);
-		Label bold2 = new Label("Mettre en pause : ");
+		bold1.getStyle().set("font-size", "12px");
+		Icon archive = new Icon(VaadinIcon.INFO_CIRCLE_O); 
+		Tooltip tooltip = new Tooltip();
+		archive.setSize("16px");
+		archive.getStyle().set("margin-right", "12px");
+		archive.setColor("#006af5");
+		tooltip.attachToComponent(archive);
+		tooltip.setPosition(TooltipPosition.BOTTOM);
+		tooltip.setAlignment(TooltipAlignment.CENTER);
+		tooltip.add(new Paragraph(" Permet de cloturer la session. Elle ne sera plus utilisable mais reste visible dans la partie \" Historique \"."));
+		archiveLayout.add(archive, tooltip, bold1);
+		
+		HorizontalLayout pauseLayout = new HorizontalLayout();
+		pauseLayout.setAlignItems(Alignment.CENTER);
+		pauseLayout.setSpacing(false);
+		Label bold2 = new Label("Mettre en pause");
 		bold2.getStyle().set("font-style", "italic");
 		bold2.getStyle().set("font-weight", "600");
-		bold2.getStyle().set("padding-right", "2px");
-		Label pause = new Label("  Permet de désactiver la session tout en la conservant si vous souhaitez la relancer plus tard.");
-		pause.getStyle().set("font-style", "italic");
-		pauseLayout.add(bold2, new Span(" "), pause);
-		pauseLayout.setSpacing(false);
-		archiveLayout.setSpacing(false);
+		bold2.getStyle().set("font-size", "12px");
+		Icon pause = new Icon(VaadinIcon.INFO_CIRCLE_O);
+		pause.setSize("16px");
+		pause.getStyle().set("margin-right", "12px");
+		pause.setColor("#006af5");
+		//pause.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Tooltip tooltip2 = new Tooltip();
+		tooltip2.attachToComponent(pause);
+
+		tooltip2.setPosition(TooltipPosition.BOTTOM);
+		tooltip2.setAlignment(TooltipAlignment.CENTER);
+		tooltip2.add(new Paragraph("Permet de désactiver la session tout en la conservant si vous souhaitez la relancer plus tard."));
+		pauseLayout.add(pause, tooltip2, bold2);
+		pauseLayout.getStyle().set("margin-bottom", "5px");
+		infos.getStyle().set("margin-top", "30px");
 		infos.add(pauseLayout, archiveLayout);
 		infos.setSpacing(false);
 	}
