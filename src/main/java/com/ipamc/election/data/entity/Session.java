@@ -123,6 +123,15 @@ public class Session {
 		return false;
 	}
 	
+	public Question getQuestion(Question question) {
+		for(Question quest : questions) {
+			if(quest.getIntitule().equals(question.getIntitule())) {
+				return quest;
+			}
+		}
+		return null;
+	}
+	
 	public Question getActiveQuestion() {
 		for(Question quest : questions) {
 			if(quest.getIsActive())

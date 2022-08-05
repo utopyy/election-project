@@ -153,8 +153,28 @@ public class Jure {
 		votes.add(vote);
 	}
 	
+	public String getPseudo() {
+		return user.getPseudo();
+	}
 	
-	
+	public Boolean hasVoted(Question question) {
+		for(Vote vote : votes) {
+			if(vote.getQuestion().equals(question)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	//for active question
+	public Boolean getHasVoted() {
+		for(Vote vote : votes) {
+			if(vote.getQuestion().getIsActive()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	@Override
 	public int hashCode() {

@@ -8,6 +8,7 @@ import java.util.Set;
 import com.ipamc.election.data.UserVoteState;
 import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
+import com.ipamc.election.data.entity.CategorieGridDetails;
 import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
@@ -29,6 +30,10 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -36,6 +41,7 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -63,7 +69,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private VoteCategorieService voteCatService;
 	private UserVoteState state;
 	private User authenticatedUser;
-	private Button sendVote;
+	private Button sendVote = new Button("Envoyer le vote");
 	Registration broadcasterRegistration;
 	ProgressBar pg;
 	List<Vote> votes;
@@ -72,19 +78,25 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	protected void onAttach(AttachEvent attachEvent) {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = Broadcaster.register(newMessage -> {
-			ui.access(() -> pg.setVisible(true));
-			ui.access(() -> sendVote.setEnabled(false));
-			if(newMessage.equals("ENABLE_VOTE")) {
+			if(newMessage.equals("VOTE_SENDED")) {
 				ui.access(() -> updateState());
-			}else if(newMessage.equals("ACTIVE_SESSION") || newMessage.equals("ARCHIVE_SESSION")) {
-				ui.access(() -> updateState());
-			}else if(newMessage.equals("SESS_ACTIVE_UPDATED")) {
-				ui.access(() -> updateState());
-			}else if(newMessage.equals("SESS_DELETE")) {
-				ui.access(() -> updateState());
+			}else {
+				ui.access(() -> pg.setVisible(true));
+				ui.access(() -> sendVote.setEnabled(false));
+				if(newMessage.equals("ENABLE_VOTE")) {
+					ui.access(() -> updateState());
+				}else if(newMessage.equals("ACTIVE_SESSION") || newMessage.equals("ARCHIVE_SESSION")) {
+					ui.access(() -> updateState());
+				}else if(newMessage.equals("SESS_ACTIVE_UPDATED")) {
+					ui.access(() -> updateState());
+				}else if(newMessage.equals("SESS_DELETE")) {
+					ui.access(() -> updateState());
+				}else if(newMessage.equals("VOTE_SENDED")) {
+					ui.access(() -> updateState());
+				}
+				ui.access(() -> pg.setVisible(false));
+				ui.access(() -> sendVote.setEnabled(true));
 			}
-			ui.access(() -> pg.setVisible(false));
-			ui.access(() -> sendVote.setEnabled(true));
 		});
 	}
 
@@ -109,6 +121,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		pg.setIndeterminate(true);
 		pg.setVisible(false);
 		add(pg);
+
 	}
 
 	private void initView() {
@@ -240,7 +253,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	}
 
 	private void updateState() {
-		
+
 		if(sessionService.getActiveSession()!=null) {
 			session = sessionService.getActiveSession();
 		}
@@ -338,12 +351,15 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private void showAnswerQuest() {
 		pageCleaner();
 		setJustifyContentMode(JustifyContentMode.START);
-		quest = session.getActiveQuestion(); 
-		add(new H3(quest.getIntitule()));
 		List<QuestionModule> questionsModule = new ArrayList<>();
-		ArrayList<Categorie> catsSorted  = new ArrayList<>(quest.getCategories());
+		ArrayList<Categorie> catsSorted;
+		try {
+			catsSorted= new ArrayList<>(quest.getCategories());
+		}catch(NullPointerException ex) {
+			catsSorted = new ArrayList<>();
+		}
 		catsSorted.sort((c1,c2) -> c1.getLibelle().compareTo(c2.getLibelle()));
-		for(Categorie cat : quest.getCategories()) {
+		for(Categorie cat : catsSorted) {
 			QuestionModule register;
 			if(cat.getLibelle().equals("Commentaire")) {
 				register = new QuestionModule(cat.getIsRequired(), quest);
@@ -358,11 +374,11 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			add(register);
 			questionsModule.add(register);
 		}
-		sendVote = new Button("Envoyer le vote");
 		getStyle().set("padding_bottom","20px");
 		add(sendVote);
 		sendVoteChecker(questionsModule, sendVote);
 		sendVote.addClickListener(event -> {
+
 			Vote vote = new Vote();
 
 			vote.setJure(jureService.findBySessionAndUser(session, authenticatedUser));
@@ -388,7 +404,8 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			}
 			voteService.saveVote(vote);
 			for(VoteCategorie voteCat : votesCategories)
-			voteCatService.saveVoteCategorie(voteCat);
+				voteCatService.saveVoteCategorie(voteCat);
+			Broadcaster.broadcast("VOTE_SENDED");
 			updateState();
 		});
 	}
@@ -396,7 +413,24 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private void pageCleaner() {
 		removeAll();
 		if(session!=null) {
-			add(new H2(session.getName()));
+			VerticalLayout header = new VerticalLayout();
+			Label sess = new Label(session.getName());
+			sess.getStyle().set("font-size", "35px");
+			sess.getStyle().set("padding", "0px");
+			sess.getStyle().set("margin", "0px");
+			header.add(sess);
+			if(session.getActiveQuestion()!= null) {
+				this.quest = session.getActiveQuestion();
+				Label quest = new Label(session.getActiveQuestion().getIntitule()); 
+				quest.getStyle().set("font-size", "25px");
+				quest.getStyle().set("padding", "0px");
+				quest.getStyle().set("margin", "0px");
+				header.add(quest);
+			}
+			header.setSpacing(false);
+			header.setWidthFull();
+			header.setAlignItems(Alignment.CENTER);
+			add(header);
 		}
 	}
 
@@ -410,8 +444,8 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 					Jure jure = new Jure();
 					for(Jure jureCheck : session.getJures()) {
 						if(jureCheck.getUser().equals(authenticatedUser)){
-								jure = jureCheck;
-								break;
+							jure = jureCheck;
+							break;
 						}
 					}
 					if(session.getActiveQuestion().jureHasVoted(jure))
@@ -426,38 +460,32 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			state = UserVoteState.NOT_ALLOWED;
 		}
 	}
-	
+
 	private void showWaitingResults() {
 		pageCleaner();
-		Set<Jure> jury = session.getJures();
-		System.out.print("jury size:"+jury.size());
-		VerticalLayout hl = new VerticalLayout();
-		for(Jure jure : jury) {
-			if(jure.getUser().equals(authenticatedUser)) {
-				hl.add(new Label(jure.getUser().getUsername()+" (toi) : A voté"));
-			}else {
-				if(voteService.getVoteByJureAndQuestion(jure, quest) == null) {
-					VerticalLayout vl = new VerticalLayout();
-					HorizontalLayout hh = new HorizontalLayout();
-					ProgressBar progressBar = new ProgressBar();
-					progressBar.setIndeterminate(true);
-					vl.setMaxWidth("200px");
-					Div progressBarLabel = new Div();
-					progressBarLabel.setText("En attente...");
-					vl.add(progressBarLabel, progressBar);
-					hh.add(jure.getUser().getUsername()+ " : ");
-					hh.add(vl);
-					hh.setAlignItems(Alignment.CENTER);
-					hl.add(hh);
-				}else {
-					
-					hl.add(new Label(jure.getUser().getUsername()+" : A voté"));
-				}
-			}
-		}
-		add(hl);
+		setJustifyContentMode(JustifyContentMode.START);
+		VerticalLayout vl = new VerticalLayout();
+		ProgressBar waitingUsersVotes = new ProgressBar();
+		double value = (double) quest.getVotes().size()/session.getJures().size();
+		waitingUsersVotes.setValue(value);
+        Div progressBarLabel = new Div();
+        if(quest.getVotes().size() == session.getJures().size()) {
+        	progressBarLabel.setText("En attente de l'affichage des votes...");
+        }else {
+        	progressBarLabel.setText("En attente des votes...");
+        }
+        Div progressBarSubLabel = new Div();
+        progressBarSubLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+        progressBarSubLabel.setText(quest.getVotes().size()+"/"+session.getJures().size());
+        vl.add(progressBarLabel, waitingUsersVotes, progressBarSubLabel);
+        vl.setSpacing(false);
+        vl.getStyle().set("margin-top", "50px");
+		vl.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+		vl.setMaxWidth("300px");
+		vl.getStyle().set("background-color","White");
+        add(vl);
 	}
-	
+
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 		if(!(userService.getByUsername(tools.getAuthenticatedUser().getUsername()).isActive())) {
