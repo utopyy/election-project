@@ -370,7 +370,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			questionsModule.add(register);
 		}
 		if(quest.getPropositions().size()>0) {
-			QuestionModule register = new QuestionModule(quest.getPropositions(), quest.getPropositionRequired(), quest.getMultiChoice(), quest);
+			QuestionModule register = new QuestionModule(quest);
 			add(register);
 			questionsModule.add(register);
 		}

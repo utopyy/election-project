@@ -57,7 +57,7 @@ public class Vote {
 				inverseJoinColumns = @JoinColumn(name = "id_categorie"))
 	private Set<Categorie> categories = new HashSet<>();**/
 
-	@OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<VoteCategorie> votesCategories = new HashSet<>();
 
 	@ManyToMany(cascade=CascadeType.MERGE, fetch = FetchType.EAGER)  

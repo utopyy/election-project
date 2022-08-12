@@ -258,7 +258,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			questionsModule.add(register);
 		}
 		if(quest.getPropositions().size()>0) {
-			QuestionModule register = new QuestionModule(quest.getPropositions(), quest.getPropositionRequired(), quest.getMultiChoice(), quest);
+			QuestionModule register = new QuestionModule(quest);
 			step3.add(register);
 			questionsModule.add(register);
 		}
@@ -309,7 +309,6 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private void initStep4(Question question, Button back) {
 		addHeader(question);
 		VerticalLayout menu = initProgressBar(question, activeSession, back);
-		menu.add(new Hr());
 		menu.setPadding(false);
 		menu.getStyle().set("padding-top", "10px");
 		menu.setAlignItems(Alignment.CENTER);
@@ -318,7 +317,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		step4.setSizeFull();
 		step4.setAlignItems(Alignment.CENTER);
 			   
-		UserVoteDetails uvd = new UserVoteDetails(activeSession, activeSession.getActiveQuestion());
+		UserVoteDetails uvd = new UserVoteDetails(activeSession, activeSession.getActiveQuestion(), voteService);
 		Scroller scroll = new Scroller(uvd);
 		Details details = new Details("Détail des votes", scroll);
 		details.getStyle().set("margin-top", "0px");
@@ -330,6 +329,8 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		menu.setWidthFull();
 		menu.getStyle().set("background-color","White");
 		menu.getStyle().set("margin-top", "10px");
+		menu.getStyle().set("padding-left", "40px");
+		menu.getStyle().set("padding-right", "40px");
 		step4.add(menu);
 		step4.getStyle().set("background-color","rgb(251,253,255)");
 		step4.setPadding(false);
