@@ -84,6 +84,8 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private Button next;
 	private User authenticatedUser;
 	private VerticalLayout header;
+	private ProgressBar waitingUsersVotes;
+	private Div progressBarSubLabel;
 	Registration broadcasterRegistration;
 
 
@@ -280,15 +282,18 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			for(QuestionModule question : questionsModule) {
 				switch(question.getLibelle()) {
 				case "commentaire":
-					try {
-						votesCategories.add(new VoteCategorie(vote,quest.getCategorieByLibelle("Commentaire"),question.getCommentaireValue()));
-					}catch(NullPointerException ex) {}
+					if(!question.getCommentaireValue().isEmpty()) {
+						try {
+							votesCategories.add(new VoteCategorie(vote,quest.getCategorieByLibelle("Commentaire"),question.getCommentaireValue()));
+						}catch(NullPointerException ex) {}
+					}
 					break;
 				case "note":
-					try {
-						votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
-					}catch(NullPointerException ex) {}
-					break;
+					if(!question.getNoteValue().toString().isEmpty()) {
+						try {
+							votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
+						}catch(NullPointerException ex) {}
+					}break;
 				case "propositions":
 					vote.setPropositions(question.getPropositionsSelected());
 					break;
@@ -316,8 +321,8 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		step4 = new VerticalLayout();
 		step4.setSizeFull();
 		step4.setAlignItems(Alignment.CENTER);
-			   
-		UserVoteDetails uvd = new UserVoteDetails(activeSession, activeSession.getActiveQuestion(), voteService);
+
+		UserVoteDetails uvd = new UserVoteDetails(activeSession, activeSession.getActiveQuestion(), voteService, userService, questionService);
 		Scroller scroll = new Scroller(uvd);
 		Details details = new Details("Détail des votes", scroll);
 		details.getStyle().set("margin-top", "0px");
@@ -486,7 +491,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		header.getStyle().set("margin-bottom","15px");
 		add(header);
 	}
-	
+
 	private VerticalLayout initProgressBar(Question quest, Session session, Button back) {
 		VerticalLayout vl = new VerticalLayout();
 		HorizontalLayout hl = new HorizontalLayout();
@@ -499,16 +504,16 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		hl.add(back, result);
 		vl.getStyle().set("padding-left","20px");
 		vl.getStyle().set("padding-right","20px");
-		ProgressBar waitingUsersVotes = new ProgressBar();
+		waitingUsersVotes = new ProgressBar();
 		waitingUsersVotes.setMaxWidth("350px");
 		double value = (double) quest.getVotes().size()/session.getJures().size();
 		waitingUsersVotes.setValue(value);
-        Div progressBarSubLabel = new Div();
-        progressBarSubLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        progressBarSubLabel.setText("Votes : "+quest.getVotes().size()+"/"+session.getJures().size());
-        vl.add(progressBarSubLabel, waitingUsersVotes, hl);
-        vl.setSpacing(false);
-        return vl;
+		progressBarSubLabel = new Div();
+		progressBarSubLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+		progressBarSubLabel.setText("Votes : "+quest.getVotes().size()+"/"+session.getJures().size());
+		vl.add(progressBarSubLabel, waitingUsersVotes, hl);
+		vl.setSpacing(false);
+		return vl;
 	}
 
 	@Override
@@ -517,6 +522,12 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		broadcasterRegistration = Broadcaster.register(newMessage -> {
 			if(newMessage.equals("ACTIVE_SESSION")) {
 				ui.access(() -> initView());
+			}else if(newMessage.equals("VOTE_SENDED")) {
+				ui.access(() -> {
+					double value = (double) waitingUsersVotes.getValue()*activeSession.getJures().size();
+					waitingUsersVotes.setValue((value+1)/activeSession.getJures().size());
+					progressBarSubLabel.setText("Votes : "+((int)value+1)+"/"+activeSession.getJures().size());
+				});
 			}
 		});
 	}

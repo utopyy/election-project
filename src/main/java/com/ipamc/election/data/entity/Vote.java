@@ -60,7 +60,10 @@ public class Vote {
 	@OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<VoteCategorie> votesCategories = new HashSet<>();
 
-	@ManyToMany(cascade=CascadeType.MERGE, fetch = FetchType.EAGER)  
+	@ManyToMany(cascade= {CascadeType.PERSIST,
+			CascadeType.DETACH,
+			CascadeType.REFRESH,
+			CascadeType.REMOVE}, fetch = FetchType.EAGER)  
 	@JoinTable(	name = "Votes_propositions", joinColumns = @JoinColumn(name = "id_vote"), 
 	inverseJoinColumns = @JoinColumn(name = "id_proposition"))
 	private Set<Proposition> propositions = new HashSet<>();

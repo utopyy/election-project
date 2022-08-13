@@ -20,5 +20,6 @@ public interface VoteRepository extends JpaRepository<Vote,Integer> {
 	int updateAnswerCategorie(@Param("reponse") String reponse, @Param("id_vote") Long id_vote, @Param("id_categorie") Long id_categorie);
 	
 	Vote findByJureAndQuestion(Jure jure, Question question);
+	Vote getById(Long id);
 }
 

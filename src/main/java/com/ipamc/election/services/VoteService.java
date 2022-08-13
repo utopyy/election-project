@@ -3,6 +3,7 @@ package com.ipamc.election.services;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.ipamc.election.data.entity.Jure;
@@ -31,6 +32,10 @@ public class VoteService {
 	}
 	
 	public void saveVote(Vote vote) {
+		voteRepository.save(vote);
+	}
+	
+	public void updateVote(Vote vote) {
 		voteRepository.save(vote);
 	}
 }

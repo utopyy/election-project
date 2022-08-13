@@ -387,14 +387,18 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 			for(QuestionModule question : questionsModule) {
 				switch(question.getLibelle()) {
 				case "commentaire":
-					try {
-						votesCategories.add(new VoteCategorie(vote,quest.getCategorieByLibelle("Commentaire"),question.getCommentaireValue()));
-					}catch(NullPointerException ex) {}
+					if(!question.getCommentaireValue().isEmpty()) {
+						try {
+							votesCategories.add(new VoteCategorie(vote,quest.getCategorieByLibelle("Commentaire"),question.getCommentaireValue()));
+						}catch(NullPointerException ex) {}
+					}
 					break;
 				case "note":
-					try {
-						votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
-					}catch(NullPointerException ex) {}
+					if(!question.getNoteValue().toString().isEmpty()) {
+						try {
+							votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
+						}catch(NullPointerException ex) {}
+					}					
 					break;
 				case "propositions":
 					vote.setPropositions(question.getPropositionsSelected());
@@ -468,22 +472,22 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		ProgressBar waitingUsersVotes = new ProgressBar();
 		double value = (double) quest.getVotes().size()/session.getJures().size();
 		waitingUsersVotes.setValue(value);
-        Div progressBarLabel = new Div();
-        if(quest.getVotes().size() == session.getJures().size()) {
-        	progressBarLabel.setText("En attente de l'affichage des votes...");
-        }else {
-        	progressBarLabel.setText("En attente des votes...");
-        }
-        Div progressBarSubLabel = new Div();
-        progressBarSubLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        progressBarSubLabel.setText(quest.getVotes().size()+"/"+session.getJures().size());
-        vl.add(progressBarLabel, waitingUsersVotes, progressBarSubLabel);
-        vl.setSpacing(false);
-        vl.getStyle().set("margin-top", "50px");
+		Div progressBarLabel = new Div();
+		if(quest.getVotes().size() == session.getJures().size()) {
+			progressBarLabel.setText("En attente de l'affichage des votes...");
+		}else {
+			progressBarLabel.setText("En attente des votes...");
+		}
+		Div progressBarSubLabel = new Div();
+		progressBarSubLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+		progressBarSubLabel.setText(quest.getVotes().size()+"/"+session.getJures().size());
+		vl.add(progressBarLabel, waitingUsersVotes, progressBarSubLabel);
+		vl.setSpacing(false);
+		vl.getStyle().set("margin-top", "50px");
 		vl.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
 		vl.setMaxWidth("300px");
 		vl.getStyle().set("background-color","White");
-        add(vl);
+		add(vl);
 	}
 
 	@Override
