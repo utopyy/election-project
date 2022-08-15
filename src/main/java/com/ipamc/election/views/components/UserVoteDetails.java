@@ -14,6 +14,7 @@ import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.Vote;
 import com.ipamc.election.data.entity.VoteCategorie;
+import com.ipamc.election.services.PropositionService;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.services.VoteService;
@@ -50,6 +51,7 @@ public class UserVoteDetails extends VerticalLayout {
 	private VoteService voteService;
 	private UserService userService;
 	private QuestionService questionService;
+	
 	Registration broadcasterRegistration;
 
 	@Override
@@ -201,7 +203,7 @@ public class UserVoteDetails extends VerticalLayout {
 						vc.add(new VoteCategorie(vote, question.getCategorieByLibelle("Commentaire"), questionMod.getCommentaireValue().toString()));
 					break;
 				case "note":
-					if(!questionMod.getNoteValue().toString().isEmpty())
+					if(questionMod.getNoteValue() != null && !questionMod.getNoteValue().toString().isEmpty())
 						vc.add(new VoteCategorie(vote, question.getCategorieByLibelle("Note"), questionMod.getNoteValue().toString()));
 					break;
 				case "propositions":

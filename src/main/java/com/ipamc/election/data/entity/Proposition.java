@@ -68,7 +68,7 @@ public class Proposition {
 	public void addQuestion(Question quest) {
 		questions.add(quest);
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -83,11 +83,14 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 			button.addThemeVariants(ButtonVariant.LUMO_ICON,
 					ButtonVariant.LUMO_ERROR,
 					ButtonVariant.LUMO_TERTIARY);
+			if(question.getVotes().size() > 0 && question.getVotes().iterator().next().getResultats() != null) {
+				button.setEnabled(false);
+			}
 			button.addClickListener(e -> {
-				if(question.getIsActive() && question.getSession().getIsActive()) {
+				if(question.getVotes().size() > 0) {
 					ConfirmDialog.create()
 					.withCaption("Confirmation")
-					.withMessage("Cette question est actuellement activée dans le salon de vote, voulez-vous vraiment la supprimer?")
+					.withMessage("Cette question a reçu des votes, si vous la supprimez les votes seront également supprimés")
 					.withOkButton(() -> {
 						this.removeQuestion(question);
 						if(questions.size()==0) {

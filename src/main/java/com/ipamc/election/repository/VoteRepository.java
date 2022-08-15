@@ -1,5 +1,7 @@
 package com.ipamc.election.repository;
 
+import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,5 +23,6 @@ public interface VoteRepository extends JpaRepository<Vote,Integer> {
 	
 	Vote findByJureAndQuestion(Jure jure, Question question);
 	Vote getById(Long id);
+	Set<Vote> findAllByQuestion(Question question);
 }
 

@@ -78,25 +78,20 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	protected void onAttach(AttachEvent attachEvent) {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = Broadcaster.register(newMessage -> {
-			if(newMessage.equals("VOTE_SENDED")) {
+			ui.access(() -> pg.setVisible(true));
+			ui.access(() -> sendVote.setEnabled(false));
+			if(newMessage.equals("ENABLE_VOTE")) {
 				ui.access(() -> updateState());
-			}else {
-				ui.access(() -> pg.setVisible(true));
-				ui.access(() -> sendVote.setEnabled(false));
-				if(newMessage.equals("ENABLE_VOTE")) {
-					ui.access(() -> updateState());
-				}else if(newMessage.equals("ACTIVE_SESSION") || newMessage.equals("ARCHIVE_SESSION")) {
-					ui.access(() -> updateState());
-				}else if(newMessage.equals("SESS_ACTIVE_UPDATED")) {
-					ui.access(() -> updateState());
-				}else if(newMessage.equals("SESS_DELETE")) {
-					ui.access(() -> updateState());
-				}else if(newMessage.equals("VOTE_SENDED")) {
-					ui.access(() -> updateState());
-				}
-				ui.access(() -> pg.setVisible(false));
-				ui.access(() -> sendVote.setEnabled(true));
+			}else if(newMessage.equals("ACTIVE_SESSION") || newMessage.equals("ARCHIVE_SESSION")) {
+				ui.access(() -> updateState());
+			}else if(newMessage.equals("SESS_ACTIVE_UPDATED")) {
+				ui.access(() -> updateState());
+			}else if(newMessage.equals("SESS_DELETE")) {
+				ui.access(() -> updateState());
 			}
+			ui.access(() -> pg.setVisible(false));
+			ui.access(() -> sendVote.setEnabled(true));
+
 		});
 	}
 

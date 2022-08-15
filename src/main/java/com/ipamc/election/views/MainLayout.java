@@ -179,6 +179,7 @@ public class MainLayout extends AppLayout {
 		        	return new MenuItemInfo[]{        
 		        			new MenuItemInfo("Salon de votes", "la la-vote-yea", AdminVotesView.class),
 			                new MenuItemInfo("Gestion du salon", "la la-tools", AdminRoomSettingsView.class),
+			                new MenuItemInfo("Résultats", "la la-columns", AdminResultsView.class),
 			                new MenuItemInfo("Liste des utilisateurs", "la la-columns", AdminUsersView.class),
 			                new MenuItemInfo("Historique", "la la-columns", AdminLogsView.class),
 			                new MenuItemInfo("Mon compte", "la la-user-circle", ProfilView.class)

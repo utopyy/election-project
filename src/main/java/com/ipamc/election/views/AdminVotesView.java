@@ -12,6 +12,7 @@ import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.JureService;
 import com.ipamc.election.services.QuestionService;
+import com.ipamc.election.services.ResultatsJuryService;
 import com.ipamc.election.services.SessionService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.services.VoteCategorieService;
@@ -70,6 +71,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private UserService userService;
 	private VoteService voteService;
 	private VoteCategorieService voteCatService;
+	private ResultatsJuryService resultsService;
 	private JureService jureService;
 	private QuestionService questionService;
 	private SecurityUtils tools;
@@ -89,10 +91,11 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	Registration broadcasterRegistration;
 
 
-	public AdminVotesView(UserService userService, VoteService voteService, VoteCategorieService voteCatService, JureService jureService, SecurityUtils tools, SessionService sessionService, QuestionService questionService) {
+	public AdminVotesView(UserService userService, VoteService voteService, ResultatsJuryService resultsService, VoteCategorieService voteCatService, JureService jureService, SecurityUtils tools, SessionService sessionService, QuestionService questionService) {
 		this.userService = userService;
 		this.sessionService = sessionService;
 		this.questionService = questionService;
+		this.resultsService = resultsService;
 		this.voteService = voteService;
 		this.voteCatService = voteCatService;
 		this.jureService = jureService;
@@ -159,7 +162,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 	private void initSelectQuestions() {
 		selectQuestion = new Select<>();
 		List<Question> questions = new ArrayList<>();
-		for(Question quest : activeSession.getQuestions()) {
+		for(Question quest : activeSession.getUnansweredQuestions()) {
 			questions.add(quest);
 		}
 		Collections.sort(questions, new Comparator<Question>() {
@@ -289,7 +292,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 					}
 					break;
 				case "note":
-					if(!question.getNoteValue().toString().isEmpty()) {
+					if(question.getNoteValue() != null && !question.getNoteValue().toString().isEmpty()) {
 						try {
 							votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
 						}catch(NullPointerException ex) {}
@@ -500,6 +503,12 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		hl.setJustifyContentMode(JustifyContentMode.CENTER);
 		hl.getStyle().set("margin-top", "10px");
 		Button result = new Button("Afficher les résultats");
+		result.addClickListener(event ->{
+			Broadcaster.broadcast("RESULTS_SHOWED");
+			result.setEnabled(false);
+			resultsService.createResultats(quest);
+			UI.getCurrent().navigate(AdminResultsView.class);
+		});
 		result.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		hl.add(back, result);
 		vl.getStyle().set("padding-left","20px");
@@ -528,6 +537,8 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 					waitingUsersVotes.setValue((value+1)/activeSession.getJures().size());
 					progressBarSubLabel.setText("Votes : "+((int)value+1)+"/"+activeSession.getJures().size());
 				});
+			}else if(newMessage.equals("RESULTS_SHOWED")) {
+				ui.access(() -> UI.getCurrent().navigate(AdminResultsView.class));
 			}
 		});
 	}

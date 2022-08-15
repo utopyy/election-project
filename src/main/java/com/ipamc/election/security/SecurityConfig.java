@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/reset_password*").permitAll()
         .antMatchers("/registration_confirm*").permitAll()
         .antMatchers("/jury").hasAuthority("ROLE_USER")
-        .antMatchers("/salon", "/gestionsalon","/userlist", "/oldvotes").hasAnyAuthority("ROLE_ADMIN","ROLE_SUPER_ADMIN")
+        .antMatchers("/salon", "/gestionsalon","/userlist", "/oldvotes", "/results").hasAnyAuthority("ROLE_ADMIN","ROLE_SUPER_ADMIN")
         .antMatchers("/profil").authenticated()
         .antMatchers("/login_confirm*").permitAll()
 

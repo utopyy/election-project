@@ -77,15 +77,15 @@ public class ManageSessions extends VerticalLayout {
 		FormLayout buttons = new FormLayout();
 		
 		addButton = new Button(VaadinIcon.PLUS.create());
-		addButton.getElement().setAttribute("title", "Add");
+		addButton.getElement().setAttribute("title", "Nouvelle session");
 
 		updateButton = new Button(VaadinIcon.PENCIL.create());
 		updateButton.setEnabled(false);
-		updateButton.getElement().setAttribute("title", "Update");
+		updateButton.getElement().setAttribute("title", "Mettre à jour");
 
 		deleteButton = new Button(VaadinIcon.TRASH.create());
 		deleteButton.setEnabled(false);
-		deleteButton.getElement().setAttribute("title", "Delete");
+		deleteButton.getElement().setAttribute("title", "Supprimer la session");
 		HorizontalLayout hl = new HorizontalLayout();
 
 		backButton = new Button(new Icon("lumo","arrow-left"));

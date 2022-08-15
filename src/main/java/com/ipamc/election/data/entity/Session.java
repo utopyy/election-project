@@ -1,6 +1,8 @@
 package com.ipamc.election.data.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -138,6 +140,18 @@ public class Session {
 				return quest;
 		}
 		return null;
+	}
+	
+	public List<Question> getUnansweredQuestions(){
+		List<Question> questions = new ArrayList<>();
+		for(Question question : this.questions) {
+			if(question.getVotes().size()>0 && question.getVotes().iterator().next().getResultats() != null) {
+
+			}else {
+				questions.add(question);
+			}
+		}
+		return questions;
 	}
 
 	@Override
