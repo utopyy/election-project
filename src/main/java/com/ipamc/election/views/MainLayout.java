@@ -5,9 +5,11 @@ import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.UserService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.NpmPackage;
@@ -16,10 +18,14 @@ import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
@@ -45,7 +51,6 @@ public class MainLayout extends AppLayout {
             RouterLink link = new RouterLink();
             link.addClassNames("menu-item-link");
             link.setRoute(view);
-
             Span text = new Span(menuTitle);
             text.addClassNames("menu-item-text");
 
@@ -78,17 +83,29 @@ public class MainLayout extends AppLayout {
     private AccessAnnotationChecker accessChecker;
     private SecurityUtils tools;
     private UserService userService;
+    private Header header;
     
     public MainLayout(AccessAnnotationChecker accessChecker, SecurityUtils tools, UserService userService) {
     	this.userService = userService;
     	this.tools = tools;
     	this.accessChecker = accessChecker;
         setPrimarySection(Section.DRAWER);
-        addToNavbar(true, createHeaderContent());
+        createHeaderContent();
+        addToNavbar(true, header);
         addToDrawer(createDrawerContent());
     }
+    
+    @NpmPackage(value = "line-awesome", version = "1.3.0")
+    public static class LineAwesomeIcon extends Span {
+        public LineAwesomeIcon(String lineawesomeClassnames) {
+            addClassNames("menu-item-icon");
+            if (!lineawesomeClassnames.isEmpty()) {
+                addClassNames(lineawesomeClassnames);
+            }
+        }
+    }
 
-    private Component createHeaderContent() {
+    private void createHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.addClassNames("view-toggle");
         toggle.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
@@ -97,9 +114,8 @@ public class MainLayout extends AppLayout {
         viewTitle = new H1();
         viewTitle.addClassNames("view-title");
 
-        Header header = new Header(toggle, viewTitle);
+        header = new Header(toggle, viewTitle);
         header.addClassNames("view-header");
-        return header;
     }
 
     private Component createDrawerContent() {
@@ -124,6 +140,24 @@ public class MainLayout extends AppLayout {
 
         for (MenuItemInfo menuItem : createMenuItems()) {
                 list.add(menuItem);
+                if(menuItem.view.getName().equals("com.ipamc.election.views.AdminRoomSettingsView")) {
+                	String route = RouteConfiguration.forSessionScope()
+                            .getUrl(AdminResultsView.class);
+            		Anchor link = new Anchor(route);
+            		link.setTarget("_blank");
+            		link.addClassNames("menu-item-link");
+            		HorizontalLayout hl = new HorizontalLayout();
+            		hl.add(new LineAwesomeIcon("la la-medal"));
+            		Span text = new Span("Résultats ");
+            		text.addClassNames("menu-item-text");
+            		hl.add(text);
+            		LineAwesomeIcon lai =  new LineAwesomeIcon("la la-external-link-alt");
+            		lai.getStyle().set("padding-left", "5px");
+            		hl.add(lai);
+            		hl.setSpacing(false);
+            		link.add(hl);
+            		list.add(link);
+                }
         }
         return nav;
     }
@@ -176,10 +210,9 @@ public class MainLayout extends AppLayout {
 		        			new MenuItemInfo("Mon compte", "la la-file", ProfilView.class)
 		    		};
 		        }else if(role.equals(EnumRole.ROLE_ADMIN.toString()) || role.equals(EnumRole.ROLE_SUPER_ADMIN.toString())) {
-		        	return new MenuItemInfo[]{        
+		        	return new MenuItemInfo[]{      
 		        			new MenuItemInfo("Salon de votes", "la la-vote-yea", AdminVotesView.class),
 			                new MenuItemInfo("Gestion du salon", "la la-tools", AdminRoomSettingsView.class),
-			                new MenuItemInfo("Résultats", "la la-columns", AdminResultsView.class),
 			                new MenuItemInfo("Liste des utilisateurs", "la la-columns", AdminUsersView.class),
 			                new MenuItemInfo("Historique", "la la-columns", AdminLogsView.class),
 			                new MenuItemInfo("Mon compte", "la la-user-circle", ProfilView.class)
@@ -192,6 +225,4 @@ public class MainLayout extends AppLayout {
 	    		new MenuItemInfo("Connexion", "la la-user", LoginView.class)
 	    	};
     	}
-
- 
 }

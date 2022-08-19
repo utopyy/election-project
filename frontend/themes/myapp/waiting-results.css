@@ -1,0 +1,6 @@
+.waitingresults { 
+	background-image: url("./images/waitingroom.jpg");
+	background-size: cover;
+	background-position: center center;
+	background-attachment: fixed;
+}

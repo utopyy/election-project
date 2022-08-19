@@ -113,7 +113,11 @@
 			<artifactId>exampledata</artifactId>
 			<version>4.1.4</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.vaadin.addon</groupId>
+			<artifactId>enhanced-window-opener</artifactId>
+			<version>0.4</version>
+		</dependency>
 		<dependency>
 			<groupId>org.claspina</groupId>
 			<artifactId>confirm-dialog</artifactId>
