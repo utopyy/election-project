@@ -375,7 +375,6 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 		sendVote.addClickListener(event -> {
 
 			Vote vote = new Vote();
-
 			vote.setJure(jureService.findBySessionAndUser(session, authenticatedUser));
 			vote.setQuestion(quest);
 			Set<VoteCategorie> votesCategories = new HashSet<>();

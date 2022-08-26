@@ -11,6 +11,7 @@ import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
+import com.ipamc.election.data.entity.Vote;
 import com.ipamc.election.repository.CategorieRepository;
 import com.ipamc.election.repository.PropositionRepository;
 import com.ipamc.election.repository.QuestionRepository;
@@ -105,6 +106,20 @@ public class QuestionService {
 	public void removeQuestion(Question question) {
 		questRepository.delete(question);
 	}
+	
+	public Question getLastResults() {
+		Question quest = questRepository.findFirstByOrderByDateVotesDesc();
+		if(quest.getDateVotes() == null)
+			return null;
+		return quest;
+	}
+	
+	public void createResultats(Question question) {
+		question.addVoteTime();
+		question.setIsActive(false);
+		questRepository.save(question);
+	}
+
 
 
 }

@@ -22,5 +22,7 @@ public interface QuestionRepository extends JpaRepository<Question,Integer> {
 	@Modifying
 	@Query("UPDATE Question SET ISACTIVE = :isActive WHERE ID = :id")
 	void activateQuestion(Boolean isActive, Long id);
+	
+	Question findFirstByOrderByDateVotesDesc();
 } 
 

@@ -67,6 +67,14 @@ public class VoteCategorie {
 	public void setReponse(String reponse) {
 		this.reponse = reponse;
 	}
+	
+	public Boolean isNoteCategory() {
+		return categorie.isNoteCategory();
+	}
+	
+	public Boolean isComCategory() {
+		return categorie.isComCategory();
+	}
 
 	
 	

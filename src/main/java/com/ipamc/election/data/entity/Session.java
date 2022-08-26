@@ -145,7 +145,7 @@ public class Session {
 	public List<Question> getUnansweredQuestions(){
 		List<Question> questions = new ArrayList<>();
 		for(Question question : this.questions) {
-			if(question.getVotes().size()>0 && question.getVotes().iterator().next().getResultats() != null) {
+			if(question.getVotes().size()>0 && question.getDateVotes() != null) {
 
 			}else {
 				questions.add(question);

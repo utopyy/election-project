@@ -107,6 +107,14 @@ public class Categorie {
 	public Set<VoteCategorie> getVotesCategories() {
 		return votesCategories;
 	}
+	
+	public Boolean isNoteCategory() {
+		return libelle.equals("Note");
+	}
+	
+	public Boolean isComCategory() {
+		return libelle.equals("Commentaire");
+	}
 
 	@Override
 	public int hashCode() {

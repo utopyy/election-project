@@ -1,7 +1,15 @@
 package com.ipamc.election.data.entity;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -47,7 +55,7 @@ public class Question {
     private Boolean propositionRequired;
 	private Boolean multiChoice;
 	private Boolean isActive;
-
+	private LocalDateTime dateVotes;
 	
 	
 	public Question(String intitule, Boolean multiChoice, Boolean propositionRequired) {
@@ -175,6 +183,82 @@ public class Question {
 				return true;
 		}
 		return false;
+	}
+	
+	
+	public void addVoteTime() {
+		dateVotes = (OffsetDateTime.now( ZoneOffset.UTC )).toLocalDateTime() ;
+	}
+	
+	public Boolean containsPropositions() {
+		return propositions.size() > 0;
+	}
+	
+	public Boolean containsNotes() {
+		return getCategorieByLibelle("Note") != null;
+	}
+
+	public Map<Proposition, Integer> propositionsRanked(){
+		Map<Proposition, Integer> unsortMap = new HashMap<Proposition, Integer>();
+		for(Vote vote : votes) {
+			if(vote.getPropositions().size()!=0) {
+				for(Proposition proposition : vote.getPropositions()) {
+					int currentValue = 0;
+					if (unsortMap.containsKey(proposition)) {
+						currentValue = unsortMap.get(proposition);
+					}
+					unsortMap.put(proposition, currentValue+1); 
+				}
+			}
+		}
+		LinkedHashMap<Proposition, Integer> sortMap = 
+				unsortMap.entrySet()
+				.stream()             
+				.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+				.collect(Collectors.toMap(e -> e.getKey(), 
+						e -> e.getValue(), 
+						(e1, e2) -> null, // or throw an exception
+						() -> new LinkedHashMap<Proposition, Integer>()));
+		return sortMap;	
+	}
+	// Return sum of notes or -1 if there is no notes
+	public int getSumNotes() {
+		int sumNote = 0;
+		int cpt = 0;
+		for(Vote vote : votes) {
+			for(VoteCategorie vc : vote.getVotesCategories()) {
+				if(vc.isNoteCategory()) {
+					sumNote+=Integer.valueOf(vc.getReponse());
+					cpt++;
+					break;
+				}
+			}
+		}
+		// Means that there are no notes for any of thoses votes
+		if(cpt == 0) {
+			return -1;
+		}else {
+			return sumNote;
+		}
+	}
+	
+	public int getMaxValueNote() {
+		int value = 0;
+		if(votes.size() > 0) {
+			for(Vote vote : votes) {
+				for(Categorie cat : vote.getQuestion().getCategories()) {
+					if(cat.isNoteCategory()) {
+						return cat.getValeur();
+					}
+				}
+				return value;
+			}
+		}
+		return value;
+	}
+	
+	public LocalDateTime getDateVotes() {
+		return dateVotes;
 	}
 
 }

@@ -52,11 +52,6 @@ public class Vote {
 	@ManyToOne
 	@JoinColumn(name = "idQuestion", referencedColumnName = "id")
 	private Question question;
-	/*@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(	name = "Votes_categories", joinColumns = @JoinColumn(name = "id_vote"), 
-				inverseJoinColumns = @JoinColumn(name = "id_categorie"))
-	private Set<Categorie> categories = new HashSet<>();**/
-
 	@OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<VoteCategorie> votesCategories = new HashSet<>();
 
@@ -67,9 +62,6 @@ public class Vote {
 	@JoinTable(	name = "Votes_propositions", joinColumns = @JoinColumn(name = "id_vote"), 
 	inverseJoinColumns = @JoinColumn(name = "id_proposition"))
 	private Set<Proposition> propositions = new HashSet<>();
-	@ManyToOne
-	@JoinColumn(name = "idResultats", referencedColumnName = "id")
-	private ResultatsJury resultats;
 
 
 	public Vote() {
@@ -129,15 +121,6 @@ public class Vote {
 
 	public void setVotesCategories(Set<VoteCategorie> votesCategories) {
 		this.votesCategories = votesCategories;
-	}
-
-	
-	public ResultatsJury getResultats() {
-		return resultats;
-	}
-
-	public void setResultats(ResultatsJury resultats) {
-		this.resultats = resultats;
 	}
 
 	@Override

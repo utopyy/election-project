@@ -83,7 +83,7 @@ public class CreateQuestionsShowNews extends VerticalLayout {
 			button.addThemeVariants(ButtonVariant.LUMO_ICON,
 					ButtonVariant.LUMO_ERROR,
 					ButtonVariant.LUMO_TERTIARY);
-			if(question.getVotes().size() > 0 && question.getVotes().iterator().next().getResultats() != null) {
+			if(question.getVotes().size() > 0 && question.getDateVotes() != null) {
 				button.setEnabled(false);
 			}
 			button.addClickListener(e -> {
