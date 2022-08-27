@@ -106,7 +106,6 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		showResults.setSizeFull();
 		showResults.setPadding(false);
 		showResults.setSpacing(false);
-		showResults.setJustifyContentMode(JustifyContentMode.START);
 		
 		// top-header section
 		Button fullScreen = createFullScreenBtn("blue");
@@ -124,6 +123,7 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		questionTitle.setPadding(false);
 		H2 title = new H2(question.getIntitule());
 		title.getStyle().set("margin-top","0px");
+		title.getStyle().set("color","rgb(0,106,245)");
 		questionTitle.add(title);
 		showResults.add(questionTitle);
 
@@ -143,7 +143,7 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 
 		// footer section
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.setPadding(false);
+		hl.getStyle().set("margin-top", "25px");
 		hl.setSpacing(false);
 		hl.setJustifyContentMode(JustifyContentMode.CENTER);
 		hl.setSizeFull();
@@ -251,7 +251,6 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 			note.add(createNoteResults());		
 			note.setAlignItems(Alignment.CENTER);
 			note.setJustifyContentMode(JustifyContentMode.CENTER);
-			note.setFlexGrow(1);
 			note.getStyle().set("align-self","flex-start");
 			note.getStyle().set("padding-top", "30px");
 			note.getStyle().set("padding-bottom", "30px");
@@ -259,14 +258,13 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 			prop.add(createTopPropositions());
 			prop.setAlignItems(Alignment.CENTER);
 			prop.getStyle().set("align-self","flex-start");
-			prop.setFlexGrow(1);
 			formLayout.add(note, prop);
 			formLayout.setResponsiveSteps(
 					new ResponsiveStep("0",1),
 					new ResponsiveStep("500px",2)
 					);
 			formLayout.setWidthFull();
-			formLayout.setMaxWidth("800px");
+			formLayout.setMaxWidth("620px");
 			bodyResults.add(formLayout);
 			bodyResults.setAlignSelf(Alignment.CENTER, formLayout);
 		}else if(question.containsPropositions()) {
@@ -328,10 +326,10 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 
 	private VerticalLayout createNoteResults() {
 		VerticalLayout scoreLayout = new VerticalLayout();
-		int sumNotes = question.getSumNotes();
-		if(sumNotes != -1) {
+		int amountNotes = question.amountNotes();
+		if(amountNotes != -1) {
 			int maxValueNote = question.getMaxValueNote();
-			H1 scorer = new H1(sumNotes+"/"+maxValueNote);
+			H1 scorer = new H1(amountNotes+"/"+maxValueNote);
 			scorer.setClassName("h1");
 			scorer.getStyle().set("color","rgb(0,106,245)");
 			scorer.getStyle().set("padding-bottom", "20px");
@@ -355,15 +353,27 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		HorizontalLayout votesJury = new HorizontalLayout();
 		votesJury.setSizeFull();
 		int cpt = 0;
+		VerticalLayout emptyLay1= new VerticalLayout();
+		emptyLay1.setPadding(false);
+		emptyLay1.setMinHeight("1px");
+		emptyLay1.setMinWidth("1px");
+		emptyLay1.setMaxWidth("1px");
+		votesJury.add(emptyLay1);
 		for(Vote vote : question.getVotes()) {
 			VoteJuryDetails voteDet = new VoteJuryDetails(vote);
 			voteDet.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-			voteDet.setMaxHeight("200px");
-			voteDet.setMaxWidth("170px");
-			voteDet.setMinWidth("170px");
+			voteDet.setMaxHeight("220px");
+			voteDet.setMaxWidth("190px");
+			voteDet.setMinWidth("190px");
 			votesJury.add(voteDet);
 			cpt++;
 		}
+		VerticalLayout emptyLay= new VerticalLayout();
+		emptyLay.setPadding(false);
+		emptyLay.setMinHeight("1px");
+		emptyLay.setMinWidth("1px");
+		emptyLay.setMaxWidth("1px");
+		votesJury.add(emptyLay);
 		votesJury.setJustifyContentMode(JustifyContentMode.BETWEEN);
 		votesJury.setPadding(true);
 		Scroller scroll = new Scroller(votesJury);

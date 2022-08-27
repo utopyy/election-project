@@ -388,7 +388,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 					}
 					break;
 				case "note":
-					if(!question.getNoteValue().toString().isEmpty()) {
+					if(question.getNoteValue() != null) {
 						try {
 							votesCategories.add(new VoteCategorie(vote, quest.getCategorieByLibelle("Note"), question.getNoteValue().toString()));
 						}catch(NullPointerException ex) {}

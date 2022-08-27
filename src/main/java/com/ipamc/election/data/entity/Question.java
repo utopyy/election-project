@@ -222,7 +222,7 @@ public class Question {
 		return sortMap;	
 	}
 	// Return sum of notes or -1 if there is no notes
-	public int getSumNotes() {
+	public int amountNotes() {
 		int sumNote = 0;
 		int cpt = 0;
 		for(Vote vote : votes) {
@@ -238,7 +238,7 @@ public class Question {
 		if(cpt == 0) {
 			return -1;
 		}else {
-			return sumNote;
+			return sumNote/cpt;
 		}
 	}
 	
