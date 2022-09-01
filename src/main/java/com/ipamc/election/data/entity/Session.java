@@ -125,6 +125,17 @@ public class Session {
 		return false;
 	}
 	
+	public Jure getJureByUser(User user) {
+		for(Jure jureUser : user.getJures()) {
+			for(Jure j : jures){
+				if(jureUser.equals(j)) {
+					return j;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public Question getQuestion(Question question) {
 		for(Question quest : questions) {
 			if(quest.getIntitule().equals(question.getIntitule())) {
@@ -152,6 +163,17 @@ public class Session {
 			}
 		}
 		return questions;
+	}
+	
+	public Set<Jure> getJuresNotArchived(){
+		Set<Jure> notArchived = new HashSet<>();
+		for(Jure jure : jures) {
+			if(!jure.getArchived()) {
+				notArchived.add(jure);
+			}
+		}
+		return notArchived;
+		
 	}
 
 	@Override

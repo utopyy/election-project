@@ -113,8 +113,9 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			if(sessionService.getActiveSession().getActiveQuestion() != null) {
 				Button back = new Button("Retour");
 				initBackButton(back);
+				Jure jure = jureService.findBySessionAndUser(activeSession, authenticatedUser);
 				// Si l'admin est juré
-				if(jureService.findBySessionAndUser(activeSession, authenticatedUser) != null) {
+				if(jure != null && !jure.getArchived()) {
 					// Si l'admin n'a pas encore voté
 					if(voteService.getVoteByJureAndQuestion(jureService.findBySessionAndUser(activeSession, authenticatedUser), activeSession.getActiveQuestion()) == null) {
 						initStep3(activeSession.getActiveQuestion(), back);
@@ -300,7 +301,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 				default:
 				}
 			}
-			voteService.saveVote(vote);
+			voteService.saveVote(vote, votesCategories, activeSession, authenticatedUser);
 			for(VoteCategorie voteCat : votesCategories)
 				voteCatService.saveVoteCategorie(voteCat);
 			Broadcaster.broadcast("VOTE_SENDED");
@@ -516,7 +517,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		waitingUsersVotes.setValue(value);
 		progressBarSubLabel = new Div();
 		progressBarSubLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-		progressBarSubLabel.setText("Votes : "+quest.getVotes().size()+"/"+session.getJures().size());
+		progressBarSubLabel.setText("Votes : "+quest.getVotes().size()+"/"+session.getJuresNotArchived().size());
 		vl.add(progressBarSubLabel, waitingUsersVotes, hl);
 		vl.setSpacing(false);
 		return vl;

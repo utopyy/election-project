@@ -221,7 +221,7 @@ public class DragAndDropUsers extends FormLayout {
 	public void fillDragAndDrop(Session session) {
 		clearGrids();
 		List<User> usersSelected = new ArrayList<>();
-		for(Jure jure : session.getJures()) {
+		for(Jure jure : session.getJuresNotArchived()) {
 			usersSelected.add(jure.getUser());
 		}
 		List<User>usersLeftList = new ArrayList<>();

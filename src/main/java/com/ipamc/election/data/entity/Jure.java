@@ -31,7 +31,7 @@ public class Jure {
 		protected Long idUser;
 
 		public JureId() {
-
+			
 		}
 
 		public JureId(Long idSession, Long idUser) {
@@ -94,6 +94,9 @@ public class Jure {
 	@Column
 	private Boolean hasJoined;	 
 	
+	@Column
+	private Boolean archived;
+	
 	public Jure() {}
 	
 	public Jure(Session session, User user) {
@@ -101,7 +104,7 @@ public class Jure {
 		this.session = session;
 		this.user = user;
 		hasJoined = false;
-		
+		archived = false;
 		session.getJures().add(this);
 		user.getJures().add(this);
 	}
@@ -175,6 +178,15 @@ public class Jure {
 		return false;
 	}
 
+	
+
+	public Boolean getArchived() {
+		return archived;
+	}
+
+	public void setArchived(Boolean archived) {
+		this.archived = archived;
+	}
 
 	@Override
 	public int hashCode() {

@@ -155,6 +155,7 @@ public class SessionService {
 			Jure jure;
 			if(jureRepository.existsBySessionAndUser(session, user)){
 				jure = jureRepository.findBySessionAndUser(session, user);
+				jure.setArchived(false);
 			}else {
 				jure = new Jure(sessToUpdate, user);
 			}
@@ -164,7 +165,12 @@ public class SessionService {
 		sessToUpdate.setJures(jury);
 		for(Jure jure : session.getJures()) {
 			if(!jury.contains(jure)) {
-				jureRepository.delete(jure);
+				if(jure.getVotes().size() > 0) {
+					jure.setArchived(true);
+					jureRepository.save(jure);
+				}else {
+					jureRepository.delete(jure);
+				}
 			}
 		}	
 		Set<Question> quests = new HashSet<>();
@@ -174,17 +180,28 @@ public class SessionService {
 				if(question.getId() != null) {
 					quest = question;
 				}else {
+					System.out.println("ici?");
 					quest = questService.createQuestion(question, session);
 				}
 			}else {
+				System.out.println("ici?loooo");
 				quest = questService.createQuestion(question, session);
 			}
 			quests.add(quest);
 		}
+		System.out.println("en fait le soucis est lla");
 		for(Question question : session.getQuestions()) {
+			System.out.println("en fait le soucis est oola");
 			if(!quests.contains(question)) {
+				System.out.println("en fait le sopoucis est la");
 				questRepository.deleteById(question.getId());
 			}
+		}
+		System.out.println("en fait le soucis est la");
+		System.out.println("sess : "+sessToUpdate.getId());
+		System.out.println("sess : "+sessToUpdate.getName());
+		for(Question quest : sessToUpdate.getQuestions()) {
+			System.out.println("quest : "+quest.getId()+ ", "+quest.getIntitule());
 		}
 		return sessionRepository.save(sessToUpdate);
 	}

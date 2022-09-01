@@ -89,7 +89,7 @@ public class UserVoteDetails extends VerticalLayout {
 	private void initGrid() {
 		grid = new Grid<Jure>();
 		grid.setMaxHeight("300px");
-		grid.setItems(question.getSession().getJures());
+		grid.setItems(question.getSession().getJuresNotArchived());
 		grid.addColumn(Jure::getPseudo).setResizable(true).setAutoWidth(true).setFlexGrow(0).setHeader("Pseudo").setSortable(true);
 		grid.addComponentColumn(jure -> {
 			return createPermissionIcon(jure.hasVoted(question));

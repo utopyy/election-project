@@ -152,7 +152,7 @@ public class ManageSessions extends VerticalLayout {
 		grid = new Grid<>(Session.class, false);
 		grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		grid.addColumn(Session::getName).setHeader("Nom").setResizable(true).setSortable(true);
-		grid.addComponentColumn(session -> new Button(Integer.toString(session.getJures().size()), click -> {
+		grid.addComponentColumn(session -> new Button(Integer.toString(session.getJuresNotArchived().size()), click -> {
 			Dialog dialog = new Dialog();
 			dialog.getElement().setAttribute("aria-label", "Add note");
 			VerticalLayout dialogLayout = dialogShowJury(session);
@@ -180,7 +180,7 @@ public class ManageSessions extends VerticalLayout {
 
 	private VerticalLayout dialogShowJury(Session session) {
 		Grid<Jure> grid = setupJuryGrid();
-		GridListDataView<Jure> dataView = grid.setItems(session.getJures());
+		GridListDataView<Jure> dataView = grid.setItems(session.getJuresNotArchived());
 		TextField searchField = createSearchField(dataView);
 		VerticalLayout fieldLayout = new VerticalLayout(searchField, grid);
 		fieldLayout.setSpacing(false);
