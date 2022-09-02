@@ -341,7 +341,9 @@ public class ManageSessions extends VerticalLayout {
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(1500);
 				notification.setPosition(Position.TOP_END);
-				Broadcaster.broadcast("SESS_DELETE");
+				if(sess.getIsActive()) {
+					Broadcaster.broadcast("CRUD_SESSION");
+				}
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();
 		});

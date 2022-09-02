@@ -243,7 +243,7 @@ public class EditSession extends VerticalLayout {
 				Session newFullSess = sessionService.getBySessionName(sessionToUpdate.getName());
 				manageSessions.addSession(newFullSess);
 				if(newFullSess.getIsActive()) {
-					Broadcaster.broadcast("SESS_ACTIVE_UPDATED");
+					Broadcaster.broadcast("CRUD_SESSION");
 				}
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();

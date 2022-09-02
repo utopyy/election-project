@@ -102,7 +102,7 @@ public class StartSession extends VerticalLayout {
 			setActive.setText("Session activée");
 	        addDetailsSess(activeSession);
 			setActive.setEnabled(false);
-			Broadcaster.broadcast("ACTIVE_SESSION");
+			Broadcaster.broadcast("CRUD_SESSION");
 		});
 	}
 	
@@ -143,7 +143,7 @@ public class StartSession extends VerticalLayout {
 				refreshSelect(sessionService);
 				selectSession.setPlaceholder("Sessions");
 				Notification notification = Notification.show("Session archivée!");
-				Broadcaster.broadcast("ARCHIVE_SESSION");
+				Broadcaster.broadcast("CRUD_SESSION");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);
 				notification.setPosition(Position.TOP_END);
@@ -163,7 +163,7 @@ public class StartSession extends VerticalLayout {
 				refreshSelect(sessionService);
 				selectSession.setPlaceholder("Sessions");
 				Notification notification = Notification.show("Session mise en pause!");
-				Broadcaster.broadcast("ACTIVE_SESSION");
+				Broadcaster.broadcast("CRUD_SESSION");
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.setDuration(3000);
 				notification.setPosition(Position.TOP_END);

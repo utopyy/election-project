@@ -20,6 +20,7 @@ import com.ipamc.election.views.components.DetailsQuestionEditable;
 import com.ipamc.election.views.components.QuestionModule;
 import com.ipamc.election.views.components.UserVoteDetails;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -221,7 +222,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 				detailsQuest.saveSession();
 			}
 			questionService.activeQuestion(activeSession, detailsQuest.getQuestionPicked());
-			Broadcaster.broadcast("ENABLE_VOTE");
+			Broadcaster.broadcast("CRUD_QUESTION");
 			initView();
 		});
 	}
@@ -304,7 +305,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			voteService.saveVote(vote, votesCategories, activeSession, authenticatedUser);
 			for(VoteCategorie voteCat : votesCategories)
 				voteCatService.saveVoteCategorie(voteCat);
-			Broadcaster.broadcast("VOTE_SENDED");
+			Broadcaster.broadcast("SEND_VOTE");
 			initStep4(quest, back);
 			remove(step3);
 			remove(header);
@@ -350,7 +351,9 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 			.withMessage("Tous les votes déjà envoyés pour cette question seront supprimés!")
 			.withOkButton(() -> {
 				sessionService.removeActiveQuestion(sessionService.getActiveSession());
-				Broadcaster.broadcast("ENABLE_VOTE");
+				voteService.removeVotesChildFromQuestion(activeSession.getActiveQuestion());
+				voteService.removeVotesFromQuestion(activeSession.getActiveQuestion());
+				Broadcaster.broadcast("CRUD_QUESTION");
 				initView();
 			}, ButtonOption.focus(), ButtonOption.caption("OUI"))
 			.withCancelButton(ButtonOption.caption("NON")).open();
@@ -502,7 +505,7 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 		hl.getStyle().set("margin-top", "10px");
 		Button result = new Button("Afficher les résultats");
 		result.addClickListener(event ->{
-			Broadcaster.broadcast("RESULTS_SHOWED");
+			Broadcaster.broadcast("SHOW_RESULTS");
 			result.setEnabled(false);
 			questionService.createResultats(quest);
 			UI.getCurrent().navigate(AdminResultsView.class);
@@ -539,6 +542,12 @@ public class AdminVotesView extends VerticalLayout implements BeforeEnterObserve
 				ui.access(() -> UI.getCurrent().navigate(AdminResultsView.class));
 			}
 		});
+	}
+	
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		broadcasterRegistration.remove();
+		broadcasterRegistration = null;
 	}
 
 	@Override

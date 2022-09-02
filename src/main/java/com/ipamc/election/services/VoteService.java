@@ -9,12 +9,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.ipamc.election.data.entity.Jure;
+import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.data.entity.Vote;
 import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.repository.JureRepository;
+import com.ipamc.election.repository.QuestionRepository;
 import com.ipamc.election.repository.VoteCategorieRepository;
 import com.ipamc.election.repository.VoteRepository;
 
@@ -28,6 +30,8 @@ public class VoteService {
 	VoteCategorieRepository voteCategorieRepository;
 	@Autowired 
 	JureRepository jureRepository;
+	@Autowired
+	QuestionRepository questionRepository;
 
 	public VoteService() {
 
@@ -50,5 +54,27 @@ public class VoteService {
 
 	public void updateVote(Vote vote) {
 		voteRepository.save(vote);
+	}
+	
+	public void removeVotesChildFromQuestion(Question question) {
+		Question quest = questionRepository.findById(question.getId());
+		for(Vote vote : quest.getVotes()) {
+			for(Proposition prop : vote.getPropositions()) {
+				vote.removeProposition(prop);
+			}
+			for(VoteCategorie vc : vote.getVotesCategories()) {
+				vc.setVote(null);
+			}
+			vote.getVotesCategories().clear();
+			voteRepository.save(vote);
+		}
+
+	}
+	
+	public void removeVotesFromQuestion(Question question) {
+		Question quest = questionRepository.findById(question.getId());
+		for(Vote vote : quest.getVotes()) {
+			voteRepository.deleteVote(vote.getId());
+		}
 	}
 }

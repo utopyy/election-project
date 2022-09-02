@@ -64,7 +64,15 @@ public class Proposition {
 	public void setVotes(Set<Vote> votes) {
 		this.votes = votes;
 	}
-	
+
+	public void removeVote(Vote vote) {
+		for(Vote voteLoop : votes) {
+			if(voteLoop.equals(vote)) {
+				votes.remove(voteLoop);
+				break;
+			}
+		}
+	}
 	public void addQuestion(Question quest) {
 		questions.add(quest);
 	}

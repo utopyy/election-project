@@ -24,5 +24,10 @@ public interface VoteRepository extends JpaRepository<Vote,Integer> {
 	Vote findByJureAndQuestion(Jure jure, Question question);
 	Vote getById(Long id);
 	Set<Vote> findAllByQuestion(Question question);
+	
+	@Transactional
+	@Modifying(clearAutomatically = true)
+	@Query(value = "DELETE FROM VOTES where VOTES.ID =:id", nativeQuery = true)
+	void deleteVote(@Param("id") Long id);
 }
 

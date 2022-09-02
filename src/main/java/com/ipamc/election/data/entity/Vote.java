@@ -106,6 +106,17 @@ public class Vote {
 	public void setPropositions(Set<Proposition> propositions) {
 		this.propositions = propositions;
 	}
+	
+	public void removeProposition(Proposition proposition) {
+		this.propositions.remove(proposition);
+		proposition.getVotes().remove(this);
+	}
+	
+	public void removeJure(Jure jure) {
+		this.jure = null;
+		jure.getVotes().remove(this);
+	}
+	
 	public Question getQuestion() {
 		return question;
 	}
@@ -121,6 +132,10 @@ public class Vote {
 
 	public void setVotesCategories(Set<VoteCategorie> votesCategories) {
 		this.votesCategories = votesCategories;
+	}
+	
+	public void removeVoteCategorie(Set<VoteCategorie> vc) {
+		votesCategories.removeAll(vc);
 	}
 
 	@Override

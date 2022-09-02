@@ -49,7 +49,7 @@ public class Question {
 	@JoinTable(	name = "Questions_propositions", joinColumns = @JoinColumn(name = "id_question"), 
 				inverseJoinColumns = @JoinColumn(name = "id_proposition"))
 	private Set<Proposition> propositions = new HashSet<>();
-	@OneToMany(mappedBy="question", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="question", fetch = FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval = true)
 	private Set<Vote> votes = new HashSet<>();
 	
     private Boolean propositionRequired;
@@ -132,6 +132,13 @@ public class Question {
 
 	public void setVotes(Set<Vote> votes) {
 		this.votes = votes;
+	}
+
+	public void removeVotes() {
+		for(Vote vote : votes) {
+			vote.setQuestion(null);
+		}
+		votes.clear();
 	}
 
 	public Boolean getIsActive() {

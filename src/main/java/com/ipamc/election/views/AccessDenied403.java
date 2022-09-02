@@ -32,8 +32,7 @@ public class AccessDenied403 extends VerticalLayout {
         Button b = new Button("Essayer de retrouver mon chemin");
         b.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST);
         b.addClickListener(e -> {
-        	History history = UI.getCurrent().getPage().getHistory();
-        	history.back();
+        	UI.getCurrent().navigate("login");
 		});
         add(h, p, new Hr(), b);
         

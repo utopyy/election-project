@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.ipamc.election.data.UserVoteState;
+import com.ipamc.election.data.BroadcastMessageType;
 import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.CategorieGridDetails;
@@ -492,6 +492,47 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 
 	private Session activeSession;
 	private User authenticatedUser;
+	private Registration broadcasterRegistration;
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		UI ui = attachEvent.getUI();
+		broadcasterRegistration = Broadcaster.register(newMessage -> {
+			if(newMessage.equals(BroadcastMessageType.CRUD_QUESTION.getLabel())){
+				ui.access(() -> {
+					loadData();
+					loadComponents();
+				});				
+			}
+			else if(newMessage.equals(BroadcastMessageType.CRUD_SESSION.getLabel())) {
+				ui.access(() -> {
+					loadData();
+					loadComponents();
+				});
+			}else if(newMessage.equals(BroadcastMessageType.SEND_VOTE.getLabel())) {
+				ui.access(() -> {
+				loadData();
+				if(activeSession != null) {
+					Jure jure = activeSession.getJureByUser(authenticatedUser);
+					if(jure != null && !jure.getArchived() && activeSession.getActiveQuestion()!= null 
+							&& jure.hasVoted(activeSession.getActiveQuestion()) && activeSession.getActiveQuestion().getDateVotes() == null) {
+						printWaitResults();
+					}
+				}
+				});
+			}else if(newMessage.equals(BroadcastMessageType.SHOW_RESULTS.getLabel())) {
+				ui.access(() -> {
+					printResults();
+				});
+			}
+		});
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		broadcasterRegistration.remove();
+		broadcasterRegistration = null;
+	}
 
 	public UserVotesView(UserService userService, SessionService sessionService, VoteService voteService, SecurityUtils tools) {
 		this.userService = userService;
@@ -517,16 +558,16 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 	private void loadComponents() {
 		// Si il y a une session active
 		if(activeSession != null) {
-			// Si il y a une question active
-			if(activeSession.getActiveQuestion()!= null) {
-				Jure jure = activeSession.getJureByUser(authenticatedUser);
-				// Si le user est jure dans cette session
-				if(jure != null && !jure.getArchived()) {
+			Jure jure = activeSession.getJureByUser(authenticatedUser);
+			// Si le user est jure dans cette session
+			if(jure != null && !jure.getArchived()) {
+				// Si il y a une question active
+				if(activeSession.getActiveQuestion()!= null) {
 					// si le jure n'a pas rejoint la session
 					if(!jure.getHasJoined()) {
 						// Je demande son pseudo
 						printPickPseudo();
-						// Si il a déjà envoyé son vote
+						// Si il n'y a pas de question active
 					}else if(jure.hasVoted(activeSession.getActiveQuestion())) {
 						// Si les resultats ont ete affichés
 						if(activeSession.getActiveQuestion().getDateVotes() != null) {
@@ -541,13 +582,13 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 						// J'affiche le questionnaire
 						printShowQuestion();
 					}
-					// Si le jure n'est pas dans cette session
+					// Si il n'y a pas de question active
 				}else {
-					printNoAccess();	
+					printWaitingForQuestion();		
 				}
-				//Si pas de question active
+				// Si le jure n'est pas dans cette session
 			}else {
-				printWaitingForQuestion();
+				printNoAccess();		
 			}
 			//Si pas de session active
 		}else {
@@ -701,6 +742,7 @@ public class UserVotesView extends VerticalLayout implements BeforeEnterObserver
 				}
 			}
 			voteService.saveVote(vote, votesCategories, activeSession, authenticatedUser);
+			Broadcaster.broadcast("SEND_VOTE");
 			loadData();
 			loadComponents();
 		});

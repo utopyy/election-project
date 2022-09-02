@@ -187,6 +187,10 @@ public class Jure {
 	public void setArchived(Boolean archived) {
 		this.archived = archived;
 	}
+	
+	public void removeVote(Vote vote) {
+		votes.remove(vote);
+	}
 
 	@Override
 	public int hashCode() {
