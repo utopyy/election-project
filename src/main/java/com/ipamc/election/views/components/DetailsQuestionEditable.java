@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.CategorieGridDetails;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
+import com.ipamc.election.data.entity.User;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.SessionService;
 import com.vaadin.flow.component.Component;
@@ -46,10 +48,10 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	private CategorieGridDetails note;
 	private CategorieGridDetails prop;
 	
-	public DetailsQuestionEditable(Question quest, QuestionService questionService, SessionService sessionService) {
+	public DetailsQuestionEditable(Question quest, QuestionService questionService, SessionService sessionService, User user) {
 		this.questionService = questionService;
 		this.sessionService = sessionService;
-		initForm(quest);
+		initForm(quest, user);
 		HorizontalLayout headerGrid = new HorizontalLayout(questIntitule, update);
 		headerGrid.setSizeFull();
 		headerGrid.setPadding(false);
@@ -58,10 +60,10 @@ public class DetailsQuestionEditable extends VerticalLayout {
 		grid.setAllRowsVisible(true);
 	}
 	
-	public DetailsQuestionEditable(QuestionService questionService, SessionService sessionService, Button button) {
+	public DetailsQuestionEditable(QuestionService questionService, SessionService sessionService, Button button, Session activeSess) {
 		this.questionService = questionService;
 		this.sessionService = sessionService;
-		initEmptyForm(button);
+		initEmptyForm(button, activeSess);
 		HorizontalLayout headerGrid = new HorizontalLayout(questIntitule);
 		headerGrid.setSizeFull();
 		headerGrid.setPadding(false);
@@ -71,7 +73,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
 		button.setEnabled(false);
 	}
 
-	private void initEmptyForm(Button button) {
+	private void initEmptyForm(Button button, Session activeSess) {
 		questionPicked = new Question();
     	questIntitule = new TextField("Question");
     	create = new Button("Créer");
@@ -82,7 +84,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	note = new CategorieGridDetails(false,false, 0);
     	prop = new CategorieGridDetails(false,false, false);
     	
-        setupTfdFilterCreator(button);
+        setupTfdFilterCreator(button, activeSess);
     	
     	grid.addColumn(CategorieGridDetails::getLibelleCat).setAutoWidth(true).setFlexGrow(0).setHeader("Type de question");
     	
@@ -213,14 +215,14 @@ public class DetailsQuestionEditable extends VerticalLayout {
 		});
 	}
 	
-	private void setupTfdFilterCreator(Button btn) {
+	private void setupTfdFilterCreator(Button btn, Session activeSess) {
 		questIntitule.setValueChangeMode(ValueChangeMode.EAGER);
 		questIntitule.addValueChangeListener(event ->{
 			if(questIntitule.getValue().isBlank()){
 				questIntitule.setInvalid(true);
 				questIntitule.setErrorMessage("La question ne peut pas être vide");
 				btn.setEnabled(false);
-			}else if(questionNameExistsCreate()){
+			}else if(questionNameExistsCreate(activeSess)){
 				questIntitule.setInvalid(true);
 				questIntitule.setErrorMessage("Une question avec le même nom existe déjà pour cette session");
 				btn.setEnabled(false);
@@ -248,9 +250,8 @@ public class DetailsQuestionEditable extends VerticalLayout {
 		return false;
 	}
 	
-	private Boolean questionNameExistsCreate() {
-		Session sess = sessionService.getActiveSession();
-		for(Question question : sess.getQuestions()) {
+	private Boolean questionNameExistsCreate(Session activeSess) {
+		for(Question question : activeSess.getQuestions()) {
 			if(question.getIntitule().equals(questIntitule.getValue())) {
 				return true;
 			}
@@ -294,7 +295,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     }
     
     private void setupUpdateButton(Question quest, TextField questionName, CategorieGridDetails comment, 
-    		CategorieGridDetails note, CategorieGridDetails prop, Button update) {
+    		CategorieGridDetails note, CategorieGridDetails prop, Button update, User user) {
     	update.addClickListener(event -> {
     		Long idQuest = quest.getId();
     		Question newQuest = new Question(questionName.getValue(), prop.getQcm(), prop.getIsRequired());
@@ -313,12 +314,13 @@ public class DetailsQuestionEditable extends VerticalLayout {
 	    	questionService.updateQuestion(idQuest, newQuest);
 	    	questionPicked = questionService.getById(idQuest);
 	    	Notification notification = Notification.show("Modifications enregistrées!");
+	    	Broadcaster.broadcast("ADMIN_EDIT_QUESTION"+user.getId());
 	    	notification.setDuration(2000);
 	    	notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     	});
     }
     
-    private void initForm(Question quest) {
+    private void initForm(Question quest, User user) {
     	questionPicked = quest;
     	questIntitule = new TextField("Question");
     	questIntitule.setValue(quest.getIntitule());
@@ -450,7 +452,7 @@ public class DetailsQuestionEditable extends VerticalLayout {
     	catsDet.add(note);
     	catsDet.add(prop);
     	grid.setItems(catsDet);
-    	setupUpdateButton(quest, questIntitule, comment, note, prop, update);
+    	setupUpdateButton(quest, questIntitule, comment, note, prop, update, user);
     	grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
     }
     

@@ -52,6 +52,7 @@ public class Vote {
 	@ManyToOne
 	@JoinColumn(name = "idQuestion", referencedColumnName = "id")
 	private Question question;
+	
 	@OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<VoteCategorie> votesCategories = new HashSet<>();
 

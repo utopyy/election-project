@@ -116,7 +116,6 @@ public class QuestionService {
 	
 	public void createResultats(Question question) {
 		question.addVoteTime();
-		question.setIsActive(false);
 		questRepository.save(question);
 	}
 

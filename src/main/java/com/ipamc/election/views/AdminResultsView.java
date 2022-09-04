@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import org.vaadin.addon.ewopener.EnhancedBrowserWindowOpener;
 
+import com.ipamc.election.data.BroadcastMessageType;
+import com.ipamc.election.data.entity.Broadcaster;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Vote;
@@ -14,7 +16,10 @@ import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.QuestionService;
 import com.ipamc.election.services.UserService;
+import com.ipamc.election.views.components.ResultsVotes;
 import com.ipamc.election.views.components.VoteJuryDetails;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
@@ -55,6 +60,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.Command;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.ui.Link;
 
 @Route(value = "results")
@@ -74,6 +80,27 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 	private VerticalLayout waitingResults;
 	private VerticalLayout showResults;
 
+	private Registration broadcasterRegistration;
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		UI ui = attachEvent.getUI();
+		broadcasterRegistration = Broadcaster.register(newMessage -> {
+			if(newMessage.startsWith(BroadcastMessageType.SHOW_RESULTS.getLabel())) {
+				ui.access(() -> {
+					initShowResults();
+				});
+			}
+		});
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		broadcasterRegistration.remove();
+		broadcasterRegistration = null;
+	}
+
+
 	public AdminResultsView(UserService userService, QuestionService questionService, SecurityUtils tools) {
 
 		this.userService = userService;
@@ -81,7 +108,6 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		this.tools = tools;
 		initWaitingResults();
 		initView();
-		initShowResults();
 	}
 
 	private void initView() {
@@ -102,60 +128,10 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 
 	private void initShowResults() {
 		//config mainLayout section
-		showResults = new VerticalLayout();
-		showResults.setSizeFull();
-		showResults.setPadding(false);
-		showResults.setSpacing(false);
-		
-		// top-header section
-		Button fullScreen = createFullScreenBtn("blue");
-		HorizontalLayout buttonBar = new HorizontalLayout();
-		buttonBar.setWidthFull();
-		buttonBar.add(fullScreen);
-		buttonBar.setJustifyContentMode(JustifyContentMode.END);
-		buttonBar.setPadding(false);
-		showResults.add(buttonBar);
-		
-		// title-header section
-		HorizontalLayout questionTitle = new HorizontalLayout();
-		questionTitle.setWidthFull();
-		questionTitle.setJustifyContentMode(JustifyContentMode.CENTER);
-		questionTitle.setPadding(false);
-		H2 title = new H2(question.getIntitule());
-		title.getStyle().set("margin-top","0px");
-		title.getStyle().set("color","rgb(0,106,245)");
-		questionTitle.add(title);
-		showResults.add(questionTitle);
-
-		// body-results section
-		VerticalLayout bodyResults = new VerticalLayout();
-		bodyResults.setWidthFull();
-		createResultsSection(bodyResults);
-		showResults.add(bodyResults);
-
-		// body-detailsVotes section
-		HorizontalLayout voteJuryDetails = new HorizontalLayout();
-		voteJuryDetails.setPadding(false);
-		voteJuryDetails.setWidthFull();
-		voteJuryDetails.setJustifyContentMode(JustifyContentMode.CENTER);
-		voteJuryDetails.add(createVoteJuryDetails());
-		showResults.add(voteJuryDetails);
-
-		// footer section
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.getStyle().set("margin-top", "25px");
-		hl.setSpacing(false);
-		hl.setJustifyContentMode(JustifyContentMode.CENTER);
-		hl.setSizeFull();
-		Button clearVotes = new Button("Ne plus afficher");
-		clearVotes.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		clearVotes.addClickListener(event -> {
-			remove(showResults);
-			add(waitingResults);
-		});
-		hl.add(clearVotes);
-		showResults.add(hl);
-
+		refreshResults();
+		removeAll();
+		showResults = new ResultsVotes(question, true);
+		add(showResults);
 	}
 
 	private void initWaitingResults() {
@@ -189,8 +165,7 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		Button showLastVotes = new Button("Voir les derniers votes");
 		showLastVotes.addClickListener(event -> {
 			refreshResults();
-			remove(waitingResults);
-			add(showResults);
+			initShowResults();
 		});;
 		Button goBack = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
 		goBack.addClickListener(event -> {
@@ -220,6 +195,11 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		waitingResults.add(container); 	
 	}
 
+	
+	private void refreshResults() {
+		question = questionService.getLastResults();
+	}
+	
 	private Button createFullScreenBtn(String color) {
 		String colorCode = "rgb(255,255,255)";
 		if(color.equals("black")) {
@@ -238,155 +218,6 @@ public class AdminResultsView extends VerticalLayout implements BeforeEnterObser
 		fullScreen.getStyle().set("padding-top", "6px");
 		fullScreen.getStyle().set("padding-right", "6px");
 		return fullScreen;
-	}
-
-	private void refreshResults() {
-		question = questionService.getLastResults();
-	}
-
-	private void createResultsSection(VerticalLayout bodyResults) {
-		if(question.containsNotes() && question.containsPropositions()) {
-			FormLayout formLayout = new FormLayout();		
-			VerticalLayout note = new VerticalLayout();
-			note.add(createNoteResults());		
-			note.setAlignItems(Alignment.CENTER);
-			note.setJustifyContentMode(JustifyContentMode.CENTER);
-			note.getStyle().set("align-self","flex-start");
-			note.getStyle().set("padding-top", "30px");
-			note.getStyle().set("padding-bottom", "30px");
-			VerticalLayout prop = new VerticalLayout();
-			prop.add(createTopPropositions());
-			prop.setAlignItems(Alignment.CENTER);
-			prop.getStyle().set("align-self","flex-start");
-			formLayout.add(note, prop);
-			formLayout.setResponsiveSteps(
-					new ResponsiveStep("0",1),
-					new ResponsiveStep("500px",2)
-					);
-			formLayout.setWidthFull();
-			formLayout.setMaxWidth("620px");
-			bodyResults.add(formLayout);
-			bodyResults.setAlignSelf(Alignment.CENTER, formLayout);
-		}else if(question.containsPropositions()) {
-			HorizontalLayout hl = new HorizontalLayout();
-			hl.getStyle().set("margin-top", "40px");
-			hl.setWidthFull();
-			hl.setJustifyContentMode(JustifyContentMode.CENTER);
-			hl.add(createTopPropositions());
-			bodyResults.add(hl);	
-		}else if(question.containsNotes()) {
-			HorizontalLayout hl = new HorizontalLayout();
-			hl.getStyle().set("margin-top", "40px");
-			hl.setWidthFull();
-			hl.setJustifyContentMode(JustifyContentMode.CENTER);
-			hl.add(createNoteResults());
-			bodyResults.add(hl);
-		}
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setWidthFull();
-		hl.setJustifyContentMode(JustifyContentMode.CENTER);
-		Hr hr = new Hr();
-		hr.setWidthFull();
-		hr.setMaxWidth("90%");
-		hl.add(hr);
-		bodyResults.add(hl);
-	}
-
-	private Scroller createTopPropositions() {
-		Double totalPoints = 0.0;
-		Map<Proposition, Integer> propsRank = question.propositionsRanked();
-		for (Map.Entry<Proposition, Integer> entry : propsRank.entrySet()) {
-			totalPoints+= entry.getValue();
-		}
-		VerticalLayout propositions = new VerticalLayout();
-		for (Map.Entry<Proposition, Integer> entry : propsRank.entrySet()) {
-			VerticalLayout vl = new VerticalLayout();
-			vl.setSpacing(false);
-			vl.setPadding(false);
-			Label proposition = new Label(entry.getKey().getLibelle());
-			Label scoreValue = new Label(Integer.toString(entry.getValue())+"/"+(int) Math.round(totalPoints));
-			ProgressBar score = new ProgressBar();
-			score.setValue((entry.getValue()/totalPoints));
-			HorizontalLayout hl = new HorizontalLayout();
-			hl.setWidthFull();
-			hl.add(proposition, scoreValue);
-			hl.setJustifyContentMode(JustifyContentMode.BETWEEN);
-			vl.add(hl, score);
-			vl.setSizeFull();
-			propositions.add(vl);
-		}
-		Scroller scroll = new Scroller(propositions);
-		scroll.setSizeFull();
-		scroll.setMaxHeight("220px"); 
-		scroll.setMaxWidth("400px"); 	
-		scroll.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-		scroll.getStyle().set("border-radius", "10px"); 
-		return scroll;
-	}
-
-	private VerticalLayout createNoteResults() {
-		VerticalLayout scoreLayout = new VerticalLayout();
-		int amountNotes = question.amountNotes();
-		if(amountNotes != -1) {
-			int maxValueNote = question.getMaxValueNote();
-			H1 scorer = new H1(amountNotes+"/"+maxValueNote);
-			scorer.setClassName("h1");
-			scorer.getStyle().set("color","rgb(0,106,245)");
-			scorer.getStyle().set("padding-bottom", "20px");
-			scoreLayout.add(scorer);
-		}else {
-			H4 scorer = new H4("Pas de notes reçues");
-			scorer.getStyle().set("padding-bottom", "15px");
-			scoreLayout.add(scorer);
-		}
-		scoreLayout.getStyle().set("border-radius", "1000px"); 
-		scoreLayout.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-		scoreLayout.setAlignItems(Alignment.CENTER);
-		scoreLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-		scoreLayout.setMaxHeight("220px");
-		scoreLayout.setMaxWidth("220px");
-		scoreLayout.setSizeFull();
-		return scoreLayout;
-	}
-
-	private Scroller createVoteJuryDetails() {		
-		HorizontalLayout votesJury = new HorizontalLayout();
-		votesJury.setSizeFull();
-		int cpt = 0;
-		VerticalLayout emptyLay1= new VerticalLayout();
-		emptyLay1.setPadding(false);
-		emptyLay1.setMinHeight("1px");
-		emptyLay1.setMinWidth("1px");
-		emptyLay1.setMaxWidth("1px");
-		votesJury.add(emptyLay1);
-		for(Vote vote : question.getVotes()) {
-			VoteJuryDetails voteDet = new VoteJuryDetails(vote);
-			voteDet.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-			voteDet.setMaxHeight("220px");
-			voteDet.setMaxWidth("190px");
-			voteDet.setMinWidth("190px");
-			votesJury.add(voteDet);
-			cpt++;
-		}
-		VerticalLayout emptyLay= new VerticalLayout();
-		emptyLay.setPadding(false);
-		emptyLay.setMinHeight("1px");
-		emptyLay.setMinWidth("1px");
-		emptyLay.setMaxWidth("1px");
-		votesJury.add(emptyLay);
-		votesJury.setJustifyContentMode(JustifyContentMode.BETWEEN);
-		votesJury.setPadding(true);
-		Scroller scroll = new Scroller(votesJury);
-		scroll.setScrollDirection(ScrollDirection.HORIZONTAL);
-		scroll.getStyle().set("margin-left", "10px");
-		scroll.getStyle().set("margin-right", "10px");
-		scroll.setSizeFull();
-		if(cpt > 4) {
-			scroll.setMaxWidth("1300px");
-		}else {
-			scroll.setMaxWidth("800px");
-		}
-		return scroll;
 	}
 
 	@Override

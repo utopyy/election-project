@@ -1,5 +1,6 @@
 package com.ipamc.election.data.entity;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -76,14 +77,13 @@ public class Proposition {
 	public void addQuestion(Question quest) {
 		questions.add(quest);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((libelle == null) ? 0 : libelle.hashCode());
-		result = prime * result + ((questions == null) ? 0 : questions.hashCode());
-		result = prime * result + ((votes == null) ? 0 : votes.hashCode());
 		return result;
 	}
 
@@ -96,26 +96,20 @@ public class Proposition {
 		if (getClass() != obj.getClass())
 			return false;
 		Proposition other = (Proposition) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		if (libelle == null) {
 			if (other.libelle != null)
 				return false;
 		} else if (!libelle.equals(other.libelle))
 			return false;
-		if (questions == null) {
-			if (other.questions != null)
-				return false;
-		} else if (!questions.equals(other.questions))
-			return false;
-		if (votes == null) {
-			if (other.votes != null)
-				return false;
-		} else if (!votes.equals(other.votes))
-			return false;
 		return true;
 	}
-	
-	
-	
-	
+
+
+
 	
 }
