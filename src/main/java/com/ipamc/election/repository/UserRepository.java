@@ -15,6 +15,7 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 	User findByResetPasswordToken(String token);
 	User findByPseudo(String pseudo);
 	List<User> findAllByCertified(Boolean certified);
+	List<User> findAllByActive(Boolean actived);
 	
 	Boolean existsByPseudo(String pseudo);
 	Boolean existsByUsername(String username);

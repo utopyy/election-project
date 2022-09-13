@@ -1,0 +1,3 @@
+.v-grid-cell-focused:before {
+        display: none !important;
+    }

@@ -35,6 +35,12 @@ public class ResultsVotes extends VerticalLayout {
 		this.question = question;
 		initShowResults(fullScreenOption);
 	}
+	
+	public ResultsVotes(Question question, Boolean fullScreenOption, Boolean isOldVote) {
+		this.question = question;
+		initShowResults(fullScreenOption);
+		redirection.setVisible(false);
+	}
 
 	private void initShowResults(Boolean fullScreenOption) {
 		//config mainLayout section
@@ -110,7 +116,7 @@ public class ResultsVotes extends VerticalLayout {
 		fullScreen.getStyle().set("padding-right", "6px");
 		return fullScreen;
 	}
-
+	
 	private void createResultsSection(VerticalLayout bodyResults) {
 		if(question.containsNotes() && question.containsPropositions()) {
 			FormLayout formLayout = new FormLayout();		

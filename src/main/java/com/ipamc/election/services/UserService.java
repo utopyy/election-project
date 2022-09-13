@@ -237,4 +237,17 @@ public class UserService implements IUserService {
 	public List<User> findCertifiedUsers(){
 		return userRepository.findAllByCertified(true);
 	}
+	
+	public List<User> findAllByCertified(Boolean bool){
+		return userRepository.findAllByCertified(bool);
+	}
+	
+	public List<User> findAllByActive(Boolean bool){
+		return userRepository.findAllByActive(bool);
+	}
+	
+	public void setCertified(User user, Boolean certified) {
+		user.setCertified(certified);
+		userRepository.save(user);		
+	}
 }

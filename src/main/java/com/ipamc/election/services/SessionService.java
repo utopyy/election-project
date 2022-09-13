@@ -205,4 +205,14 @@ public class SessionService {
 		}
 		return sessionRepository.save(sessToUpdate);
 	}
+	
+	public List<Session> loadArchivedSessions(){
+		return sessionRepository.findAllByArchived(true);
+	}
+	
+	public void lockSession(Session sess, Boolean lock) {
+		sess.setIsLocked(lock);
+		sessionRepository.save(sess);
+	}
+
 }

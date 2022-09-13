@@ -34,17 +34,19 @@ public class Session {
 	@OneToMany(mappedBy = "session", fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<Question> questions = new HashSet<Question>(); 
 	private Boolean archived;
-
+	private Boolean isLocked;
 
 	public Session() {
 		this.archived = false;
 		this.isActive = false;
+		this.isLocked = false;
 	}
 
 	public Session(String name) {
 		this.name = name;
 		isActive = false;
 		archived = false;
+		this.isLocked = false;
 	}
 	public Session(String name, Set<Jure> jures) {
 		super();
@@ -52,6 +54,7 @@ public class Session {
 		this.jures = jures;
 		isActive = false;
 		archived = false;
+		this.isLocked = false;
 	}
 	public Long getId() {
 		return id;
@@ -174,6 +177,16 @@ public class Session {
 		}
 		return notArchived;
 		
+	}
+	
+	
+
+	public Boolean getIsLocked() {
+		return isLocked;
+	}
+
+	public void setIsLocked(Boolean isLocked) {
+		this.isLocked = isLocked;
 	}
 
 	@Override
