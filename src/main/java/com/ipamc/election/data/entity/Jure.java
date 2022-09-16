@@ -191,7 +191,7 @@ public class Jure {
 	public void removeVote(Vote vote) {
 		votes.remove(vote);
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

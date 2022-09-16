@@ -16,7 +16,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.validators.PasswordMatches;
 import com.ipamc.election.validators.ValidEmail;
 import com.sun.istack.NotNull;
@@ -38,7 +42,7 @@ public class User {
     private String email;
     private String pseudo;
     private Boolean certified;
-    @ManyToMany(fetch = FetchType.LAZY,
+    @ManyToMany(fetch = FetchType.EAGER,
     	      cascade = CascadeType.MERGE)
     @JoinTable(	name = "Users_roles", 
 			joinColumns = @JoinColumn(name = "idUtilisateur"), 
@@ -180,6 +184,22 @@ public class User {
 		this.jures = jures;
 	}
 
+	public Boolean isSuperAdmin() {
+		for(Role role : roles) {
+			if(role.getName().equals(EnumRole.ROLE_SUPER_ADMIN)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public int getNbVotes() {
+		int cpt = 0;
+		for(Jure jure : jures) {
+			cpt += jure.getVotes().size();
+		}
+		return cpt;
+	}
 
 
 	@Override

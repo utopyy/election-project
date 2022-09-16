@@ -47,10 +47,22 @@ public class Role {
 		return name;
 	}
 	
+	public String getNameString() {
+		return name.getName();
+	}
+	
 	public void setName(EnumRole name) {
 		this.name = name;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -60,18 +72,11 @@ public class Role {
 		if (getClass() != obj.getClass())
 			return false;
 		Role other = (Role) obj;
-		if (id != other.id)
-			return false;
 		if (name != other.name)
-			return false;
-		if (users == null) {
-			if (other.users != null)
-				return false;
-		} else if (!users.equals(other.users))
 			return false;
 		return true;
 	}
 	
-	
+
 
 }

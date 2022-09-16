@@ -2,6 +2,7 @@ package com.ipamc.election.views;
 
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
+import com.ipamc.election.services.RoleService;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.GridDetailsUsers;
 import com.vaadin.flow.component.button.Button;
@@ -45,12 +46,14 @@ public class AdminUsersView extends VerticalLayout implements BeforeEnterObserve
 
 	private List<User> users;
 
-	public AdminUsersView(UserService userService, SecurityUtils tools) {
+	public AdminUsersView(UserService userService, RoleService roleService, SecurityUtils tools) {
 		this.userService = userService;
 		this.tools = tools;
 		setSpacing(false);
-
-		add(new GridDetailsUsers(userService));
+		GridDetailsUsers grid = new GridDetailsUsers(userService.getByUsername(tools.getAuthenticatedUser().getUsername()), userService, roleService);
+		grid.setSizeFull();
+		add(grid);
+		setSizeFull();
 	}
 
 

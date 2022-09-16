@@ -246,8 +246,21 @@ public class UserService implements IUserService {
 		return userRepository.findAllByActive(bool);
 	}
 	
+	public List<User> findAllByRole(EnumRole role){
+		return userRepository.findAllByRoles_Name(role);
+	}
+	
 	public void setCertified(User user, Boolean certified) {
 		user.setCertified(certified);
 		userRepository.save(user);		
+	}
+	
+	// Currently only one role is allowed, so we clear roles list and simply add the new one 
+	public void updateRole(User user, Role role) {
+		if(!user.getRoles().contains(role)) {
+			user.getRoles().clear();
+			user.getRoles().add(role);
+			userRepository.save(user);
+		}
 	}
 }
