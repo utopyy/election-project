@@ -259,7 +259,6 @@
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "date-fns": "$date-fns",
     "lit": "$lit",
-    "line-awesome": "$line-awesome",
     "@vaadin/lit-renderer": "$@vaadin/lit-renderer",
     "chokidar": "$chokidar",
     "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip"
