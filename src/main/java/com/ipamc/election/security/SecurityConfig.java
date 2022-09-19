@@ -16,7 +16,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import com.ipamc.election.error.CustomAccessDeniedHandler;
 import com.ipamc.election.security.jwt.AuthTokenFilter;
 import com.ipamc.election.security.services.UserDetailsServiceImpl;
-import com.ipamc.election.views.AccessDenied403;
 
 
 @EnableWebSecurity

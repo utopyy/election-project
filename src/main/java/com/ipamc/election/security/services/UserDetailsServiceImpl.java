@@ -6,28 +6,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ipamc.election.data.EnumRole;
-import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.repository.UserRepository;
-import com.ipamc.election.views.AdminLogsView;
-import com.ipamc.election.views.AdminRoomSettingsView;
-import com.ipamc.election.views.AdminUsersView;
-import com.ipamc.election.views.AdminVotesView;
-
-import com.ipamc.election.views.MainLayout;
-import com.ipamc.election.views.ProfilView;
-import com.ipamc.election.views.UserVotesView;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.RouteConfiguration;
-import com.vaadin.flow.server.VaadinSession;
 
 @Service
 @Transactional
@@ -37,7 +23,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository userRepository;
     
 
-    public UserDetails loadUserByUsername(String username) {
+    @Override
+	public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("No user found with username: " + username);

@@ -1,11 +1,8 @@
 
 package com.ipamc.election.services;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,34 +11,25 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ipamc.election.data.EnumRole;
-import com.ipamc.election.data.entity.AuthorizedRoute;
-import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Jure;
-import com.ipamc.election.data.entity.Proposition;
-import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.data.entity.Session;
 import com.ipamc.election.data.entity.User;
-import com.ipamc.election.data.entity.Vote;
-import com.ipamc.election.data.entity.VoteCategorie;
 import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.JureRepository;
 import com.ipamc.election.repository.RoleRepository;
-import com.ipamc.election.repository.SessionRepository;
 import com.ipamc.election.repository.UserRepository;
 import com.ipamc.election.repository.VoteRepository;
-import com.vaadin.flow.templatemodel.Encode;
-
-import net.bytebuddy.utility.RandomString;
+import com.ipamc.election.validators.EmailValidator;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 
 @Service
 @Transactional 
@@ -113,6 +101,26 @@ public class UserService implements IUserService {
 		user.setRoles(roles); 
 		sendRegisterMail(user);
 		return userRepository.save(user);
+	}
+
+	public void updateProfil(String mail, String oldPasswordForm, String newPasswordForm, User currentUser) throws Exception {
+		if(!mail.isEmpty()) {
+			EmailValidator ev = new EmailValidator();
+			if(ev.isValid(mail, null)) {
+				currentUser.setEmail(mail);
+			}
+		}if(!oldPasswordForm.isEmpty()) {
+			if(encoder.matches(oldPasswordForm, currentUser.getPassword())) {
+				currentUser.setPassword(encoder.encode(newPasswordForm));
+			}else {
+				throw(new Exception("Le mot de passe est incorrect."));
+			}
+		}
+		userRepository.save(currentUser);
+		Notification notification =
+				Notification.show("Utilisateur mis à jour!");
+		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS); 
+		notification.setDuration(3000);
 	}
 
 	public void sendRegisterMail(User user) {
@@ -237,24 +245,24 @@ public class UserService implements IUserService {
 	public List<User> findCertifiedUsers(){
 		return userRepository.findAllByCertified(true);
 	}
-	
+
 	public List<User> findAllByCertified(Boolean bool){
 		return userRepository.findAllByCertified(bool);
 	}
-	
+
 	public List<User> findAllByActive(Boolean bool){
 		return userRepository.findAllByActive(bool);
 	}
-	
+
 	public List<User> findAllByRole(EnumRole role){
 		return userRepository.findAllByRoles_Name(role);
 	}
-	
+
 	public void setCertified(User user, Boolean certified) {
 		user.setCertified(certified);
 		userRepository.save(user);		
 	}
-	
+
 	// Currently only one role is allowed, so we clear roles list and simply add the new one 
 	public void updateRole(User user, Role role) {
 		if(!user.getRoles().contains(role)) {

@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ipamc.election.data.entity.Jure;
 import com.ipamc.election.data.entity.Question;
-import com.ipamc.election.data.entity.User;
 import com.ipamc.election.data.entity.Vote;
 
 public interface VoteRepository extends JpaRepository<Vote,Integer> {

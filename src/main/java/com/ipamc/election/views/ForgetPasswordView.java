@@ -4,7 +4,6 @@ import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.views.components.ResetPasswordForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -31,7 +30,7 @@ public class ForgetPasswordView extends VerticalLayout implements BeforeEnterObs
     
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-		if(tools.isUserLoggedIn()) {
+		if(SecurityUtils.isUserLoggedIn()) {
 			beforeEnterEvent.forwardTo(ConfirmLoginRedirect.class);	
 		}
 	}

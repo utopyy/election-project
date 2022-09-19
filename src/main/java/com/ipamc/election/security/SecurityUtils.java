@@ -1,17 +1,6 @@
 package com.ipamc.election.security;
 
-import com.ipamc.election.data.EnumRole;
-import com.ipamc.election.data.entity.AuthorizedRoute;
-import com.ipamc.election.data.entity.User;
-import com.ipamc.election.views.AdminLogsView;
-import com.ipamc.election.views.AdminRoomSettingsView;
-import com.ipamc.election.views.AdminUsersView;
-import com.ipamc.election.views.AdminVotesView;
-import com.ipamc.election.views.MainLayout;
-import com.ipamc.election.views.ProfilView;
-import com.ipamc.election.views.UserVotesView;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.HandlerHelper.RequestType;
 import com.vaadin.flow.shared.ApplicationConstants;
@@ -25,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 @Component

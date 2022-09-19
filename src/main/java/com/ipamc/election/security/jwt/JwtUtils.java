@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,8 +18,6 @@ import org.springframework.stereotype.Component;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.payload.response.JwtResponse;
 import com.ipamc.election.security.services.UserDetailsImpl;
-import com.vaadin.flow.templatemodel.Encode;
-
 import io.jsonwebtoken.*;
 
 
@@ -68,7 +64,6 @@ public class JwtUtils {
 	}
 	
 	public ResponseEntity<?> authenticateUser(User user) {
-		System.out.println("check:"+user.getUsername()+" - "+user.getPassword()+"\n\n\n");
 	    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 	    SecurityContextHolder.getContext().setAuthentication(authentication);
 	    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

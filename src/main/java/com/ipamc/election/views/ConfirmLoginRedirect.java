@@ -6,20 +6,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.UserService;
-import com.ipamc.election.views.components.RegisterConfirmation;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import com.vaadin.flow.router.RouteConfiguration;
 
 @PageTitle("Login confirm")
 @Route(value = "login_confirm")

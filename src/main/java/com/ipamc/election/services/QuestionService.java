@@ -1,7 +1,5 @@
 package com.ipamc.election.services;
 
-import java.util.Set;
-
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +9,9 @@ import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
-import com.ipamc.election.data.entity.Vote;
 import com.ipamc.election.repository.CategorieRepository;
 import com.ipamc.election.repository.PropositionRepository;
 import com.ipamc.election.repository.QuestionRepository;
-import com.ipamc.election.repository.SessionRepository;
 
 @Service
 @Transactional 

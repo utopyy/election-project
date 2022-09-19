@@ -16,12 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ipamc.election.data.EnumRole;
-import com.ipamc.election.validators.PasswordMatches;
 import com.ipamc.election.validators.ValidEmail;
 import com.sun.istack.NotNull;
 

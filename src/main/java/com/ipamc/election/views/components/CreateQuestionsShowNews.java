@@ -1,7 +1,6 @@
 package com.ipamc.election.views.components;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.claspina.confirmdialog.ButtonOption;
@@ -11,7 +10,6 @@ import com.ipamc.election.data.entity.Categorie;
 import com.ipamc.election.data.entity.Proposition;
 import com.ipamc.election.data.entity.Question;
 import com.ipamc.election.data.entity.Session;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;

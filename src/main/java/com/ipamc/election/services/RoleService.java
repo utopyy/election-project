@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ipamc.election.data.EnumRole;
 import com.ipamc.election.data.entity.Role;
-import com.ipamc.election.data.entity.User;
 import com.ipamc.election.repository.RoleRepository;
 
 @Service

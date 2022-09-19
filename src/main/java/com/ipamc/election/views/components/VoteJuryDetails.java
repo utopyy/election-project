@@ -1,7 +1,6 @@
 package com.ipamc.election.views.components;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.ipamc.election.data.entity.Proposition;

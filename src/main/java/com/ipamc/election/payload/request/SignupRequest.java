@@ -1,11 +1,8 @@
 package com.ipamc.election.payload.request;
 
-import java.util.Set;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.ipamc.election.data.entity.Role;
 import com.ipamc.election.validators.PasswordMatches;
 import com.ipamc.election.validators.ValidEmail;
 

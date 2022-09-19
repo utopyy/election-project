@@ -3,24 +3,19 @@ package com.ipamc.election.views;
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.security.SecurityUtils;
 import com.ipamc.election.services.UserService;
+import com.ipamc.election.validators.EmailValidator;
+import com.ipamc.election.views.components.ProfilForm;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
 
 @Route(value = "profil" , layout = MainLayout.class)
 @PageTitle("Profil")
@@ -31,6 +26,8 @@ public class ProfilView extends VerticalLayout implements BeforeEnterObserver {
 	private SecurityUtils tools;
 	private User currentUser;
 
+	private Span errorMessageField = new Span();
+
 	public ProfilView(UserService userService, SecurityUtils tools) {
 		this.userService = userService;
 		this.tools = tools;
@@ -39,59 +36,58 @@ public class ProfilView extends VerticalLayout implements BeforeEnterObserver {
 	}
 
 	private void initProfil() {
-		FormLayout fl = new FormLayout();
-		TextField mail = new TextField("Adresse mail");
-		mail.setValue(currentUser.getEmail());
-		PasswordField oldPassword = new PasswordField("Mot de passe");
-		PasswordField newPassword = new PasswordField("Nouveau mot de passe");
-		PasswordField confirmPass = new PasswordField("Confirmation");
+		ProfilForm profilForm = new ProfilForm(userService, currentUser);		
+		profilForm.getMail().setValue(currentUser.getEmail());
+		profilForm.getCancel().addClickListener(event -> {
+			profilForm.getMail().setValue(currentUser.getEmail());
+			profilForm.getOldPassword().clear();
+			profilForm.getNewPassword().clear();
+			profilForm.getConfirmPass().clear();
+			profilForm.getOldPassword().setInvalid(false);
+			profilForm.getNewPassword().setInvalid(false);
+			profilForm.getConfirmPass().setInvalid(false);
+			profilForm.getErrorMessageField().removeAll();
+		});
+		profilForm.getMaj().addClickListener(event -> {
+				try {
+					userService.updateProfil(profilForm.getMail().getValue(), profilForm.getOldPassword().getValue(), profilForm.getNewPassword().getValue(), currentUser);
+					profilForm.getOldPassword().clear();
+					profilForm.getNewPassword().clear();
+					profilForm.getConfirmPass().clear();
+					profilForm.getErrorMessageField().removeAll();
+					currentUser.setEmail(profilForm.getMail().getValue());
+				}catch(Exception ex) {
+					Label text = new Label("Le mot de passe n'est pas correct.");
+					text.getStyle().set("color", "red");
+					text.getStyle().set("font-size", "70%");
+					profilForm.getCancel().click();
+					profilForm.getErrorMessageField().add(text);
+				}
+		});
+		profilForm.getMaj().setEnabled(false);
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.add(profilForm);
+		add(wrapper);
+
 		Span roleSp = createBadgeRole();
 		Span sessionSp = createBadgeSessions();
 		Span voteSp = createBadgeVotes();
 		HorizontalLayout roleLayout = new HorizontalLayout();
 		roleLayout.add(roleSp, sessionSp, voteSp);
-		HorizontalLayout btnBar = new HorizontalLayout();
-		HorizontalLayout title = new HorizontalLayout();
-		title.add(new H3("Mon compte"));
-		Button maj = new Button("Mettre à jour");
-		maj.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		btnBar.add(maj);
-		btnBar.add(new Button("Annuler"));
-		btnBar.setSizeFull();
-		btnBar.getStyle().set("margin-top","10px");
-		fl.setMaxWidth("550px");
-		fl.add(title, mail, oldPassword, newPassword, confirmPass, btnBar);
-	    fl.setResponsiveSteps(
-	               	new ResponsiveStep("0", 1, ResponsiveStep.LabelsPosition.TOP),
-	               	new ResponsiveStep("490px", 2, ResponsiveStep.LabelsPosition.TOP),
-	       			new ResponsiveStep("490px", 3, ResponsiveStep.LabelsPosition.TOP));
+		VerticalLayout vl = new VerticalLayout();
+		vl.setMaxWidth("590px");
+		vl.setWidthFull();
+		vl.add(roleLayout);
+		vl.setAlignItems(Alignment.CENTER);
+		vl.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
+		vl.getStyle().set("padding-left", "20px");
+		vl.getStyle().set("padding-right", "20px");
+		add(vl);
 
-	    fl.setColspan(title, 3);   
-	    fl.setColspan(mail, 3);
-	       fl.setColspan(oldPassword, 1);
-	       fl.setColspan(newPassword, 1);
-	       fl.setColspan(confirmPass, 1);
-	       fl.setColspan(btnBar, 3);
-	       fl.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-	       fl.getStyle().set("padding-left", "20px");
-	       fl.getStyle().set("padding-right", "20px");
-	       fl.getStyle().set("padding-bottom", "20px");
-	       HorizontalLayout wrapper = new HorizontalLayout();
-	       wrapper.add(fl);
-	    add(wrapper);
-	    VerticalLayout vl = new VerticalLayout();
-	    vl.setMaxWidth("590px");
-	    vl.setWidthFull();
-	    vl.add(roleLayout);
-	    vl.setAlignItems(Alignment.CENTER);
-	    vl.getStyle().set("box-shadow", " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px");
-	       vl.getStyle().set("padding-left", "20px");
-	       vl.getStyle().set("padding-right", "20px");
-	    add(vl);
-	    setSizeFull();
-	    setAlignItems(Alignment.CENTER);
-	    getStyle().set("padding-bottom", "100px");
-	    setJustifyContentMode(JustifyContentMode.CENTER);
+		setSizeFull();
+		setAlignItems(Alignment.CENTER);
+		getStyle().set("padding-bottom", "100px");
+		setJustifyContentMode(JustifyContentMode.CENTER);
 	}
 
 	private Span createBadgeRole() {
@@ -116,13 +112,13 @@ public class ProfilView extends VerticalLayout implements BeforeEnterObserver {
 		}
 		return role;
 	}
-	
+
 	private Span createBadgeSessions() {
 		Span sp = new Span(Integer.toString(currentUser.getJures().size()) + " sessions rejointes");
 		sp.getElement().getThemeList().add("badge");
 		return sp;
 	}
-	
+
 	private Span createBadgeVotes() {
 		Span sp = new Span(Integer.toString(currentUser.getNbVotes())+ " votes réalisés");
 		sp.getElement().getThemeList().add("badge");
