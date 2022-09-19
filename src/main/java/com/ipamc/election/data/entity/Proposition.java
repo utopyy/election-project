@@ -14,7 +14,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="Propositions")
+@Table(name="propositions", schema ="dbo")
 public class Proposition {
 	
 	@Id

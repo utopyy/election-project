@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import com.sun.istack.NotNull;
 
 @Entity
-@Table(name="Sessions")
+@Table(name="sessions", schema ="dbo")
 public class Session {
 
 	@Id

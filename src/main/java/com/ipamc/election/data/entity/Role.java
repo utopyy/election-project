@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import com.ipamc.election.data.EnumRole;
 
 @Entity
-@Table(name = "Roles")
+@Table(name = "roles", schema ="dbo")
 
 public class Role {
 	

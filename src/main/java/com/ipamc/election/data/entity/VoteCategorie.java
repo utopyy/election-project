@@ -9,7 +9,7 @@ import javax.persistence.MapsId;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Votes_categories")
+@Table(name = "votes_categories", schema ="dbo")
 public class VoteCategorie {
 	
 	@EmbeddedId

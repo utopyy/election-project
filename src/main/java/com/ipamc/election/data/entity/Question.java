@@ -26,7 +26,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name="Questions")
+@Table(name="questions", schema ="dbo")
 
 public class Question {
 	

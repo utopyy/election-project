@@ -97,7 +97,11 @@ public class UserService implements IUserService {
 		user.setPassword(encoder.encode(signupRequest.getPassword()));
 		user.setEmail(signupRequest.getEmail());
 		Set<Role> roles = new HashSet<>();
-		roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
+		if(userRepository.count() != 0) {
+			roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
+		}else {
+			roles.add(roleRepository.findByName(EnumRole.ROLE_SUPER_ADMIN));
+		}
 		user.setRoles(roles); 
 		sendRegisterMail(user);
 		return userRepository.save(user);

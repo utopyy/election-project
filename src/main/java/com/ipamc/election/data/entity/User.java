@@ -22,12 +22,13 @@ import com.sun.istack.NotNull;
 
 
 @Entity
-@Table(name="Utilisateurs")
+@Table(name="utilisateurs", schema ="dbo")
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;	
+	private Long id;
+	
 	@NotNull
     private String username;
 	@NotNull

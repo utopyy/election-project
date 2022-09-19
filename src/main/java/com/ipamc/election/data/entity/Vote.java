@@ -28,7 +28,7 @@ import org.hibernate.annotations.NaturalIdCache;
 import com.sun.istack.NotNull;
 
 @Entity
-@Table(name="Votes")
+@Table(name="votes", schema ="dbo")
 @NaturalIdCache
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Vote {

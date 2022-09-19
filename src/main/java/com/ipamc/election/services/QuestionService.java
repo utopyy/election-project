@@ -105,6 +105,8 @@ public class QuestionService {
 	
 	public Question getLastResults() {
 		Question quest = questRepository.findFirstByOrderByDateVotesDesc();
+		if(quest == null)
+			return null;
 		if(quest.getDateVotes() == null)
 			return null;
 		return quest;
