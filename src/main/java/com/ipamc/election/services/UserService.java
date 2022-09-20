@@ -99,7 +99,7 @@ public class UserService implements IUserService {
 		user.setPassword(encoder.encode(signupRequest.getPassword()));
 		user.setEmail(signupRequest.getEmail());
 		
-		//sendRegisterMail(user);
+		sendRegisterMail(user);
 		return userRepository.save(user);
 	}
 

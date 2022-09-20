@@ -1,9 +1,13 @@
 package com.ipamc.election.views.components;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ipamc.election.data.entity.User;
 import com.ipamc.election.error.UserAlreadyExistException;
 import com.ipamc.election.payload.request.SignupRequest;
 import com.ipamc.election.repository.UserRepository;
+import com.ipamc.election.security.jwt.AuthTokenFilter;
 import com.ipamc.election.services.UserService;
 import com.ipamc.election.validators.EmailValidator;
 import com.vaadin.flow.component.UI;
@@ -36,6 +40,9 @@ public class RegisterFormBinding {
     * Method to add the data binding and validation logics
     * to the registration form
     */
+   
+   private static final Logger logger = LoggerFactory.getLogger(RegisterFormBinding.class);
+   
    public void addBindingAndValidation() {
        BeanValidationBinder<User> binder = new BeanValidationBinder<>(User.class);
        binder.bindInstanceFields(registrationForm);
@@ -54,10 +61,10 @@ public class RegisterFormBinding {
     	   return !userService.emailExist(e.toString());
        }, "Cette adresse mail est déjà prise.", ErrorLevel.ERROR)
        .bind(User::getEmail, User::setEmail);
-       
        // A custom validator for username
        binder.forField(registrationForm.getUsernameField()).withValidator(e -> {
     	   registrationForm.getUsernameField().removeClassName("error");
+    	   logger.error("yoyoyoyoy");
     	   return !userService.usernameExist(e.toString());
        }, "Ce nom de compte est déjà pris.", ErrorLevel.ERROR)
        .bind(User::getUsername, User::setUsername);
