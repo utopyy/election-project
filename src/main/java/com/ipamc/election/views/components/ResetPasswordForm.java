@@ -80,7 +80,7 @@ public class ResetPasswordForm extends FormLayout {
 	    		   if(user.isActive()) {
 	    			   
 	    				   String token = RandomString.make(30);
-	    				   String resetPasswordLink = "http://localhost:8090/reset_password?token="+token;
+	    				   String resetPasswordLink = "https://ras-election.herokuapp.com/reset_password?token="+token;
 	    				   userService.updateResetPasswordToken(token, email.getValue());
 	    				   userService.sendResetMail(email.getValue(), resetPasswordLink);
 	    			   
