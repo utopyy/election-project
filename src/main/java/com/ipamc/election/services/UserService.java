@@ -31,6 +31,8 @@ import com.ipamc.election.validators.EmailValidator;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 
+import ch.qos.logback.classic.Logger;
+
 @Service
 @Transactional 
 public class UserService implements IUserService {
@@ -96,21 +98,7 @@ public class UserService implements IUserService {
 		user.setUsername(signupRequest.getUsername());
 		user.setPassword(encoder.encode(signupRequest.getPassword()));
 		user.setEmail(signupRequest.getEmail());
-		Set<Role> roles = new HashSet<>();
-		if(roleRepository.findByName(EnumRole.ROLE_USER) == null) {
-			Role role = new Role(EnumRole.ROLE_USER);
-			Role role2 = new Role(EnumRole.ROLE_ADMIN);
-			Role role3 = new Role(EnumRole.ROLE_SUPER_ADMIN);
-			roleRepository.save(role);
-			roleRepository.save(role2);
-			roleRepository.save(role3);
-		}
-		if(userRepository.count() != 0) {
-			roles.add(roleRepository.findByName(EnumRole.ROLE_USER));
-		}else {
-			roles.add(roleRepository.findByName(EnumRole.ROLE_SUPER_ADMIN));
-		}
-		user.setRoles(roles); 
+
 		sendRegisterMail(user);
 		return userRepository.save(user);
 	}
