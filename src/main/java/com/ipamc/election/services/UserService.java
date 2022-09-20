@@ -28,6 +28,7 @@ import com.ipamc.election.repository.RoleRepository;
 import com.ipamc.election.repository.UserRepository;
 import com.ipamc.election.repository.VoteRepository;
 import com.ipamc.election.validators.EmailValidator;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 
@@ -160,6 +161,8 @@ public class UserService implements IUserService {
 
 
 	public void activate(String activationCode) throws Exception {
+		Notification notif = new Notification();
+		notif.show("trop couuueuette");
 		User user = userRepository.getByActivationCode(activationCode);
 		if(user != null) {
 			user.setActive(true);

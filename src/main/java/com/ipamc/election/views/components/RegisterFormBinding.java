@@ -64,7 +64,6 @@ public class RegisterFormBinding {
        // A custom validator for username
        binder.forField(registrationForm.getUsernameField()).withValidator(e -> {
     	   registrationForm.getUsernameField().removeClassName("error");
-    	   logger.error("yoyoyoyoy");
     	   return !userService.usernameExist(e.toString());
        }, "Ce nom de compte est déjà pris.", ErrorLevel.ERROR)
        .bind(User::getUsername, User::setUsername);
