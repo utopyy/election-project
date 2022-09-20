@@ -261,7 +261,8 @@
     "lit": "$lit",
     "@vaadin/lit-renderer": "$@vaadin/lit-renderer",
     "chokidar": "$chokidar",
-    "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip"
+    "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip",
+    "line-awesome": "$line-awesome"
   },
   "vaadin": {
     "dependencies": {

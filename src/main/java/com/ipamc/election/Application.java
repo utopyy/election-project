@@ -27,15 +27,11 @@ public class Application extends SpringBootServletInitializer implements AppShel
     @Override
     public void serviceInit(ServiceInitEvent serviceInitEvent) {
         serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> {
-            LoadingIndicatorConfiguration conf = uiInitEvent.getUI().getLoadingIndicatorConfiguration();
+        	LoadingIndicatorConfiguration conf = uiInitEvent.getUI().getLoadingIndicatorConfiguration();
 
             // disable default theme -> loading indicator will not be shown
             conf.setApplyDefaultTheme(false);
-            conf.setFirstDelay(300);
-            conf.setSecondDelay(1500); // 1500ms is the default
-
-            /* Delay for setting the 'third' class name */
-            conf.setThirdDelay(5000); // 5000ms is the default
+            
         });
     }
 
