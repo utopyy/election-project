@@ -137,7 +137,7 @@ public class UserService implements IUserService {
 
 	public void sendRegisterMail(User user) {
 		String txt = "Bonjour "+user.getUsername()+"!\nVoici le lien pour activer votre compte sur Election: ";
-		String code = "http://localhost:8090/activate?code="+ user.getActivationCode();
+		String code = "https://ras-election.herokuapp.com/activate?code="+ user.getActivationCode();
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(user.getEmail());
 		message.setFrom("noreply@example.com");
