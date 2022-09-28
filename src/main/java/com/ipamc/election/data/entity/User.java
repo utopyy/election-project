@@ -40,9 +40,9 @@ public class User {
     private Boolean certified;
     @ManyToMany(fetch = FetchType.EAGER,
     	      cascade = CascadeType.MERGE)
-    @JoinTable(	name = "Users_roles", 
-			joinColumns = @JoinColumn(name = "idUtilisateur"), 
-			inverseJoinColumns = @JoinColumn(name = "idRole"))
+    @JoinTable(	name = "users_roles", 
+			joinColumns = @JoinColumn(name = "idutilisateur"), 
+			inverseJoinColumns = @JoinColumn(name = "idrole"))
     private Set<Role> roles = new HashSet<>();
     @OneToMany(mappedBy="user", fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<Jure> jures = new HashSet<>();
