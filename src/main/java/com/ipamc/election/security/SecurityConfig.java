@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Restrict access to our application.
 
         .and().authorizeRequests()
-        
+        .antMatchers("/login").permitAll()
         .antMatchers("/registration").permitAll()
         .antMatchers("/activate*").permitAll()
         .antMatchers("/reset_password*").permitAll()
